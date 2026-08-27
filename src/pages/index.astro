@@ -1,0 +1,609 @@
+---
+import { Image } from 'astro:assets';
+import BaseLayout from '../layouts/BaseLayout.astro';
+import Icon from '../components/Icon.astro';
+import {
+  company,
+  stats,
+  products,
+  certifications,
+  divisions,
+  processSteps,
+  siteImages,
+} from '../data/site';
+---
+
+<BaseLayout title="Home">
+  <!-- ============ HERO ============ -->
+  <section class="hero">
+    <Image src={siteImages.hero} alt="" class="hero-bg" loading="eager" width={1600} />
+    <div class="hero-overlay" aria-hidden="true"></div>
+    <div class="container hero-inner">
+      <p class="hero-eyebrow">Premium Seafood Exporters</p>
+      <h1>Excellence in Seafood,<br />Delivered Worldwide</h1>
+      <p class="hero-sub">
+        {company.name} sources, processes and ships premium ocean catch with
+        uncompromising cold-chain integrity — trusted by importers in over 25
+        markets across four continents.
+      </p>
+      <div class="hero-actions">
+        <a href="/products/" class="btn btn--primary">Explore Our Products</a>
+        <a href="/contact/" class="btn btn--ghost">Get in Touch</a>
+      </div>
+    </div>
+    <svg class="hero-wave" viewBox="0 0 1440 90" preserveAspectRatio="none" aria-hidden="true">
+      <path
+        fill="#ffffff"
+        d="M0,50 C240,90 480,10 720,40 C960,70 1200,20 1440,55 L1440,90 L0,90 Z"
+      ></path>
+    </svg>
+  </section>
+
+  <!-- ============ SOURCING FEATURE ============ -->
+  <section class="section">
+    <div class="container feature-grid">
+      <div class="feature-art">
+        <Image
+          src={siteImages.feature}
+          alt="Fishing fleet docked at the harbor beside the seafood distribution facility"
+          class="feature-photo"
+          width={900}
+        />
+        <div class="feature-art-badge">
+          <Icon name="shield" size={26} />
+          <span>Quality First</span>
+        </div>
+      </div>
+      <div class="feature-text">
+        <span class="eyebrow">Freshness You Can Trust</span>
+        <h2>Harvested From Pristine Waters</h2>
+        <p>
+          Our catch comes from the nutrient-rich waters of the Arabian Sea and
+          Indian Ocean, landed daily by an established network of trusted
+          fishing fleets. Within hours of landing, every consignment enters our
+          temperature-controlled chain — so the freshness of the ocean reaches
+          your market intact.
+        </p>
+        <p>
+          From sashimi-grade tuna to retail-ready frozen packs, we match every
+          harvest to the exacting specifications of our partners worldwide.
+        </p>
+        <a href="/about/" class="btn btn--primary">About Our Company</a>
+      </div>
+    </div>
+  </section>
+
+  <!-- ============ STATS ============ -->
+  <section class="section section--navy stats-section">
+    <div class="container">
+      <div class="section-head">
+        <span class="eyebrow">{company.name} at a Glance</span>
+        <h2>A Decade of Steady Growth</h2>
+      </div>
+      <div class="stats-grid">
+        {
+          stats.map((s) => (
+            <div class="stat-card">
+              <span class="stat-icon">
+                <Icon name={s.icon} size={34} />
+              </span>
+              <strong>{s.value}</strong>
+              <span class="stat-label">{s.label}</span>
+            </div>
+          ))
+        }
+      </div>
+    </div>
+  </section>
+
+  <!-- ============ PRODUCTS ============ -->
+  <section class="section section--tint">
+    <div class="container">
+      <div class="section-head">
+        <span class="eyebrow">Our Products</span>
+        <h2>Signature Catch From Our Waters</h2>
+        <p>
+          A consistent, traceable supply of the region's most sought-after
+          species — available whole, processed or value-added to your
+          specification.
+        </p>
+      </div>
+      <div class="product-grid">
+        {
+          products.map((p) => (
+            <article class="card product-card">
+              <div class="product-visual">
+                <Image src={p.image} alt={p.name} class="product-img" width={640} loading="lazy" />
+              </div>
+              <div class="product-body">
+                <h3>{p.name}</h3>
+                <p class="scientific">{p.scientific}</p>
+                <p class="forms">{p.forms}</p>
+              </div>
+            </article>
+          ))
+        }
+      </div>
+      <div class="center-cta">
+        <a href="/products/" class="btn btn--primary">View Full Catalogue</a>
+      </div>
+    </div>
+  </section>
+
+  <!-- ============ CERTIFICATIONS ============ -->
+  <section class="section">
+    <div class="container">
+      <div class="section-head">
+        <span class="eyebrow">Certified Quality</span>
+        <h2>International Standards, Independently Verified</h2>
+      </div>
+      <div class="cert-grid">
+        {
+          certifications.map((c) => (
+            <div class="cert-badge" title={c.label}>
+              <span class="cert-ring">
+                <Icon name="shield" size={22} />
+              </span>
+              <strong>{c.code}</strong>
+              <small>{c.label}</small>
+            </div>
+          ))
+        }
+      </div>
+    </div>
+  </section>
+
+  <!-- ============ DIVISIONS ============ -->
+  <section class="section section--tint">
+    <div class="container">
+      <div class="section-head">
+        <span class="eyebrow">What We Do</span>
+        <h2>Three Integrated Divisions</h2>
+      </div>
+      <div class="division-grid">
+        {
+          divisions.map((d) => (
+            <article class="card division-card">
+              <span class="division-icon">
+                <Icon name={d.icon} size={36} />
+              </span>
+              <h3>{d.title}</h3>
+              <p>{d.text}</p>
+            </article>
+          ))
+        }
+      </div>
+    </div>
+  </section>
+
+  <!-- ============ PROCESS ============ -->
+  <section class="section">
+    <div class="container">
+      <div class="section-head">
+        <span class="eyebrow">From Catch to Consumer</span>
+        <h2>Our Journey of Quality</h2>
+      </div>
+      <ol class="process-grid">
+        {
+          processSteps.map((s) => (
+            <li class="process-step">
+              <span class="process-num">{s.step}</span>
+              <h3>{s.title}</h3>
+              <p>{s.text}</p>
+            </li>
+          ))
+        }
+      </ol>
+    </div>
+  </section>
+
+  <!-- ============ CTA BAND ============ -->
+  <section class="cta-band">
+    <div class="container cta-inner">
+      <h2>Ready to Source Premium Seafood?</h2>
+      <p>Tell us your specification — species, grade, packing and port — and our export team will respond within one business day.</p>
+      <a href="/contact/" class="btn btn--primary">Request a Quote</a>
+    </div>
+  </section>
+</BaseLayout>
+
+<style>
+  /* ---- Hero ---- */
+  .hero {
+    position: relative;
+    background: var(--navy-900);
+    color: var(--white);
+    padding: 7rem 0 8rem;
+    overflow: hidden;
+  }
+
+  .hero :global(.hero-bg) {
+    position: absolute;
+    inset: 0;
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+  }
+
+  .hero-overlay {
+    position: absolute;
+    inset: 0;
+    background:
+      radial-gradient(ellipse at 20% 120%, rgba(26, 127, 196, 0.45), transparent 55%),
+      linear-gradient(160deg, rgba(6, 38, 62, 0.92) 0%, rgba(10, 51, 84, 0.82) 55%, rgba(14, 68, 112, 0.72) 100%);
+  }
+
+  .hero-inner {
+    position: relative;
+    max-width: 780px;
+    text-align: center;
+  }
+
+  .hero-eyebrow {
+    display: inline-block;
+    padding: 0.35rem 1rem;
+    border: 1px solid rgba(255, 255, 255, 0.35);
+    border-radius: 999px;
+    font-size: 0.8rem;
+    letter-spacing: 0.16em;
+    text-transform: uppercase;
+    color: var(--aqua-300);
+    margin-bottom: 1.4rem;
+  }
+
+  .hero h1 {
+    font-size: clamp(2.2rem, 5.5vw, 3.6rem);
+    line-height: 1.15;
+    margin-bottom: 1.2rem;
+  }
+
+  .hero-sub {
+    font-size: 1.08rem;
+    color: var(--aqua-100);
+    max-width: 620px;
+    margin: 0 auto 2.2rem;
+  }
+
+  .hero-actions {
+    display: flex;
+    gap: 1rem;
+    justify-content: center;
+    flex-wrap: wrap;
+  }
+
+  .hero-wave {
+    position: absolute;
+    bottom: -1px;
+    left: 0;
+    width: 100%;
+    height: 90px;
+  }
+
+  /* ---- Sourcing feature ---- */
+  .feature-grid {
+    display: grid;
+    grid-template-columns: 1fr 1.2fr;
+    gap: 3.5rem;
+    align-items: center;
+  }
+
+  .feature-art {
+    position: relative;
+  }
+
+  .feature-art :global(.feature-photo) {
+    width: 100%;
+    height: 380px;
+    object-fit: cover;
+    border-radius: var(--radius);
+    box-shadow: var(--shadow-md);
+  }
+
+  .feature-art-badge {
+    position: absolute;
+    bottom: 18px;
+    right: 8%;
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    background: var(--white);
+    color: var(--navy-800);
+    font-weight: 700;
+    font-size: 0.9rem;
+    padding: 0.65rem 1.1rem;
+    border-radius: 999px;
+    box-shadow: var(--shadow-md);
+  }
+
+  .feature-art-badge :global(svg) {
+    color: var(--gold-500);
+  }
+
+  .feature-text .eyebrow {
+    display: inline-block;
+    font-size: 0.8rem;
+    font-weight: 700;
+    letter-spacing: 0.18em;
+    text-transform: uppercase;
+    color: var(--blue-500);
+    margin-bottom: 0.6rem;
+  }
+
+  .feature-text h2 {
+    font-size: clamp(1.6rem, 3vw, 2.2rem);
+    color: var(--navy-900);
+    margin-bottom: 1rem;
+  }
+
+  .feature-text p {
+    color: var(--text-600);
+    margin-bottom: 1rem;
+  }
+
+  .feature-text .btn {
+    margin-top: 0.6rem;
+  }
+
+  /* ---- Stats ---- */
+  .stats-grid {
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    gap: 1.5rem;
+  }
+
+  .stat-card {
+    text-align: center;
+    padding: 2rem 1rem;
+    border-radius: var(--radius);
+    background: rgba(255, 255, 255, 0.07);
+    border: 1px solid rgba(255, 255, 255, 0.14);
+  }
+
+  .stat-icon {
+    display: inline-grid;
+    place-items: center;
+    width: 64px;
+    height: 64px;
+    border-radius: 50%;
+    background: rgba(124, 195, 232, 0.18);
+    color: var(--aqua-300);
+    margin-bottom: 0.9rem;
+  }
+
+  .stat-card strong {
+    display: block;
+    font-size: 2.2rem;
+    color: var(--white);
+    line-height: 1.2;
+  }
+
+  .stat-label {
+    font-size: 0.9rem;
+    color: var(--aqua-300);
+  }
+
+  /* ---- Products ---- */
+  .product-grid {
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    gap: 1.5rem;
+  }
+
+  .product-card {
+    overflow: hidden;
+  }
+
+  .product-visual {
+    height: 150px;
+    background: linear-gradient(150deg, var(--aqua-100), #cfe8f7);
+  }
+
+  .product-visual :global(.product-img) {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+  }
+
+  .product-body {
+    padding: 1.1rem 1.2rem 1.3rem;
+  }
+
+  .product-body h3 {
+    font-size: 1.05rem;
+    color: var(--navy-900);
+  }
+
+  .scientific {
+    font-style: italic;
+    font-size: 0.82rem;
+    color: var(--text-400);
+    margin-bottom: 0.5rem;
+  }
+
+  .forms {
+    font-size: 0.85rem;
+    font-weight: 600;
+    color: var(--blue-600);
+  }
+
+  .center-cta {
+    text-align: center;
+    margin-top: 2.5rem;
+  }
+
+  /* ---- Certifications ---- */
+  .cert-grid {
+    display: grid;
+    grid-template-columns: repeat(6, 1fr);
+    gap: 1.25rem;
+  }
+
+  .cert-badge {
+    text-align: center;
+    padding: 1.4rem 0.8rem;
+    border: 1.5px solid var(--aqua-100);
+    border-radius: var(--radius);
+    transition: border-color 0.15s ease, transform 0.15s ease;
+  }
+
+  .cert-badge:hover {
+    border-color: var(--blue-400);
+    transform: translateY(-3px);
+  }
+
+  .cert-ring {
+    display: inline-grid;
+    place-items: center;
+    width: 46px;
+    height: 46px;
+    border-radius: 50%;
+    background: var(--aqua-100);
+    color: var(--blue-600);
+    margin-bottom: 0.6rem;
+  }
+
+  .cert-badge strong {
+    display: block;
+    font-size: 0.95rem;
+    color: var(--navy-900);
+  }
+
+  .cert-badge small {
+    font-size: 0.72rem;
+    color: var(--text-400);
+    line-height: 1.4;
+    display: block;
+    margin-top: 0.25rem;
+  }
+
+  /* ---- Divisions ---- */
+  .division-grid {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 1.5rem;
+  }
+
+  .division-card {
+    padding: 2rem 1.6rem;
+  }
+
+  .division-icon {
+    display: inline-grid;
+    place-items: center;
+    width: 64px;
+    height: 64px;
+    border-radius: 16px;
+    background: linear-gradient(150deg, var(--blue-500), var(--navy-800));
+    color: var(--white);
+    margin-bottom: 1.1rem;
+  }
+
+  .division-card h3 {
+    color: var(--navy-900);
+    margin-bottom: 0.6rem;
+  }
+
+  .division-card p {
+    font-size: 0.93rem;
+    color: var(--text-600);
+  }
+
+  /* ---- Process ---- */
+  .process-grid {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 1.5rem;
+    list-style: none;
+    counter-reset: step;
+  }
+
+  .process-step {
+    position: relative;
+    padding: 1.8rem 1.5rem 1.5rem;
+    border-radius: var(--radius);
+    background: var(--sand-50);
+    border: 1.5px solid var(--aqua-100);
+  }
+
+  .process-num {
+    position: absolute;
+    top: -16px;
+    left: 1.4rem;
+    display: inline-grid;
+    place-items: center;
+    min-width: 42px;
+    height: 32px;
+    padding: 0 0.5rem;
+    border-radius: 999px;
+    background: var(--blue-500);
+    color: var(--white);
+    font-weight: 700;
+    font-size: 0.9rem;
+  }
+
+  .process-step h3 {
+    font-size: 1.02rem;
+    color: var(--navy-900);
+    margin: 0.4rem 0 0.4rem;
+  }
+
+  .process-step p {
+    font-size: 0.9rem;
+    color: var(--text-600);
+  }
+
+  /* ---- CTA band ---- */
+  .cta-band {
+    background: linear-gradient(120deg, var(--blue-600), var(--navy-800));
+    color: var(--white);
+    padding: 3.5rem 0;
+  }
+
+  .cta-inner {
+    text-align: center;
+    max-width: 640px;
+  }
+
+  .cta-inner h2 {
+    font-size: clamp(1.5rem, 3vw, 2.1rem);
+    margin-bottom: 0.8rem;
+  }
+
+  .cta-inner p {
+    color: var(--aqua-100);
+    margin-bottom: 1.6rem;
+  }
+
+  /* ---- Responsive ---- */
+  @media (max-width: 980px) {
+    .product-grid,
+    .stats-grid {
+      grid-template-columns: repeat(2, 1fr);
+    }
+
+    .cert-grid {
+      grid-template-columns: repeat(3, 1fr);
+    }
+
+    .division-grid,
+    .process-grid {
+      grid-template-columns: 1fr 1fr;
+    }
+  }
+
+  @media (max-width: 680px) {
+    .feature-grid {
+      grid-template-columns: 1fr;
+      gap: 2rem;
+    }
+
+    .division-grid,
+    .process-grid {
+      grid-template-columns: 1fr;
+    }
+
+    .cert-grid {
+      grid-template-columns: repeat(2, 1fr);
+    }
+  }
+</style>

@@ -1,0 +1,90 @@
+[
+  {
+    "file": "site/hero.jpg",
+    "usedFor": "Homepage hero background",
+    "title": "Amoudi Bay, Santorini",
+    "creator": "trishhartmann",
+    "license": "CC BY 2.0",
+    "source": "https://www.flickr.com/photos/21078769@N00/8442447118"
+  },
+  {
+    "file": "site/feature.jpg",
+    "usedFor": "Homepage sourcing section",
+    "title": "Squid Boats in the Harbor",
+    "creator": "lamoix",
+    "license": "CC BY 2.0",
+    "source": "https://www.flickr.com/photos/38102502@N07/4150075906"
+  },
+  {
+    "file": "site/about.jpg",
+    "usedFor": "About page story section",
+    "title": "Fresh Fish Stall",
+    "creator": "garryknight",
+    "license": "CC BY 2.0",
+    "source": "https://www.flickr.com/photos/8176740@N05/8551311415"
+  },
+  {
+    "file": "products/yellowfin-tuna.jpg",
+    "usedFor": "Yellowfin Tuna product photo",
+    "title": "yellowfin",
+    "creator": "tarotastic",
+    "license": "CC BY 2.0",
+    "source": "https://www.flickr.com/photos/30674396@N00/2342398904"
+  },
+  {
+    "file": "products/kingfish.jpg",
+    "usedFor": "Kingfish product photo",
+    "title": "Narrow-barred Mackerel plate, Queensland State Archives",
+    "creator": "Queensland State Archives",
+    "license": "Public Domain",
+    "source": "https://www.flickr.com/photos/60455048@N02/37906460882"
+  },
+  {
+    "file": "products/indian-mackerel.jpg",
+    "usedFor": "Indian Mackerel product photo",
+    "title": "Long-jawed mackerel (Rastrelliger kanagurta)",
+    "creator": "krokodiver",
+    "license": "CC BY 2.0",
+    "source": "https://www.flickr.com/photos/125265709@N08/47830308071"
+  },
+  {
+    "file": "products/ribbon-fish.jpg",
+    "usedFor": "Ribbon Fish product photo",
+    "title": "Largehead hairtail (ribbon fish)",
+    "creator": "Leonardo Biz Villar",
+    "license": "CC0",
+    "source": "https://www.inaturalist.org/photos/340525540"
+  },
+  {
+    "file": "products/sardine.jpg",
+    "usedFor": "Oil Sardine product photo",
+    "title": "to catch a mackerel",
+    "creator": "jenny downing",
+    "license": "CC BY 2.0",
+    "source": "https://www.flickr.com/photos/7941044@N06/10883280024"
+  },
+  {
+    "file": "products/cuttlefish.jpg",
+    "usedFor": "Cuttlefish product photo",
+    "title": "Sepia officinalis - Cuttlefish",
+    "creator": "jayhem",
+    "license": "CC BY 2.0",
+    "source": "https://www.flickr.com/photos/54452028@N00/7797409412"
+  },
+  {
+    "file": "products/squid.jpg",
+    "usedFor": "Loligo Squid product photo",
+    "title": "Uroteuthis duvaucelii",
+    "creator": "Karim Haddad",
+    "license": "CC BY 4.0",
+    "source": "https://www.inaturalist.org/photos/122342264"
+  },
+  {
+    "file": "products/shrimp.jpg",
+    "usedFor": "Vannamei Shrimp product photo",
+    "title": "Litopenaeus vannamei specimen",
+    "creator": "Herman Gunawan, Bangka, Indonesia",
+    "license": "CC BY-SA 3.0",
+    "source": "https://commons.wikimedia.org/wiki/File:Litopenaeus_vannamei_specimen.jpg"
+  }
+]

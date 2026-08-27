@@ -1,0 +1,241 @@
+---
+import { Image } from 'astro:assets';
+import BaseLayout from '../layouts/BaseLayout.astro';
+import Icon from '../components/Icon.astro';
+import { products, certifications } from '../data/site';
+
+const packing = [
+  { title: 'IQF (Individually Quick Frozen)', text: 'Individually frozen pieces for easy portioning — ideal for retail bags and food service.' },
+  { title: 'Block Frozen', text: 'Compact frozen blocks for industrial buyers and reprocessors, packed to weight specification.' },
+  { title: 'Vacuum / Retail Packs', text: 'Skin-pack and vacuum options with private-label printing for supermarket shelves.' },
+  { title: 'Bulk / Bin Loading', text: 'High-volume loading for fish meal, bait and industrial-grade consignments.' },
+];
+---
+
+<BaseLayout title="Our Products" description="Explore our full range of frozen and fresh-chilled seafood available for export.">
+  <section class="page-hero">
+    <div class="container">
+      <h1>Our Products</h1>
+      <p>
+        Premium species from the Arabian Sea and Indian Ocean — graded,
+        processed and packed to your specification.
+      </p>
+    </div>
+  </section>
+
+  <section class="section">
+    <div class="container">
+      <div class="section-head">
+        <span class="eyebrow">Catalogue</span>
+        <h2>Available Species</h2>
+        <p>
+          All species are available year-round subject to season and quota.
+          Custom grading, glazing and packing available on request.
+        </p>
+      </div>
+      <div class="product-grid">
+        {
+          products.map((p) => (
+            <article class="card product-card">
+              <div class="product-visual">
+                <Image src={p.image} alt={p.name} class="product-img" width={640} loading="lazy" />
+              </div>
+              <div class="product-body">
+                <h3>{p.name}</h3>
+                <p class="scientific">{p.scientific}</p>
+                <span class="forms-chip">{p.forms}</span>
+              </div>
+            </article>
+          ))
+        }
+      </div>
+    </div>
+  </section>
+
+  <section class="section section--tint">
+    <div class="container">
+      <div class="section-head">
+        <span class="eyebrow">Packing Options</span>
+        <h2>Packed the Way Your Market Needs</h2>
+      </div>
+      <div class="packing-grid">
+        {
+          packing.map((k) => (
+            <article class="card packing-card">
+              <span class="packing-icon">
+                <Icon name="box" size={26} />
+              </span>
+              <h3>{k.title}</h3>
+              <p>{k.text}</p>
+            </article>
+          ))
+        }
+      </div>
+    </div>
+  </section>
+
+  <section class="section">
+    <div class="container">
+      <div class="section-head">
+        <span class="eyebrow">Assurance</span>
+        <h2>Every Shipment, Fully Certified</h2>
+      </div>
+      <ul class="cert-list">
+        {
+          certifications.map((c) => (
+            <li>
+              <Icon name="shield" size={20} />
+              <div>
+                <strong>{c.code}</strong>
+                <span>{c.label}</span>
+              </div>
+            </li>
+          ))
+        }
+      </ul>
+      <div class="center-cta">
+        <a href="/contact/" class="btn btn--primary">Request Product Specifications</a>
+      </div>
+    </div>
+  </section>
+</BaseLayout>
+
+<style>
+  .product-grid {
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    gap: 1.5rem;
+  }
+
+  .product-card {
+    overflow: hidden;
+  }
+
+  .product-visual {
+    height: 160px;
+    background: linear-gradient(150deg, var(--aqua-100), #cfe8f7);
+  }
+
+  .product-visual :global(.product-img) {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+  }
+
+  .product-body {
+    padding: 1.1rem 1.2rem 1.3rem;
+  }
+
+  .product-body h3 {
+    font-size: 1.05rem;
+    color: var(--navy-900);
+  }
+
+  .scientific {
+    font-style: italic;
+    font-size: 0.82rem;
+    color: var(--text-400);
+    margin-bottom: 0.7rem;
+  }
+
+  .forms-chip {
+    display: inline-block;
+    font-size: 0.78rem;
+    font-weight: 700;
+    color: var(--blue-600);
+    background: var(--aqua-100);
+    padding: 0.3rem 0.7rem;
+    border-radius: 999px;
+  }
+
+  .packing-grid {
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    gap: 1.5rem;
+  }
+
+  .packing-card {
+    padding: 1.7rem 1.4rem;
+  }
+
+  .packing-icon {
+    display: inline-grid;
+    place-items: center;
+    width: 50px;
+    height: 50px;
+    border-radius: 12px;
+    background: linear-gradient(150deg, var(--blue-500), var(--navy-800));
+    color: var(--white);
+    margin-bottom: 0.9rem;
+  }
+
+  .packing-card h3 {
+    font-size: 0.98rem;
+    color: var(--navy-900);
+    margin-bottom: 0.45rem;
+  }
+
+  .packing-card p {
+    font-size: 0.87rem;
+    color: var(--text-600);
+  }
+
+  .cert-list {
+    list-style: none;
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 1rem;
+    max-width: 900px;
+    margin: 0 auto;
+  }
+
+  .cert-list li {
+    display: flex;
+    align-items: flex-start;
+    gap: 0.7rem;
+    padding: 1rem 1.2rem;
+    border: 1.5px solid var(--aqua-100);
+    border-radius: var(--radius);
+  }
+
+  .cert-list :global(svg) {
+    color: var(--blue-500);
+    flex-shrink: 0;
+    margin-top: 2px;
+  }
+
+  .cert-list strong {
+    display: block;
+    color: var(--navy-900);
+    font-size: 0.95rem;
+  }
+
+  .cert-list span {
+    font-size: 0.8rem;
+    color: var(--text-400);
+  }
+
+  .center-cta {
+    text-align: center;
+    margin-top: 2.5rem;
+  }
+
+  @media (max-width: 980px) {
+    .product-grid,
+    .packing-grid {
+      grid-template-columns: repeat(2, 1fr);
+    }
+
+    .cert-list {
+      grid-template-columns: repeat(2, 1fr);
+    }
+  }
+
+  @media (max-width: 560px) {
+    .product-grid,
+    .packing-grid,
+    .cert-list {
+      grid-template-columns: 1fr;
+    }
+  }
+</style>
