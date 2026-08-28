@@ -1,0 +1,151 @@
+---
+/**
+ * Reveal.astro — the `o_rv` scroll-reveal grammar, ported to Astro so this
+ * front end moves the same way as the Odoo theme and the React storefront.
+ *
+ * Two ways to use it, and the second one matters:
+ *
+ *   1. As a wrapper, when the block needs no page-specific styling:
+ *        <Reveal in="left" delay={120}>…</Reveal>
+ *        <Reveal stagger={90}>…</Reveal>        // children reveal in sequence
+ *
+ *   2. As attributes on an element you already style, because a class passed
+ *      into a component does NOT carry the parent page's scoped styles:
+ *        <div class="stats__band" data-rv data-rv-stagger="110">…</div>
+ *
+ *      Same engine, same CSS. Reach for this whenever the revealed element is
+ *      also a layout container (grid, flex) styled in the page's <style>.
+ *
+ * Attributes:  data-rv="up|left|right|zoom|fade"  data-rv-delay="ms"
+ *              data-rv-stagger="ms"               data-rv-repeat (replay on re-entry)
+ */
+
+type Variant = 'up' | 'left' | 'right' | 'zoom' | 'fade';
+
+interface Props {
+  in?: Variant;
+  delay?: number;
+  stagger?: number;
+  /** false = re-hide and replay each time it scrolls back into view */
+  once?: boolean;
+  class?: string;
+  as?: keyof HTMLElementTagNameMap;
+}
+
+const {
+  in: variant = 'up',
+  delay = 0,
+  stagger = 0,
+  once = true,
+  class: cls,
+  as: Tag = 'div',
+} = Astro.props;
+---
+
+<Tag
+  class:list={['o_rv', cls]}
+  data-rv={variant}
+  data-rv-delay={delay || undefined}
+  data-rv-stagger={stagger || undefined}
+  data-rv-repeat={once ? undefined : ''}
+>
+  <slot />
+</Tag>
+
+<style is:global>
+  :root {
+    --o-rv-shift: 26px;
+    --o-rv-dur: 720ms;
+    --o-rv-ease: cubic-bezier(0.22, 1, 0.36, 1);
+  }
+
+  /* Hidden only once the observer is live, so a no-JS visitor keeps the page. */
+  html.o_rv_ready [data-rv]:not([data-rv-stagger]):not(.o_rv_in),
+  html.o_rv_ready [data-rv][data-rv-stagger] > *:not(.o_rv_in) {
+    opacity: 0;
+    will-change: opacity, transform;
+  }
+
+  html.o_rv_ready [data-rv='up']:not(.o_rv_in),
+  html.o_rv_ready [data-rv='up'][data-rv-stagger] > *:not(.o_rv_in),
+  html.o_rv_ready [data-rv='']:not(.o_rv_in),
+  html.o_rv_ready [data-rv=''][data-rv-stagger] > *:not(.o_rv_in) {
+    transform: translate3d(0, var(--o-rv-shift), 0);
+  }
+  html.o_rv_ready [data-rv='left']:not(.o_rv_in),
+  html.o_rv_ready [data-rv='left'][data-rv-stagger] > *:not(.o_rv_in) {
+    transform: translate3d(calc(var(--o-rv-shift) * -1.6), 0, 0);
+  }
+  html.o_rv_ready [data-rv='right']:not(.o_rv_in),
+  html.o_rv_ready [data-rv='right'][data-rv-stagger] > *:not(.o_rv_in) {
+    transform: translate3d(calc(var(--o-rv-shift) * 1.6), 0, 0);
+  }
+  html.o_rv_ready [data-rv='zoom']:not(.o_rv_in),
+  html.o_rv_ready [data-rv='zoom'][data-rv-stagger] > *:not(.o_rv_in) {
+    transform: scale(0.94);
+  }
+
+  html.o_rv_ready [data-rv].o_rv_in,
+  html.o_rv_ready [data-rv][data-rv-stagger] > .o_rv_in {
+    opacity: 1;
+    transform: none;
+    transition:
+      opacity var(--o-rv-dur) var(--o-rv-ease),
+      transform var(--o-rv-dur) var(--o-rv-ease);
+  }
+
+</style>
+
+<script>
+  let observer: IntersectionObserver | null = null;
+
+  const show = (el: HTMLElement, delay: number) => {
+    el.style.transitionDelay = delay > 0 ? `${delay}ms` : '';
+    el.classList.add('o_rv_in');
+  };
+
+  const hide = (el: HTMLElement) => {
+    el.style.transitionDelay = '';
+    el.classList.remove('o_rv_in');
+  };
+
+  function enter(el: HTMLElement) {
+    const base = Number(el.dataset.rvDelay ?? 0);
+    const step = Number(el.dataset.rvStagger ?? 0);
+    if (step > 0) {
+      Array.from(el.children).forEach((child, i) => show(child as HTMLElement, base + i * step));
+    }
+    show(el, step > 0 ? 0 : base);
+  }
+
+  function leave(el: HTMLElement) {
+    if (Number(el.dataset.rvStagger ?? 0) > 0) {
+      Array.from(el.children).forEach((child) => hide(child as HTMLElement));
+    }
+    hide(el);
+  }
+
+  function seed() {
+    document.documentElement.classList.add('o_rv_ready');
+    observer?.disconnect();
+
+    observer = new IntersectionObserver(
+      (entries) => {
+        for (const entry of entries) {
+          const el = entry.target as HTMLElement;
+          if (entry.isIntersecting) {
+            enter(el);
+            if (!el.hasAttribute('data-rv-repeat')) observer?.unobserve(el);
+          } else if (el.hasAttribute('data-rv-repeat')) {
+            leave(el);
+          }
+        }
+      },
+      { rootMargin: '0px 0px -10% 0px', threshold: 0.08 },
+    );
+
+    for (const el of document.querySelectorAll<HTMLElement>('[data-rv]')) observer.observe(el);
+  }
+
+  document.addEventListener('astro:page-load', seed);
+</script>

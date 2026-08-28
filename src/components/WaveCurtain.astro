@@ -1,0 +1,188 @@
+---
+/**
+ * WaveCurtain.astro — the ocean sweep that plays between pages.
+ *
+ * Rendered once in BaseLayout and kept alive across navigations with
+ * `transition:persist`, so the very same DOM node keeps animating while
+ * Astro swaps the document underneath it.
+ *
+ * Motion is choreographed from Astro's router lifecycle:
+ *   astro:before-preparation → the wave rises while the next page is fetched
+ *   astro:after-swap         → the wave sweeps up and off, content surfaces
+ */
+
+const PERIOD = 500;
+const VIEW_W = 2000;
+const VIEW_H = 120;
+
+/** A tileable swell. Drawn one period wider on each side so the drift
+ *  animation (translateX -25% = exactly one period) never exposes an edge. */
+function swell(baseline: number, amplitude: number) {
+  const h = amplitude * 2; // quadratic peaks at half the control offset
+  let d = `M ${-PERIOD},${baseline}`;
+  for (let i = 0; i < 6; i++) {
+    d += ` q ${PERIOD / 4},${-h} ${PERIOD / 2},0 q ${PERIOD / 4},${h} ${PERIOD / 2},0`;
+  }
+  return `${d} L ${PERIOD * 5},${VIEW_H} L ${-PERIOD},${VIEW_H} Z`;
+}
+
+const swells = [
+  { cls: 'back', d: swell(40, 22), fill: '#1a5bd7', opacity: 0.38 },
+  { cls: 'mid', d: swell(56, 28), fill: '#123a9c', opacity: 0.7 },
+  { cls: 'front', d: swell(72, 34), fill: '#0a2258', opacity: 1 },
+];
+---
+
+<div id="gst-wave" class="gst-wave" aria-hidden="true" transition:persist="gst-wave">
+  <svg
+    class="gst-wave__crest gst-wave__crest--lead"
+    viewBox={`0 0 ${VIEW_W} ${VIEW_H}`}
+    preserveAspectRatio="none"
+    focusable="false"
+  >
+    {
+      swells.map((s) => (
+        <path class={`gst-wave__swell gst-wave__swell--${s.cls}`} d={s.d} fill={s.fill} opacity={s.opacity} />
+      ))
+    }
+  </svg>
+
+  <div class="gst-wave__mark">
+    <svg viewBox="0 0 64 64" focusable="false">
+      <circle cx="32" cy="32" r="31" fill="none" stroke="rgba(169,205,229,.55)" stroke-width="1.5"></circle>
+      <path
+        d="M13 36c5-6.5 9-6.5 14 0s9 6.5 14 0 7-5 10 0"
+        fill="none"
+        stroke="#ffffff"
+        stroke-width="4.5"
+        stroke-linecap="round"></path>
+    </svg>
+    <span>Global Seas Trust</span>
+  </div>
+
+  <svg
+    class="gst-wave__crest gst-wave__crest--trail"
+    viewBox={`0 0 ${VIEW_W} ${VIEW_H}`}
+    preserveAspectRatio="none"
+    focusable="false"
+  >
+    {
+      swells.map((s) => (
+        <path class={`gst-wave__swell gst-wave__swell--${s.cls}`} d={s.d} fill={s.fill} opacity={s.opacity} />
+      ))
+    }
+  </svg>
+</div>
+
+<script>
+  // ---------------------------------------------------------------------
+  // Choreography. Registered once — this module is shared by every page,
+  // so the ClientRouter does not re-execute it after a swap.
+  // ---------------------------------------------------------------------
+
+  /** Read a duration token from CSS so transitions.css stays authoritative. */
+  function token(name: string, fallback: number): number {
+    const raw = getComputedStyle(document.documentElement).getPropertyValue(name).trim();
+    if (raw.endsWith('ms')) return parseFloat(raw);
+    if (raw.endsWith('s')) return parseFloat(raw) * 1000;
+    return fallback;
+  }
+
+  const EASE = 'cubic-bezier(0.76, 0, 0.24, 1)';
+
+  const curtain = () => document.getElementById('gst-wave');
+
+  /** 'idle' → 'rising' → 'covering' → 'leaving' → 'idle' */
+  let phase: 'idle' | 'rising' | 'covering' | 'leaving' = 'idle';
+  let running: Animation | null = null;
+  let rising: Promise<void> | null = null;
+  let safety = 0;
+
+  /** Distance the panel must travel to hide its crests completely. */
+  function clearance(el: HTMLElement) {
+    return el.getBoundingClientRect().height + 180;
+  }
+
+  function play(el: HTMLElement, from: number, to: number, duration: number) {
+    running?.cancel();
+    running = el.animate(
+      [{ transform: `translate3d(0, ${from}px, 0)` }, { transform: `translate3d(0, ${to}px, 0)` }],
+      { duration, easing: EASE, fill: 'forwards' },
+    );
+    return running.finished.catch(() => {});
+  }
+
+  /** Bottom of the screen → fully covered. Re-entrant: a second click while
+   *  the wave is already up rides the same rise instead of restarting it. */
+  function rise(): Promise<void> {
+    const el = curtain();
+    if (!el) return Promise.resolve();
+    if (phase === 'rising') return rising ?? Promise.resolve();
+    if (phase === 'covering') return Promise.resolve();
+
+    phase = 'rising';
+    const d = clearance(el);
+    el.classList.add('is-running');
+    // Let the browser paint the start frame before the mark fades in.
+    requestAnimationFrame(() => el.classList.add('is-covering'));
+
+    rising = play(el, d, 0, token('--gst-wave-rise', 560)).then(() => {
+      if (phase === 'rising') phase = 'covering';
+    });
+    return rising;
+  }
+
+  /** Fully covered → swept off the top. */
+  async function fall() {
+    const el = curtain();
+    if (!el || phase === 'leaving' || phase === 'idle') return;
+
+    phase = 'leaving';
+    el.classList.remove('is-covering');
+    await play(el, 0, -clearance(el), token('--gst-wave-exit', 640));
+    running?.cancel();
+    running = null;
+    el.classList.remove('is-running');
+    el.style.transform = '';
+    phase = 'idle';
+  }
+
+  /** Replay the surface-in animation on the freshly swapped content. */
+  function surface() {
+    for (const sel of ['.gst-main', '.gst-header']) {
+      const node = document.querySelector(sel);
+      if (!node) continue;
+      node.classList.remove('is-entering');
+      void (node as HTMLElement).offsetWidth; // restart the CSS animation
+      node.classList.add('is-entering');
+      node.addEventListener('animationend', () => node.classList.remove('is-entering'), { once: true });
+    }
+  }
+
+  // 1. Raise the curtain while the next document is being fetched. Running
+  //    both concurrently means network latency hides inside the animation.
+  document.addEventListener('astro:before-preparation', (event) => {
+    const e = event as typeof event & { loader: () => Promise<void> };
+    const load = e.loader;
+    e.loader = async () => {
+      await Promise.all([rise(), load()]);
+    };
+  });
+
+  // 2. The DOM has been swapped behind the wave — hold a beat, then sweep off.
+  document.addEventListener('astro:after-swap', () => {
+    surface();
+    if (phase === 'idle') return;
+    window.clearTimeout(safety);
+    window.setTimeout(fall, token('--gst-wave-hold', 110));
+  });
+
+  // 3. Safety net: if a navigation is aborted or a load fails, never leave
+  //    the visitor staring at a blue rectangle.
+  document.addEventListener('astro:page-load', () => {
+    window.clearTimeout(safety);
+    safety = window.setTimeout(() => {
+      if (phase !== 'idle') fall();
+    }, 2500);
+  });
+</script>

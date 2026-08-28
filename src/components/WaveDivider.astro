@@ -1,0 +1,158 @@
+---
+/**
+ * WaveDivider.astro — the flowing water edge under a hero.
+ *
+ * Three layered swells drift at different speeds and directions and bob
+ * vertically out of phase, so the edge reads as moving water rather than a
+ * shape sliding sideways. Pure CSS transforms (compositor-only); a small
+ * observer pauses the animation while the divider is off screen.
+ *
+ * Site adaptation: the prefers-reduced-motion opt-out was removed — the
+ * owner's decision is that animations always run (see transitions.css note).
+ */
+
+interface Props {
+  /** Colour of the section BELOW the wave. */
+  fill?: string;
+  height?: number;
+  flip?: boolean;
+  /** Seconds for the front swell to travel one wavelength. Higher = calmer. */
+  speed?: number;
+  animate?: boolean;
+  class?: string;
+}
+
+const { fill = '#ffffff', height = 110, flip = false, speed = 13, animate = true, class: cls } = Astro.props;
+
+const PERIOD = 480; // one wavelength in SVG user units
+const VIEW_W = 1920; // 4 wavelengths across
+const VIEW_H = 100;
+
+/** A tileable swell, drawn one wavelength wider on each side so a shift of
+ *  exactly one period loops seamlessly with no edge ever exposed. */
+function swell(baseline: number, amplitude: number) {
+  const h = amplitude * 2; // a quadratic peaks at half its control offset
+  let d = `M ${-PERIOD},${baseline}`;
+  for (let i = 0; i < 6; i++) {
+    d += ` q ${PERIOD / 4},${-h} ${PERIOD / 2},0 q ${PERIOD / 4},${h} ${PERIOD / 2},0`;
+  }
+  // bottom sits well past the viewBox so the vertical bob can never open a gap
+  return `${d} L ${PERIOD * 5},${VIEW_H + 80} L ${-PERIOD},${VIEW_H + 80} Z`;
+}
+
+const layers = [
+  { name: 'back', d: swell(40, 15), opacity: 0.3, dur: speed * 2.1, bob: speed * 0.85, dir: 'normal' },
+  { name: 'mid', d: swell(54, 19), opacity: 0.55, dur: speed * 1.45, bob: speed * 0.62, dir: 'reverse' },
+  { name: 'front', d: swell(68, 23), opacity: 1, dur: speed, bob: speed * 0.48, dir: 'normal' },
+];
+---
+
+<div
+  class:list={['wv', cls]}
+  style={`--h:${height}px; --period:${PERIOD}`}
+  data-flip={flip ? '' : undefined}
+  data-still={animate ? undefined : ''}
+  aria-hidden="true"
+>
+  <svg viewBox={`0 0 ${VIEW_W} ${VIEW_H}`} preserveAspectRatio="none" focusable="false">
+    {
+      layers.map((l) => (
+        <g class="wv__lane" style={`--bob:${l.bob}s; --bob-delay:-${l.bob / 3}s`}>
+          <path
+            class="wv__swell"
+            style={`--dur:${l.dur}s; --dir:${l.dir}`}
+            d={l.d}
+            fill={fill}
+            opacity={l.opacity}
+          />
+        </g>
+      ))
+    }
+  </svg>
+</div>
+
+<style>
+  .wv {
+    position: relative;
+    line-height: 0;
+    pointer-events: none;
+  }
+
+  .wv svg {
+    display: block;
+    width: 100%;
+    /* a global `svg { max-width: 100% }` would otherwise clip the crest */
+    max-width: none;
+    height: var(--h);
+    overflow: hidden;
+  }
+
+  .wv[data-flip] svg {
+    transform: scaleY(-1);
+  }
+
+  /* horizontal drift — exactly one wavelength, in user units, so it loops
+     seamlessly. A percentage would resolve against the path's bounding box
+     and tear the wave open at the right-hand edge. */
+  .wv__swell {
+    animation: wvDrift var(--dur) linear infinite;
+    animation-direction: var(--dir);
+    will-change: transform;
+  }
+
+  /* vertical swell, out of phase with the drift so the two never sync up */
+  .wv__lane {
+    animation: wvBob var(--bob) ease-in-out infinite alternate;
+    animation-delay: var(--bob-delay);
+    will-change: transform;
+  }
+
+  @keyframes wvDrift {
+    from {
+      transform: translateX(0);
+    }
+    to {
+      transform: translateX(calc(var(--period) * -1px));
+    }
+  }
+
+  @keyframes wvBob {
+    from {
+      transform: translateY(-5px);
+    }
+    to {
+      transform: translateY(5px);
+    }
+  }
+
+  /* off screen, or explicitly opted out — stop burning frames */
+  .wv.is-paused .wv__swell,
+  .wv.is-paused .wv__lane {
+    animation-play-state: paused;
+  }
+
+  .wv[data-still] .wv__swell,
+  .wv[data-still] .wv__lane {
+    animation: none;
+  }
+</style>
+
+<script>
+  // Default is running, so the water still flows if this never executes.
+  let io: IntersectionObserver | null = null;
+
+  function seed() {
+    const dividers = document.querySelectorAll('.wv');
+    if (!dividers.length) return;
+    io?.disconnect();
+    io = new IntersectionObserver(
+      (entries) => {
+        for (const e of entries) e.target.classList.toggle('is-paused', !e.isIntersecting);
+      },
+      { rootMargin: '120px' },
+    );
+    for (const d of dividers) io.observe(d);
+  }
+
+  document.addEventListener('astro:page-load', seed);
+</script>
