@@ -1,7 +1,8 @@
 ---
-import { Image } from 'astro:assets';
+import { getImage } from 'astro:assets';
 import BaseLayout from '../layouts/BaseLayout.astro';
 import PageHero from '../components/PageHero.astro';
+import ProductCatalogue from '../components/ProductCatalogue.astro';
 import Icon from '../components/Icon.astro';
 import bannerProducts from '../assets/site/banner-products.jpg';
 import { certifications } from '../data/site';
@@ -13,6 +14,22 @@ const packing = [
   { title: 'Vacuum / Retail Packs', text: 'Skin-pack and vacuum options with private-label printing for supermarket shelves.' },
   { title: 'Bulk / Bin Loading', text: 'High-volume loading for fish meal, bait and industrial-grade consignments.' },
 ];
+
+// Map the photo-first catalogue into the animated-filter component's shape.
+// Images are pre-optimized here so the plain <img> cards still ship WebP.
+const pcCategories = categories.map((c) => ({ id: c.id, label: c.label, note: c.blurb }));
+
+const pcItems = await Promise.all(
+  categories.flatMap((c) =>
+    c.items.map(async (it) => ({
+      name: it.name,
+      latin: it.scientific,
+      format: it.forms,
+      cat: c.id,
+      image: it.image ? (await getImage({ src: it.image, width: 640, format: 'webp' })).src : undefined,
+    }))
+  )
+);
 ---
 
 <BaseLayout title="Our Products" description="Explore our full catalogue — fish, crustaceans, cephalopods, value-added and dried seafood for export.">
@@ -23,71 +40,8 @@ const packing = [
     </p>
   </PageHero>
 
-  <!-- ============ CATALOGUE (tabbed categories) ============ -->
-  <section class="section">
-    <div class="container">
-      <div class="section-head" data-rv>
-        <span class="eyebrow">Catalogue</span>
-        <h2>Browse by Category</h2>
-        <p>
-          All species are available year-round subject to season and quota.
-          Custom grading, glazing and packing available on request.
-        </p>
-      </div>
-
-      <div class="tab-bar" role="tablist" aria-label="Product categories">
-        {
-          categories.map((cat, i) => (
-            <button
-              type="button"
-              role="tab"
-              id={`tab-${cat.id}`}
-              class:list={['tab-btn', { 'is-active': i === 0 }]}
-              data-tab={cat.id}
-              aria-selected={i === 0 ? 'true' : 'false'}
-              aria-controls={`panel-${cat.id}`}
-            >
-              {cat.label}
-            </button>
-          ))
-        }
-      </div>
-
-      {
-        categories.map((cat, i) => (
-          <div
-            class:list={['tab-panel', { 'is-active': i === 0 }]}
-            id={`panel-${cat.id}`}
-            role="tabpanel"
-            aria-labelledby={`tab-${cat.id}`}
-            hidden={i !== 0}
-          >
-            <p class="cat-blurb">{cat.blurb}</p>
-            <div class="product-grid" data-rv data-rv-stagger="70">
-              {cat.items.map((p) => (
-                <article class="card product-card">
-                  <div class="product-visual">
-                    {p.image ? (
-                      <Image src={p.image} alt={p.name} class="product-img" width={640} loading="lazy" />
-                    ) : (
-                      <span class="product-icon">
-                        <Icon name={p.icon} size={46} />
-                      </span>
-                    )}
-                  </div>
-                  <div class="product-body">
-                    <h3>{p.name}</h3>
-                    {p.scientific && <p class="scientific">{p.scientific}</p>}
-                    <span class="forms-chip">{p.forms}</span>
-                  </div>
-                </article>
-              ))}
-            </div>
-          </div>
-        ))
-      }
-    </div>
-  </section>
+  <!-- ============ ANIMATED CATALOGUE FILTER ============ -->
+  <ProductCatalogue categories={pcCategories} items={pcItems} />
 
   <!-- ============ PACKING OPTIONS ============ -->
   <section class="section section--tint">
@@ -139,160 +93,7 @@ const packing = [
   </section>
 </BaseLayout>
 
-<script>
-  // Re-wire on every astro:page-load — a hoisted module runs only once, and
-  // after a ClientRouter navigation the swapped-in DOM has no listeners.
-  function initTabs() {
-    const tabButtons = [...document.querySelectorAll<HTMLButtonElement>('.tab-btn')];
-    const panels = [...document.querySelectorAll<HTMLElement>('.tab-panel')];
-    if (!tabButtons.length) return;
-
-    tabButtons.forEach((btn) => {
-      btn.addEventListener('click', () => {
-        const id = btn.dataset.tab;
-        tabButtons.forEach((b) => {
-          const active = b === btn;
-          b.classList.toggle('is-active', active);
-          b.setAttribute('aria-selected', String(active));
-        });
-        panels.forEach((p) => {
-          const active = p.id === `panel-${id}`;
-          p.classList.toggle('is-active', active);
-          p.hidden = !active;
-        });
-      });
-    });
-  }
-
-  document.addEventListener('astro:page-load', initTabs);
-</script>
-
 <style>
-  /* ---- Tabs ---- */
-  .tab-bar {
-    display: flex;
-    gap: 0.5rem;
-    justify-content: flex-start;
-    overflow-x: auto;
-    padding-bottom: 0.5rem;
-    margin-bottom: 1.6rem;
-    -webkit-overflow-scrolling: touch;
-  }
-
-  .tab-btn {
-    flex-shrink: 0;
-    padding: 0.6rem 1.4rem;
-    border-radius: 999px;
-    border: 1.5px solid var(--aqua-100);
-    background: var(--white);
-    color: var(--text-600);
-    font-family: inherit;
-    font-weight: 600;
-    font-size: 0.9rem;
-    cursor: pointer;
-    transition: background 0.15s ease, color 0.15s ease, border-color 0.15s ease;
-  }
-
-  .tab-btn:hover {
-    border-color: var(--blue-400);
-    color: var(--blue-600);
-  }
-
-  .tab-btn.is-active {
-    background: var(--blue-500);
-    border-color: var(--blue-500);
-    color: var(--white);
-  }
-
-  .tab-panel {
-    display: none;
-  }
-
-  .tab-panel.is-active {
-    display: block;
-  }
-
-  .cat-blurb {
-    max-width: 640px;
-    margin: 0 auto 1.8rem;
-    text-align: center;
-    color: var(--text-600);
-    font-size: 0.95rem;
-  }
-
-  @media (min-width: 768px) {
-    .tab-bar {
-      justify-content: center;
-      overflow: visible;
-    }
-  }
-
-  /* ---- Product cards ---- */
-  .product-grid {
-    display: grid;
-    grid-template-columns: repeat(4, 1fr);
-    gap: 1.5rem;
-  }
-
-  .product-card {
-    overflow: hidden;
-  }
-
-  .product-visual {
-    position: relative;
-    height: 170px;
-    overflow: hidden;
-    background: linear-gradient(150deg, var(--aqua-100), #d9e6fb);
-  }
-
-  .product-visual :global(img) {
-    position: absolute;
-    inset: 0;
-    width: 100%;
-    height: 100%;
-    object-fit: cover;
-  }
-
-  .product-icon {
-    position: absolute;
-    top: 50%;
-    left: 50%;
-    transform: translate(-50%, -50%);
-    display: grid;
-    place-items: center;
-    width: 84px;
-    height: 84px;
-    border-radius: 50%;
-    background: rgba(255, 255, 255, 0.65);
-    color: var(--blue-600);
-  }
-
-  .product-body {
-    padding: 1.1rem 1.2rem 1.3rem;
-  }
-
-  .product-body h3 {
-    font-size: 1.05rem;
-    color: var(--navy-900);
-  }
-
-  .scientific {
-    font-style: italic;
-    font-size: 0.82rem;
-    color: var(--text-400);
-    margin-bottom: 0.7rem;
-  }
-
-  .forms-chip {
-    display: inline-block;
-    font-size: 0.78rem;
-    font-weight: 700;
-    color: var(--blue-600);
-    background: var(--aqua-100);
-    padding: 0.3rem 0.7rem;
-    border-radius: 999px;
-  }
-
   /* ---- Packing ---- */
   .packing-grid {
     display: grid;
@@ -369,7 +170,6 @@ const packing = [
 
   /* ---- Responsive ---- */
   @media (max-width: 980px) {
-    .product-grid,
     .packing-grid {
       grid-template-columns: repeat(2, 1fr);
     }
@@ -380,7 +180,6 @@ const packing = [
   }
 
   @media (max-width: 560px) {
-    .product-grid,
     .packing-grid,
     .cert-list {
       grid-template-columns: 1fr;

@@ -1,0 +1,553 @@
+---
+/**
+ * ProductCatalogue.astro — "Browse by Category" with an animated filter.
+ *
+ * Switching a category is a three-part move, not a re-render:
+ *   1. departures fade and shrink out, staggered
+ *   2. the cards that stay FLIP to their new grid positions
+ *   3. arrivals rise in behind them, staggered
+ *
+ * FLIP = measure First, apply the change, measure Last, Invert with a
+ * transform, then Play back to zero — so the survivors slide to their new
+ * slot instead of teleporting when the grid reflows.
+ *
+ * Re-seeds on astro:page-load, so it survives a ClientRouter navigation.
+ *
+ * Site adaptations to the provided component: reduced-motion gates removed
+ * per the site-wide always-animate decision (see transitions.css note), and
+ * the lede tint mapped to the body colour. The page passes the real
+ * photo-first catalogue from src/data/catalogue.ts via props.
+ */
+
+interface Item {
+  name: string;
+  latin?: string;
+  format: string;
+  cat: string;
+  image?: string;
+}
+
+interface Category {
+  id: string;
+  label: string;
+  note: string;
+}
+
+interface Props {
+  eyebrow?: string;
+  title?: string;
+  lede?: string;
+  categories?: Category[];
+  items?: Item[];
+}
+
+const {
+  eyebrow = 'Catalogue',
+  title = 'Browse by Category',
+  lede = 'All species are available year round subject to season and quota. Custom grading, glazing and packing available on request.',
+  categories = [],
+  items = [],
+} = Astro.props;
+
+const first = categories[0]?.id ?? '';
+
+/** Stable hue per item, so the placeholder tint is deterministic across builds. */
+const hue = (s: string) => {
+  let h = 0;
+  for (let i = 0; i < s.length; i++) h = (h * 31 + s.charCodeAt(i)) % 360;
+  return 185 + (h % 45); // keep it in the sea-blue/teal band
+};
+---
+
+<section class="pc">
+  <div class="pc__inner">
+    <p class="pc__eyebrow">{eyebrow}</p>
+    <h2 class="pc__title">{title}</h2>
+    <p class="pc__lede">{lede}</p>
+
+    <div class="pc__chips" role="tablist" aria-label="Product categories">
+      <span class="pc__pill" aria-hidden="true"></span>
+      {
+        categories.map((c, i) => (
+          <button
+            class:list={['pc__chip', { 'is-active': i === 0 }]}
+            type="button"
+            role="tab"
+            data-cat={c.id}
+            data-note={c.note}
+            aria-selected={i === 0 ? 'true' : 'false'}
+          >
+            {c.label}
+          </button>
+        ))
+      }
+    </div>
+
+    {/* data-note-display, NOT data-note — the chips carry data-note payloads,
+        and a bare [data-note] selector would grab the first chip instead. */}
+    <p class="pc__note" data-note-display>{categories[0]?.note}</p>
+
+    <div class="pc__grid" data-grid>
+      {
+        items.map((it, i) => (
+          <article
+            class:list={['pc__card', { 'is-out': it.cat !== first }]}
+            data-cat={it.cat}
+            style={`--i:${i}; --hue:${hue(it.name)}`}
+          >
+            <span class="pc__shot">
+              {it.image ? (
+                <img src={it.image} alt={it.name} loading="lazy" decoding="async" />
+              ) : (
+                <svg viewBox="0 0 40 22" aria-hidden="true" focusable="false">
+                  <g fill="rgba(255,255,255,.34)">
+                    <path d="M8 11 C 14 2, 30 2, 38 11 C 30 20, 14 20, 8 11 Z" />
+                    <path d="M9 11 L 1 3 L 3.4 11 L 1 19 Z" />
+                    <path d="M22 4.4 L 26.5 0 L 27.5 5.6 Z" opacity=".8" />
+                  </g>
+                  <circle cx="32.5" cy="9.2" r="1.5" fill="rgba(6,39,64,.5)" />
+                </svg>
+              )}
+            </span>
+
+            <h3>{it.name}</h3>
+            {it.latin && <em>{it.latin}</em>}
+            <span class="pc__tag">{it.format}</span>
+          </article>
+        ))
+      }
+    </div>
+  </div>
+</section>
+
+<style>
+  .pc {
+    --pc-ink: #0a2258;
+    --pc-body: #46596b;
+    --pc-brand: #1a5bd7;
+    --pc-brand-deep: #1447c0;
+    --pc-soft: #e8f0fd;
+    --pc-line: #e6ecf7;
+    --pc-ease: cubic-bezier(0.22, 1, 0.36, 1);
+
+    padding-block: 76px;
+    background: #fff;
+  }
+
+  .pc__inner {
+    width: 100%;
+    max-width: 1140px;
+    margin-inline: auto;
+    padding-inline: 28px;
+    text-align: center;
+  }
+
+  .pc__eyebrow {
+    margin: 0 0 12px;
+    font-size: 0.6875rem;
+    font-weight: 700;
+    letter-spacing: 0.24em;
+    text-transform: uppercase;
+    color: var(--pc-brand);
+  }
+
+  .pc__title {
+    margin: 0 0 14px;
+    font-size: clamp(1.7rem, 3vw, 2.2rem);
+    font-weight: 800;
+    letter-spacing: -0.025em;
+    color: var(--pc-ink);
+  }
+
+  .pc__lede {
+    max-width: 60ch;
+    margin: 0 auto 30px;
+    font-size: 0.875rem;
+    line-height: 1.7;
+    color: var(--pc-body);
+  }
+
+  /* --------------------------------------------------------------- chips -- */
+
+  .pc__chips {
+    position: relative;
+    display: inline-flex;
+    flex-wrap: wrap;
+    justify-content: center;
+    gap: 10px;
+    padding: 4px;
+  }
+
+  /* one shared pill that slides between the chips */
+  .pc__pill {
+    position: absolute;
+    top: 4px;
+    left: 0;
+    height: calc(100% - 8px);
+    border-radius: 999px;
+    background: var(--pc-brand);
+    box-shadow: 0 8px 18px rgba(26, 91, 215, 0.28);
+    transition:
+      transform 480ms var(--pc-ease),
+      width 480ms var(--pc-ease);
+    pointer-events: none;
+  }
+
+  .pc__chip {
+    position: relative;
+    z-index: 1;
+    appearance: none;
+    font: inherit;
+    font-size: 0.8125rem;
+    font-weight: 600;
+    padding: 9px 20px;
+    border-radius: 999px;
+    border: 1px solid var(--pc-line);
+    background: #fff;
+    color: var(--pc-body);
+    cursor: pointer;
+    -webkit-tap-highlight-color: transparent;
+    transition:
+      color 300ms var(--pc-ease),
+      border-color 300ms var(--pc-ease),
+      background-color 300ms var(--pc-ease);
+  }
+
+  .pc__chip:hover {
+    border-color: #b9d0f5;
+    color: var(--pc-brand);
+  }
+
+  .pc__chip.is-active {
+    color: #fff;
+    border-color: transparent;
+    background: transparent; /* the sliding pill shows through */
+  }
+
+  .pc__chip:focus-visible {
+    outline: 3px solid rgba(26, 91, 215, 0.35);
+    outline-offset: 3px;
+  }
+
+  .pc__note {
+    max-width: 58ch;
+    margin: 22px auto 34px;
+    font-size: 0.8125rem;
+    line-height: 1.7;
+    color: var(--pc-brand);
+  }
+
+  .pc__note.is-swapping {
+    animation: pcNote 420ms var(--pc-ease);
+  }
+
+  @keyframes pcNote {
+    0% {
+      opacity: 0;
+      transform: translateY(6px);
+    }
+    100% {
+      opacity: 1;
+      transform: none;
+    }
+  }
+
+  /* ---------------------------------------------------------------- grid -- */
+
+  .pc__grid {
+    display: grid;
+    grid-template-columns: repeat(4, minmax(0, 1fr));
+    gap: 22px;
+    text-align: left;
+  }
+
+  .pc__card {
+    background: #fff;
+    border: 1px solid var(--pc-line);
+    border-radius: 10px;
+    overflow: hidden;
+    padding-bottom: 14px;
+    box-shadow: 0 1px 2px rgba(10, 34, 88, 0.03);
+    transition:
+      box-shadow 380ms var(--pc-ease),
+      border-color 380ms var(--pc-ease);
+  }
+
+  .pc__card.is-out {
+    display: none;
+  }
+
+  .pc__card:hover {
+    border-color: #cbdcf8;
+    box-shadow: 0 16px 34px rgba(10, 34, 88, 0.11);
+  }
+
+  .pc__shot {
+    display: block;
+    aspect-ratio: 4 / 2.6;
+    overflow: hidden;
+    background: linear-gradient(150deg, hsl(var(--hue) 62% 34%), hsl(calc(var(--hue) + 16) 70% 22%));
+    display: grid;
+    place-items: center;
+  }
+
+  .pc__shot img,
+  .pc__shot svg {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    transition: transform 700ms var(--pc-ease);
+  }
+
+  .pc__shot svg {
+    width: 46%;
+    height: auto;
+  }
+
+  .pc__card:hover .pc__shot img,
+  .pc__card:hover .pc__shot svg {
+    transform: scale(1.07);
+  }
+
+  .pc__card h3 {
+    margin: 14px 14px 3px;
+    font-size: 0.875rem;
+    font-weight: 700;
+    color: var(--pc-brand-deep);
+    transition: color 260ms var(--pc-ease);
+  }
+
+  .pc__card:hover h3 {
+    color: var(--pc-brand);
+  }
+
+  .pc__card em {
+    display: block;
+    margin: 0 14px 10px;
+    font-size: 0.6875rem;
+    font-style: italic;
+    color: #93a2b6;
+  }
+
+  .pc__tag {
+    display: inline-block;
+    margin-inline: 14px;
+    padding: 5px 11px;
+    border-radius: 6px;
+    background: var(--pc-soft);
+    color: var(--pc-brand-deep);
+    font-size: 0.6875rem;
+    font-weight: 700;
+    transition:
+      background-color 260ms var(--pc-ease),
+      color 260ms var(--pc-ease);
+  }
+
+  .pc__card:hover .pc__tag {
+    background: var(--pc-brand);
+    color: #fff;
+  }
+
+  /* --------------------------------------------------- first entrance --
+     Only a gate. The reveal itself runs through the same WAAPI keyframes as
+     an arriving card, so the two can never fight over a card's opacity. */
+  :global(html.pc-ready) .pc:not(.is-in) .pc__card {
+    opacity: 0;
+  }
+
+  /* ---------------------------------------------------------- responsive */
+
+  @media (max-width: 980px) {
+    .pc__grid {
+      grid-template-columns: repeat(3, minmax(0, 1fr));
+    }
+  }
+
+  @media (max-width: 720px) {
+    .pc__grid {
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+    }
+  }
+
+  @media (max-width: 420px) {
+    .pc__grid {
+      grid-template-columns: minmax(0, 1fr);
+    }
+  }
+</style>
+
+<script>
+  const OUT = 170; // departures
+  const OUT_STEP = 14;
+  const MOVE = 400; // the FLIP slide
+  const IN = 460; // arrivals
+  const IN_STEP = 28;
+
+  const EASE = 'cubic-bezier(0.22, 1, 0.36, 1)';
+  const ARRIVE: Keyframe[] = [
+    { opacity: 0, transform: 'translateY(24px) scale(0.96)' },
+    { opacity: 1, transform: 'none' },
+  ];
+
+  let io: IntersectionObserver | null = null;
+  let onResize: (() => void) | null = null;
+
+  function movePill(section: HTMLElement, chip: HTMLElement) {
+    const pill = section.querySelector<HTMLElement>('.pc__pill');
+    const row = chip.parentElement;
+    if (!pill || !row) return;
+    const c = chip.getBoundingClientRect();
+    const r = row.getBoundingClientRect();
+    pill.style.width = `${c.width}px`;
+    pill.style.transform = `translateX(${c.left - r.left}px)`;
+  }
+
+  /** Pending commit per section, so a second click supersedes the first. */
+  const timers = new WeakMap<HTMLElement, number>();
+
+  function filter(section: HTMLElement, cat: string) {
+    const grid = section.querySelector<HTMLElement>('[data-grid]');
+    if (!grid) return;
+
+    const cards = Array.from(grid.querySelectorAll<HTMLElement>('.pc__card'));
+    const shown = cards.filter((c) => !c.classList.contains('is-out'));
+    const next = cards.filter((c) => c.dataset.cat === cat);
+
+    const leaving = shown.filter((c) => !next.includes(c));
+    const staying = shown.filter((c) => next.includes(c));
+    if (!leaving.length && next.every((c) => shown.includes(c))) return;
+
+    // Cancel a commit that has not fired yet — otherwise it would reveal the
+    // previous category behind this one and leave both on screen.
+    const pending = timers.get(section);
+    if (pending !== undefined) window.clearTimeout(pending);
+
+    const commit = () => {
+      timers.delete(section);
+
+      const live = cards.filter((c) => !c.classList.contains('is-out'));
+      const survivors = staying.filter((c) => live.includes(c));
+      const arrivals = next.filter((c) => !live.includes(c));
+
+      // FIRST — where the survivors are before the grid reflows
+      const first = new Map(survivors.map((c) => [c, c.getBoundingClientRect()]));
+
+      // `cat` is the single source of truth here, so an interrupted run can
+      // never leave a stale card visible.
+      for (const c of cards) {
+        c.getAnimations().forEach((a) => a.cancel());
+        c.classList.toggle('is-out', c.dataset.cat !== cat);
+      }
+
+      // LAST → INVERT → PLAY
+      for (const c of survivors) {
+        const a = first.get(c);
+        if (!a) continue;
+        const b = c.getBoundingClientRect();
+        const dx = a.left - b.left;
+        const dy = a.top - b.top;
+        if (Math.abs(dx) < 1 && Math.abs(dy) < 1) continue;
+        c.animate([{ transform: `translate(${dx}px, ${dy}px)` }, { transform: 'none' }], {
+          duration: MOVE,
+          easing: EASE,
+        });
+      }
+
+      arrivals.forEach((c, i) => {
+        c.animate(ARRIVE, { duration: IN, delay: i * IN_STEP, easing: EASE, fill: 'backwards' });
+      });
+    };
+
+    if (!leaving.length) {
+      commit();
+      return;
+    }
+
+    leaving.forEach((c, i) => {
+      c.animate(
+        [
+          { opacity: 1, transform: 'none' },
+          { opacity: 0, transform: 'scale(0.9) translateY(10px)' },
+        ],
+        { duration: OUT, delay: i * OUT_STEP, easing: 'ease-in', fill: 'forwards' },
+      );
+    });
+
+    timers.set(section, window.setTimeout(commit, OUT + (leaving.length - 1) * OUT_STEP));
+  }
+
+  function wire(section: HTMLElement) {
+    const chips = Array.from(section.querySelectorAll<HTMLElement>('.pc__chip'));
+    const note = section.querySelector<HTMLElement>('[data-note-display]');
+    if (!chips.length) return;
+
+    const select = (chip: HTMLElement) => {
+      if (chip.classList.contains('is-active')) return;
+      for (const c of chips) {
+        const on = c === chip;
+        c.classList.toggle('is-active', on);
+        c.setAttribute('aria-selected', String(on));
+      }
+      movePill(section, chip);
+
+      if (note && chip.dataset.note) {
+        note.textContent = chip.dataset.note;
+        note.classList.remove('is-swapping');
+        void note.offsetWidth; // restart the crossfade
+        note.classList.add('is-swapping');
+      }
+
+      filter(section, chip.dataset.cat ?? '');
+    };
+
+    for (const chip of chips) chip.addEventListener('click', () => select(chip));
+
+    // the pill is measured, so it has to be re-measured when the row rewraps
+    const active = chips.find((c) => c.classList.contains('is-active')) ?? chips[0];
+    requestAnimationFrame(() => movePill(section, active));
+
+    if (onResize) window.removeEventListener('resize', onResize);
+    onResize = () => {
+      const current = section.querySelector<HTMLElement>('.pc__chip.is-active');
+      if (current) movePill(section, current);
+    };
+    window.addEventListener('resize', onResize);
+  }
+
+  /** First paint: same arrival keyframes, staggered by grid order. */
+  function reveal(section: HTMLElement) {
+    const cards = Array.from(section.querySelectorAll<HTMLElement>('.pc__card:not(.is-out)'));
+    section.classList.add('is-in');
+    cards.forEach((c, i) => {
+      c.animate(ARRIVE, { duration: IN, delay: i * IN_STEP, easing: EASE, fill: 'backwards' });
+    });
+  }
+
+  function seed() {
+    const sections = document.querySelectorAll<HTMLElement>('.pc');
+    if (!sections.length) return;
+
+    document.documentElement.classList.add('pc-ready');
+    io?.disconnect();
+
+    for (const s of sections) {
+      s.classList.remove('is-in');
+      wire(s);
+    }
+
+    io = new IntersectionObserver(
+      (entries) => {
+        for (const e of entries) {
+          if (!e.isIntersecting) continue;
+          reveal(e.target as HTMLElement);
+          io?.unobserve(e.target);
+        }
+      },
+      { threshold: 0.1 },
+    );
+
+    for (const s of sections) io.observe(s);
+  }
+
+  document.addEventListener('astro:page-load', seed);
+</script>

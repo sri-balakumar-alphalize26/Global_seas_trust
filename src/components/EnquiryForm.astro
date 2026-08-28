@@ -63,7 +63,10 @@ const fields = [
                   {/* intl-tel-input attaches here: country dropdown + per-country
                       digit rules. Kept outside a <label> — the dropdown misbehaves
                       inside one (label clicks re-focus the input and close it). */}
-                  <input type="tel" name="phone" data-iti aria-labelledby="eq-phone-label" autocomplete="tel" />
+                  {/* display-only: no name, so its national digits never post.
+                      The hidden field below carries the full +E.164 number. */}
+                  <input type="tel" data-iti aria-labelledby="eq-phone-label" autocomplete="tel" />
+                  <input type="hidden" name="phone" data-phone-e164 />
                   <em class="eq__err" data-phone-err hidden>
                     Enter a valid phone number for the selected country
                   </em>
@@ -95,6 +98,22 @@ const fields = [
 
         <p class="eq__done" data-done hidden>Thanks — your enquiry is with the trade desk. We reply within one working day.</p>
       </form>
+
+      <!-- shown when Send is tapped with an invalid phone number -->
+      <dialog class="eq__alert" aria-labelledby="eq-alert-title">
+        <div class="eq__alert-box">
+          <span class="eq__alert-icon" aria-hidden="true">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+              <path d="M10.3 3.8 2.8 17a2 2 0 0 0 1.7 3h15a2 2 0 0 0 1.7-3L13.7 3.8a2 2 0 0 0-3.4 0Z"></path>
+              <path d="M12 9v4.5"></path>
+              <circle cx="12" cy="16.8" r="0.6" fill="currentColor"></circle>
+            </svg>
+          </span>
+          <h3 id="eq-alert-title">Invalid phone number</h3>
+          <p>Please enter a valid phone number for the selected country.</p>
+          <button type="button" class="eq__alert-ok" data-alert-ok>OK</button>
+        </div>
+      </dialog>
     </div>
 
     <!-- ------------------------------------------------------------- map -->
@@ -252,9 +271,9 @@ const fields = [
     background: var(--eq-soft);
   }
 
+  /* keep the library's own padding — it clears the built-in search icon */
   .eq__field--phone :global(.iti__search-input) {
     font: inherit;
-    padding: 10px 12px;
   }
 
   .eq__err {
@@ -267,6 +286,95 @@ const fields = [
   .eq__field.is-invalid input {
     border-color: #b23b32;
     box-shadow: 0 0 0 4px rgba(178, 59, 50, 0.12);
+  }
+
+  /* ---- invalid-phone popup ---- */
+  .eq__alert {
+    /* the global `* { margin: 0 }` reset kills UA dialog centering */
+    position: fixed;
+    inset: 0;
+    margin: auto;
+    height: fit-content;
+    width: min(360px, calc(100vw - 40px));
+    border: 0;
+    padding: 0;
+    background: transparent;
+  }
+
+  .eq__alert::backdrop {
+    background: rgba(6, 20, 52, 0.45);
+    backdrop-filter: blur(2px);
+  }
+
+  .eq__alert-box {
+    background: #fff;
+    border-radius: 14px;
+    padding: 26px 24px 22px;
+    text-align: center;
+    box-shadow: 0 30px 70px rgba(6, 20, 52, 0.3);
+    animation: eqAlertIn 320ms var(--eq-ease) both;
+  }
+
+  @keyframes eqAlertIn {
+    from {
+      opacity: 0;
+      transform: translateY(16px) scale(0.95);
+    }
+    to {
+      opacity: 1;
+      transform: none;
+    }
+  }
+
+  .eq__alert-icon {
+    display: grid;
+    place-items: center;
+    width: 46px;
+    height: 46px;
+    margin: 0 auto 12px;
+    border-radius: 50%;
+    background: #fdeceb;
+    color: #b23b32;
+  }
+
+  .eq__alert-icon svg {
+    width: 22px;
+    height: 22px;
+  }
+
+  .eq__alert-box h3 {
+    margin: 0 0 6px;
+    font-size: 1rem;
+    font-weight: 700;
+    color: var(--eq-ink);
+  }
+
+  .eq__alert-box p {
+    margin: 0 0 16px;
+    font-size: 0.85rem;
+    line-height: 1.6;
+    color: var(--eq-body);
+  }
+
+  .eq__alert-ok {
+    appearance: none;
+    font: inherit;
+    font-weight: 700;
+    font-size: 0.875rem;
+    padding: 9px 30px;
+    border: 0;
+    border-radius: 999px;
+    background: var(--eq-brand);
+    color: #fff;
+    cursor: pointer;
+    transition:
+      background-color 200ms ease,
+      transform 200ms var(--eq-ease);
+  }
+
+  .eq__alert-ok:hover {
+    background: #1650c4;
+    transform: translateY(-1px);
   }
 
   .eq__submit {
@@ -512,7 +620,10 @@ const fields = [
 </style>
 
 <script>
-  import intlTelInput from 'intl-tel-input';
+  // The WithUtils bundle ships libphonenumber's rules inside the main module —
+  // no separate dynamic chunk that can fail to load (which silently disabled
+  // both the strictMode digit cap and validation in dev).
+  import intlTelInput from 'intl-tel-input/intlTelInputWithUtils';
 
   let io: IntersectionObserver | null = null;
 
@@ -533,11 +644,10 @@ const fields = [
       let iti: ReturnType<typeof intlTelInput> | null = null;
       if (phoneInput && !phoneInput.closest('.iti')) {
         iti = intlTelInput(phoneInput, {
-          initialCountry: 'in',
+          initialCountry: 'om',
           separateDialCode: true,
           strictMode: true,
-          countryOrder: ['in', 'om', 'ae', 'sa', 'qa', 'us', 'gb'],
-          loadUtils: () => import('intl-tel-input/utils'),
+          countryOrder: ['om', 'in', 'ae', 'sa', 'qa', 'us', 'gb'],
         });
       } else if (phoneInput) {
         iti = intlTelInput.getInstance(phoneInput);
@@ -546,33 +656,73 @@ const fields = [
       const err = s.querySelector<HTMLElement>('[data-phone-err]');
       const fieldWrap = phoneInput?.closest<HTMLElement>('.eq__field');
 
+      const PADS = ['9', '2', '8', '5', '0'];
+
+      /** Can ANY valid number for this country still start with these digits?
+       *  Probed by padding the typed digits out to full length with a small
+       *  set of fillers and asking libphonenumber about each candidate — so
+       *  "1" under +91 flags instantly (nothing Indian completes from it),
+       *  while "98" stays clean because 98xxx xxxxx can. */
+      const prefixPossible = (nat: string, iso2: string): boolean => {
+        const utils = (intlTelInput as unknown as { utils?: { isValidNumber(n: string, c: string): boolean } }).utils;
+        if (!utils || !nat) return true; // utils still loading — don't flag
+        for (const pad of PADS) {
+          let cand = nat;
+          for (let len = nat.length; len < 16; len++) {
+            cand += pad;
+            if (utils.isValidNumber(cand, iso2)) return true;
+          }
+        }
+        return false;
+      };
+
+      const showError = (bad: boolean) => {
+        if (err) err.hidden = !bad;
+        fieldWrap?.classList.toggle('is-invalid', bad);
+      };
+
+      /** Strict check for blur/submit: complete and valid, or empty. */
       const validatePhone = () => {
         if (!iti || !phoneInput) return true;
-        const empty = phoneInput.value.trim() === '';
-        const ok = empty || iti.isValidNumber() === true;
-        if (err) err.hidden = ok;
-        fieldWrap?.classList.toggle('is-invalid', !ok);
+        const ok = phoneInput.value.trim() === '' || iti.isValidNumber() === true;
+        showError(!ok);
         return ok;
       };
 
+      /** Live check while typing: flag as soon as the prefix is impossible. */
+      const validateLive = () => {
+        if (!iti || !phoneInput) return;
+        const nat = phoneInput.value.replace(/\D/g, '');
+        if (!nat) return showError(false);
+        if (iti.isValidNumber() === true) return showError(false);
+        const iso2 = String(iti.getSelectedCountryData().iso2 ?? '');
+        showError(!prefixPossible(nat, iso2));
+      };
+
       phoneInput?.addEventListener('blur', validatePhone);
-      phoneInput?.addEventListener('input', () => {
-        // clear the error live once the number becomes valid again
-        if (fieldWrap?.classList.contains('is-invalid')) validatePhone();
-      });
-      phoneInput?.addEventListener('countrychange', validatePhone);
+      phoneInput?.addEventListener('input', validateLive);
+      phoneInput?.addEventListener('countrychange', validateLive);
 
       const form = s.querySelector<HTMLFormElement>('.eq__form');
+      const e164 = s.querySelector<HTMLInputElement>('[data-phone-e164]');
+      const alertBox = s.querySelector<HTMLDialogElement>('.eq__alert');
+      alertBox?.querySelector('[data-alert-ok]')?.addEventListener('click', () => alertBox.close());
+      alertBox?.addEventListener('click', (ev) => {
+        if (ev.target === alertBox) alertBox.close();
+      });
+      alertBox?.addEventListener('close', () => phoneInput?.focus());
+
       form?.addEventListener('submit', (e) => {
         // phone rules apply whether or not a backend is wired up
         if (!validatePhone()) {
           e.preventDefault();
-          phoneInput?.focus();
+          alertBox?.showModal();
           return;
         }
-        // hand any backend the full international number (+91XXXXXXXXXX)
-        if (iti && phoneInput && phoneInput.value.trim() !== '') {
-          phoneInput.value = iti.getNumber();
+        // a backend reads the HIDDEN field in full international format —
+        // the visible box keeps only the national digits the visitor typed
+        if (e164) {
+          e164.value = iti && phoneInput && phoneInput.value.trim() !== '' ? iti.getNumber() : '';
         }
 
         // demo-only completion — drop once `action` points at your endpoint
