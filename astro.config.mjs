@@ -17,6 +17,11 @@ const ROUTE_META = {
 // https://astro.build/config
 export default defineConfig({
   site: 'https://www.globalseastrust.com',
+  vite: {
+    // Pre-bundle the phone library up front. Discovered late, Vite re-optimizes
+    // mid-session and serves 504s for the old chunk until the page is reloaded.
+    optimizeDeps: { include: ['intl-tel-input/intlTelInputWithUtils'] },
+  },
   // Hover-prefetch: the next page is usually cached before the wave
   // curtain finishes rising, so the covered hold stays a beat, not a wait.
   prefetch: true,

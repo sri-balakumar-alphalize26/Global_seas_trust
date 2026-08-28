@@ -669,7 +669,39 @@ const fields = [
   // The WithUtils bundle ships libphonenumber's rules inside the main module —
   // no separate dynamic chunk that can fail to load (which silently disabled
   // both the strictMode digit cap and validation in dev).
-  import intlTelInput from 'intl-tel-input/intlTelInputWithUtils';
+  //
+  // Loaded DYNAMICALLY on purpose: a static import makes the whole form script
+  // fail as one unit, so a single bad response for this 300 kB chunk (the dev
+  // server returns 504 "Outdated Optimize Dep" after Vite re-optimizes) used to
+  // take the submit handler and the entrance animation down with it. Now the
+  // form always works and only the country dropdown waits for the module.
+  type ItiModule = typeof import('intl-tel-input/intlTelInputWithUtils');
+  type Iti = ReturnType<ItiModule['default']>;
+
+  let itiModule: ItiModule['default'] | null = null;
+  let itiPending: Promise<ItiModule['default'] | null> | null = null;
+
+  /** Resolve the library once per page load; retry once, then give up quietly. */
+  function loadIti(): Promise<ItiModule['default'] | null> {
+    if (itiModule) return Promise.resolve(itiModule);
+    if (itiPending) return itiPending;
+    const attempt = (): Promise<ItiModule['default'] | null> =>
+      import('intl-tel-input/intlTelInputWithUtils').then((m) => m.default);
+    itiPending = attempt()
+      .catch(() => new Promise((r) => setTimeout(r, 400)).then(attempt))
+      .then((mod) => {
+        itiModule = mod;
+        return mod;
+      })
+      .catch(() => {
+        // Country dropdown unavailable — the phone box stays a plain input and
+        // whatever the visitor types is still submitted.
+        console.warn('[EnquiryForm] intl-tel-input failed to load; phone field left unvalidated');
+        itiPending = null;
+        return null;
+      });
+    return itiPending;
+  }
 
   let io: IntersectionObserver | null = null;
 
@@ -687,17 +719,9 @@ const fields = [
       // strictMode caps typing at the selected country's max length (e.g. 10
       // digits for India +91) and utils validate prefixes (6/7/8/9 for IN).
       const phoneInput = s.querySelector<HTMLInputElement>('input[data-iti]');
-      let iti: ReturnType<typeof intlTelInput> | null = null;
-      if (phoneInput && !phoneInput.closest('.iti')) {
-        iti = intlTelInput(phoneInput, {
-          initialCountry: 'om',
-          separateDialCode: true,
-          strictMode: true,
-          countryOrder: ['om', 'in', 'ae', 'sa', 'qa', 'us', 'gb'],
-        });
-      } else if (phoneInput) {
-        iti = intlTelInput.getInstance(phoneInput);
-      }
+      // Held in an object so the async loader below can fill it in without the
+      // validators capturing a stale `null`.
+      const phone: { iti: Iti | null } = { iti: null };
 
       const err = s.querySelector<HTMLElement>('[data-phone-err]');
       const fieldWrap = phoneInput?.closest<HTMLElement>('.eq__field');
@@ -710,7 +734,8 @@ const fields = [
        *  "1" under +91 flags instantly (nothing Indian completes from it),
        *  while "98" stays clean because 98xxx xxxxx can. */
       const prefixPossible = (nat: string, iso2: string): boolean => {
-        const utils = (intlTelInput as unknown as { utils?: { isValidNumber(n: string, c: string): boolean } }).utils;
+        const utils = (itiModule as unknown as { utils?: { isValidNumber(n: string, c: string): boolean } } | null)
+          ?.utils;
         if (!utils || !nat) return true; // utils still loading — don't flag
         for (const pad of PADS) {
           let cand = nat;
@@ -729,21 +754,38 @@ const fields = [
 
       /** Strict check for blur/submit: complete and valid, or empty. */
       const validatePhone = () => {
-        if (!iti || !phoneInput) return true;
-        const ok = phoneInput.value.trim() === '' || iti.isValidNumber() === true;
+        if (!phone.iti || !phoneInput) return true;
+        const ok = phoneInput.value.trim() === '' || phone.iti.isValidNumber() === true;
         showError(!ok);
         return ok;
       };
 
       /** Live check while typing: flag as soon as the prefix is impossible. */
       const validateLive = () => {
-        if (!iti || !phoneInput) return;
+        if (!phone.iti || !phoneInput) return;
         const nat = phoneInput.value.replace(/\D/g, '');
         if (!nat) return showError(false);
-        if (iti.isValidNumber() === true) return showError(false);
-        const iso2 = String(iti.getSelectedCountryData().iso2 ?? '');
+        if (phone.iti.isValidNumber() === true) return showError(false);
+        const iso2 = String(phone.iti.getSelectedCountryData().iso2 ?? '');
         showError(!prefixPossible(nat, iso2));
       };
+
+      // Attach the country dropdown as soon as the library resolves. Listeners
+      // are wired first so typing before it lands is re-checked afterwards.
+      if (phoneInput) {
+        void loadIti().then((factory) => {
+          if (!factory) return;
+          phone.iti = phoneInput.closest('.iti')
+            ? factory.getInstance(phoneInput)
+            : factory(phoneInput, {
+                initialCountry: 'om',
+                separateDialCode: true,
+                strictMode: true,
+                countryOrder: ['om', 'in', 'ae', 'sa', 'qa', 'us', 'gb'],
+              });
+          if (phoneInput.value.trim() !== '') validateLive();
+        });
+      }
 
       phoneInput?.addEventListener('blur', validatePhone);
       phoneInput?.addEventListener('input', validateLive);
@@ -767,8 +809,11 @@ const fields = [
         }
         // a backend reads the HIDDEN field in full international format —
         // the visible box keeps only the national digits the visitor typed
+        // If the library never loaded, post whatever was typed rather than
+        // silently dropping the visitor's number.
         if (e164) {
-          e164.value = iti && phoneInput && phoneInput.value.trim() !== '' ? iti.getNumber() : '';
+          const typed = phoneInput?.value.trim() ?? '';
+          e164.value = typed === '' ? '' : (phone.iti?.getNumber() ?? typed);
         }
 
         // demo-only completion — drop once `action` points at your endpoint
@@ -778,7 +823,7 @@ const fields = [
           const done = form.querySelector<HTMLElement>('[data-done]');
           if (done) done.hidden = false;
           form.reset();
-          iti?.setNumber('');
+          phone.iti?.setNumber('');
         }
       });
     }
