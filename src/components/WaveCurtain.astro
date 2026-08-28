@@ -95,6 +95,15 @@ const swells = [
   // ---------------------------------------------------------------------
   // Choreography. Registered once — this module is shared by every page,
   // so the ClientRouter does not re-execute it after a swap.
+  //
+  // Robustness rules — the curtain must ALWAYS come down:
+  //   • every animation wait is raced against the clock, so a stalled or
+  //     backgrounded animation can never block the exit
+  //   • fall() resets its state in `finally`, so a thrown error can't
+  //     strand the wave mid-exit
+  //   • a watchdog is armed the moment a navigation STARTS (not only after
+  //     the swap), so an aborted or failed load still clears the screen
+  //   • a new navigation cancels the previous one's pending exit
   // ---------------------------------------------------------------------
 
   /** Read a duration token from CSS so transitions.css stays authoritative. */
@@ -109,19 +118,23 @@ const swells = [
 
   const curtain = () => document.getElementById('gst-wave');
   const boat = () => document.querySelector<HTMLElement>('.gst-wave__boat');
+  const sleep = (ms: number) => new Promise<void>((resolve) => window.setTimeout(resolve, ms));
+
+  type Legs = { rise: number; hold: number; exit: number; x0: number; x1: number; x2: number; x3: number };
 
   /** 'idle' → 'rising' → 'covering' → 'leaving' → 'idle' */
   let phase: 'idle' | 'rising' | 'covering' | 'leaving' = 'idle';
   let running: Animation | null = null;
   let rising: Promise<void> | null = null;
   let voyage: Animation | null = null;
-  let legs: { rise: number; hold: number; exit: number; x0: number; x1: number; x2: number; x3: number } | null = null;
-  let safety = 0;
+  let legs: Legs | null = null;
+  let holdTimer = 0; // scheduled exit after a swap
+  let watchdog = 0; // last-resort exit if the lifecycle never completes
 
   /** Split one left → right crossing across the three curtain phases, with
    *  each leg's distance proportional to its duration — so the boat holds a
    *  constant speed instead of changing gear at the phase boundaries. */
-  function planVoyage() {
+  function planVoyage(): Legs {
     const rise = token('--gst-wave-rise', 560);
     const hold = token('--gst-wave-hold', 1200);
     const exit = token('--gst-wave-exit', 640);
@@ -149,25 +162,41 @@ const swells = [
     );
   }
 
-  /** Where the boat actually is, so an early exit never snaps it sideways. */
+  /** Where the boat actually is, so an early exit never snaps it sideways.
+   *  Falls back to the planned waypoint if the transform can't be read. */
   function boatX() {
     const el = boat();
-    if (!el) return 0;
-    return new DOMMatrixReadOnly(getComputedStyle(el).transform).m41;
+    if (!el) return legs?.x2 ?? 0;
+    try {
+      return new DOMMatrixReadOnly(getComputedStyle(el).transform).m41;
+    } catch {
+      return legs?.x2 ?? 0;
+    }
   }
 
-  /** Distance the panel must travel to hide its crests completely. */
+  /** Distance the panel must travel to hide its crests completely. A box that
+   *  measures 0 (mid-swap) must still clear the whole viewport. */
   function clearance(el: HTMLElement) {
-    return el.getBoundingClientRect().height + 180;
+    return Math.max(el.getBoundingClientRect().height, window.innerHeight) + 180;
   }
 
+  /** Run a panel animation. Resolves when it ends — or on the clock if the
+   *  browser never reports it (hidden tab, cancelled mid-flight). */
   function play(el: HTMLElement, from: number, to: number, duration: number) {
     running?.cancel();
-    running = el.animate(
+    const anim = el.animate(
       [{ transform: `translate3d(0, ${from}px, 0)` }, { transform: `translate3d(0, ${to}px, 0)` }],
       { duration, easing: EASE, fill: 'forwards' },
     );
-    return running.finished.catch(() => {});
+    running = anim;
+    return Promise.race([anim.finished.then(() => undefined, () => undefined), sleep(duration + 250)]);
+  }
+
+  function armWatchdog(ms: number) {
+    window.clearTimeout(watchdog);
+    watchdog = window.setTimeout(() => {
+      if (phase !== 'idle') void fall(true);
+    }, ms);
   }
 
   /** Bottom of the screen → fully covered. Re-entrant: a second click while
@@ -199,26 +228,37 @@ const swells = [
     return rising;
   }
 
-  /** Fully covered → swept off the top. */
-  async function fall() {
+  /** Fully covered → swept off the top. `force` also clears a wave that is
+   *  stuck mid-exit (watchdog / visibility recovery). Always ends in 'idle'
+   *  unless a new navigation restarted the wave while it was leaving. */
+  async function fall(force = false) {
     const el = curtain();
-    if (!el || phase === 'leaving' || phase === 'idle') return;
+    if (!el || phase === 'idle') return;
+    if (phase === 'leaving' && !force) return;
 
+    window.clearTimeout(holdTimer);
+    holdTimer = 0;
     phase = 'leaving';
-    el.classList.remove('is-covering');
-
-    // leg 3: the boat carries on off the right as the water sweeps up
-    if (legs) sail(boatX(), legs.x3, legs.exit);
-
-    await play(el, 0, -clearance(el), token('--gst-wave-exit', 640));
-    running?.cancel();
-    running = null;
-    voyage?.cancel();
-    voyage = null;
-    legs = null;
-    el.classList.remove('is-running');
-    el.style.transform = '';
-    phase = 'idle';
+    try {
+      el.classList.remove('is-covering');
+      // leg 3: the boat carries on off the right as the water sweeps up
+      if (legs) sail(boatX(), legs.x3, legs.exit);
+      await play(el, 0, -clearance(el), token('--gst-wave-exit', 640));
+    } catch {
+      // nothing to do — the reset below always runs
+    } finally {
+      // Only reset if nobody restarted the wave while we were leaving.
+      if (phase === 'leaving') {
+        running?.cancel();
+        running = null;
+        voyage?.cancel();
+        voyage = null;
+        legs = null;
+        el.classList.remove('is-running', 'is-covering');
+        el.style.transform = '';
+        phase = 'idle';
+      }
+    }
   }
 
   /** Replay the surface-in animation on the freshly swapped content. */
@@ -237,6 +277,12 @@ const swells = [
   //    both concurrently means network latency hides inside the animation.
   document.addEventListener('astro:before-preparation', (event) => {
     const e = event as typeof event & { loader: () => Promise<void> };
+    // A new navigation supersedes any exit still pending from the last one.
+    window.clearTimeout(holdTimer);
+    holdTimer = 0;
+    // If this navigation never reaches the swap (aborted, failed, offline),
+    // this brings the wave down anyway.
+    armWatchdog(6000);
     const load = e.loader;
     e.loader = async () => {
       await Promise.all([rise(), load()]);
@@ -247,16 +293,40 @@ const swells = [
   document.addEventListener('astro:after-swap', () => {
     surface();
     if (phase === 'idle') return;
-    window.clearTimeout(safety);
-    window.setTimeout(fall, token('--gst-wave-hold', 1200));
+    const hold = token('--gst-wave-hold', 1200);
+    window.clearTimeout(holdTimer);
+    holdTimer = window.setTimeout(() => {
+      holdTimer = 0;
+      void fall();
+    }, hold);
+    // The exit is now on the clock; the watchdog only needs to outlast it.
+    armWatchdog(hold + token('--gst-wave-exit', 640) + 1500);
   });
 
-  // 3. Safety net: if a navigation is aborted or a load fails, never leave
-  //    the visitor staring at a blue rectangle.
+  // 3. Page ready. Normally the wave is already on its way out; if anything
+  //    is still up after a generous margin, force it down.
   document.addEventListener('astro:page-load', () => {
-    window.clearTimeout(safety);
-    safety = window.setTimeout(() => {
-      if (phase !== 'idle') fall();
-    }, 3000);
+    if (phase === 'idle') {
+      window.clearTimeout(watchdog);
+      return;
+    }
+    armWatchdog(3000);
+  });
+
+  // 4. Recovery: animations don't advance while the tab/app is hidden. On
+  //    return, if the exit isn't already scheduled, clear the wave right away.
+  document.addEventListener('visibilitychange', () => {
+    if (document.visibilityState !== 'visible' || phase === 'idle' || holdTimer) return;
+    try {
+      running?.finish();
+    } catch {
+      /* cancelled animations can't be finished — fall() handles it */
+    }
+    void fall(true);
+  });
+
+  // 5. Restored from the back/forward cache: never resume covered.
+  window.addEventListener('pageshow', (e) => {
+    if (e.persisted && phase !== 'idle') void fall(true);
   });
 </script>
