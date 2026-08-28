@@ -8,6 +8,8 @@
 // ============================================
 
 import type { ImageMetadata } from 'astro';
+import { localePath, type Lang } from '../i18n';
+import { categoriesAr, itemsAr } from './catalogue.ar';
 
 import imgYellowfinTuna from '../assets/products/yellowfin-tuna.jpg';
 import imgKingfish from '../assets/products/kingfish.jpg';
@@ -409,3 +411,35 @@ export interface CatalogueEntry extends CatalogueItem {
 export const allProducts: CatalogueEntry[] = categories.flatMap((category) =>
   category.items.map((item) => ({ ...item, category, url: productUrl(category.id, item.slug) }))
 );
+
+/* ---------- localized views ----------
+   Arabic copy lives in catalogue.ar.ts, keyed by category id / product slug.
+   Anything without a translation falls back to the English string. */
+
+/** Categories (and their items) with name/forms/description in `lang`. */
+export function getCategories(lang: Lang): Category[] {
+  if (lang === 'en') return categories;
+  return categories.map((c) => {
+    const catAr = categoriesAr[c.id];
+    return {
+      ...c,
+      label: catAr?.label ?? c.label,
+      blurb: catAr?.blurb ?? c.blurb,
+      items: c.items.map((it) => {
+        const ar = itemsAr[it.slug];
+        return ar ? { ...it, name: ar.name, forms: ar.forms, description: ar.description } : it;
+      }),
+    };
+  });
+}
+
+/** Flattened localized product list, with each product's URL for `lang`. */
+export function getAllProducts(lang: Lang): CatalogueEntry[] {
+  return getCategories(lang).flatMap((category) =>
+    category.items.map((item) => ({
+      ...item,
+      category,
+      url: localePath(productUrl(category.id, item.slug), lang),
+    }))
+  );
+}

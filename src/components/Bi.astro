@@ -1,0 +1,36 @@
+---
+/**
+ * Bi.astro — one bilingual text block: English first, Arabic beneath.
+ *
+ * The Arabic line carries lang="ar" dir="rtl" so the browser shapes and
+ * aligns it correctly and search engines know which line is which language.
+ * Pass `only` to render a single language (the Arabic pages under /ar/ use
+ * `only="ar"`). Styling lives in global.css (.bi / .bi__en / .bi__ar).
+ */
+interface Props {
+  en: string;
+  ar: string;
+  /** render just one language instead of the stacked pair */
+  only?: 'en' | 'ar';
+  /** wrapping element — p (default), h1, h2, h3, span, li … */
+  as?: string;
+  class?: string;
+}
+
+const { en, ar, only, as: Tag = 'p', class: className } = Astro.props;
+---
+
+{
+  only ? (
+    <Tag class={className}>{only === 'ar' ? ar : en}</Tag>
+  ) : (
+    <Tag class:list={['bi', className]}>
+      <span class="bi__en" lang="en" dir="ltr">
+        {en}
+      </span>
+      <span class="bi__ar" lang="ar" dir="rtl">
+        {ar}
+      </span>
+    </Tag>
+  )
+}
