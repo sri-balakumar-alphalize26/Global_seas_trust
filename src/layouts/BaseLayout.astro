@@ -5,7 +5,8 @@ import Footer from '../components/Footer.astro';
 import WaveCurtain from '../components/WaveCurtain.astro';
 import Reveal from '../components/Reveal.astro';
 import { company } from '../data/site';
-import { categories } from '../data/catalogue';
+import { getCategories } from '../data/catalogue';
+import { dir, htmlLang, localePath, ogLocale, pick, stripLocale, t, type Lang } from '../i18n';
 import '../styles/global.css';
 import '../styles/transitions.css';
 
@@ -34,11 +35,14 @@ interface Props {
   breadcrumbs?: Crumb[];
   /** Extra JSON-LD objects merged into this page's @graph. */
   schema?: Record<string, unknown> | Record<string, unknown>[];
+  /** Load the Arabic web font + mark Arabic as an alternate locale (bilingual pages only). */
+  arabicFont?: boolean;
+  /** Page language — 'en' at the site root, 'ar' under /ar/. */
+  lang?: Lang;
 }
 
 const {
   title,
-  description = company.description,
   fullTitle = false,
   image = '/og-image.png',
   imageWidth = 1200,
@@ -47,16 +51,30 @@ const {
   pageType = 'WebPage',
   breadcrumbs,
   schema = [],
+  arabicFont = false,
+  lang = 'en',
 } = Astro.props;
+
+const { description = lang === 'ar' ? company.descriptionAr : company.description } = Astro.props;
+const L = t(lang);
+const useArabicFont = arabicFont || lang === 'ar';
 
 // `site` comes from astro.config.mjs — every URL below is absolute.
 const site = Astro.site ?? new URL('https://www.globalseastrust.com');
 const pathname = Astro.url.pathname;
-const isHome = pathname === '/';
+const isHome = pathname === '/' || pathname === '/ar/';
 const canonical = new URL(pathname, site).href;
+
+// hreflang pair — the same page in each language
+const basePath = stripLocale(pathname);
+const alternates = [
+  { hreflang: 'en', href: new URL(basePath, site).href },
+  { hreflang: 'ar', href: new URL(localePath(basePath, 'ar'), site).href },
+  { hreflang: 'x-default', href: new URL(basePath, site).href },
+];
 const ogImage = new URL(image, site).href;
 const ogImageType = /\.png(\?|$)/i.test(ogImage) ? 'image/png' : 'image/jpeg';
-const pageTitle = fullTitle ? title : `${title} | ${company.name}`;
+const pageTitle = fullTitle ? title : `${title} | ${lang === 'ar' ? company.nameAr : company.name}`;
 
 // Drop into .env as PUBLIC_GOOGLE_SITE_VERIFICATION=<token> once Search Console issues one.
 const googleVerification = import.meta.env.PUBLIC_GOOGLE_SITE_VERIFICATION as string | undefined;
@@ -68,17 +86,18 @@ const orgId = `${site.href}#organization`;
 const siteId = `${site.href}#website`;
 const pageId = `${canonical}#webpage`;
 const crumbId = `${canonical}#breadcrumb`;
-const productsUrl = new URL('/products/', site).href;
+const productsUrl = new URL(localePath('/products/', lang), site).href;
 
 const organization: Record<string, unknown> = {
   '@type': 'Organization',
   '@id': orgId,
   name: company.name,
+  alternateName: company.nameAr,
   url: site.href,
   logo: { '@type': 'ImageObject', url: new URL('/gst-logo.png', site).href, width: 480, height: 385 },
   image: ogImage,
-  description: company.description,
-  slogan: company.tagline,
+  description,
+  slogan: lang === 'ar' ? company.taglineAr : company.tagline,
   foundingDate: String(company.founded),
   email: company.email,
   telephone: company.phone,
@@ -119,7 +138,7 @@ const organization: Record<string, unknown> = {
     '@type': 'OfferCatalog',
     name: `${company.name} seafood catalogue`,
     url: productsUrl,
-    itemListElement: categories.map((c) => ({
+    itemListElement: getCategories(lang).map((c) => ({
       '@type': 'OfferCatalog',
       name: c.label,
       description: c.blurb,
@@ -134,7 +153,7 @@ const website = {
   '@id': siteId,
   url: site.href,
   name: company.name,
-  inLanguage: 'en',
+  inLanguage: htmlLang(lang),
   publisher: { '@id': orgId },
 };
 
@@ -145,7 +164,7 @@ const breadcrumb = isHome
       '@type': 'BreadcrumbList',
       '@id': crumbId,
       itemListElement: [
-        { '@type': 'ListItem', position: 1, name: 'Home', item: site.href },
+        { '@type': 'ListItem', position: 1, name: L.crumbs.home, item: new URL(localePath('/', lang), site).href },
         ...trail.map((c, i) => ({
           '@type': 'ListItem',
           position: i + 2,
@@ -161,7 +180,7 @@ const webPage: Record<string, unknown> = {
   url: canonical,
   name: pageTitle,
   description,
-  inLanguage: 'en',
+  inLanguage: htmlLang(lang),
   isPartOf: { '@id': siteId },
   about: { '@id': orgId },
   primaryImageOfPage: { '@type': 'ImageObject', url: ogImage, width: imageWidth, height: imageHeight },
@@ -179,7 +198,7 @@ const jsonLd = graph.length
 ---
 
 <!doctype html>
-<html lang="en">
+<html lang={htmlLang(lang)} dir={dir(lang)}>
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
@@ -187,16 +206,31 @@ const jsonLd = graph.length
     <meta name="description" content={description} />
     <link rel="canonical" href={canonical} />
     <meta name="robots" content={noindex ? 'noindex, nofollow' : 'index, follow'} />
+    {
+      !noindex &&
+        alternates.map((a) => <link rel="alternate" hreflang={a.hreflang} href={a.href} />)
+    }
     {googleVerification && <meta name="google-site-verification" content={googleVerification} />}
 
     <link rel="icon" type="image/png" href="/favicon.png" />
     <link rel="apple-touch-icon" href="/favicon.png" />
     <meta name="theme-color" content="#0a2258" />
 
+    {
+      useArabicFont && (
+        <Fragment>
+          <link rel="preconnect" href="https://fonts.googleapis.com" />
+          <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+          <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Tajawal:wght@400;500;700&display=swap" />
+        </Fragment>
+      )
+    }
+
     {/* Open Graph — WhatsApp / LinkedIn / Facebook link previews */}
     <meta property="og:type" content="website" />
     <meta property="og:site_name" content={company.name} />
-    <meta property="og:locale" content="en_US" />
+    <meta property="og:locale" content={ogLocale(lang)} />
+    <meta property="og:locale:alternate" content={ogLocale(lang === 'ar' ? 'en' : 'ar')} />
     <meta property="og:title" content={pageTitle} />
     <meta property="og:description" content={description} />
     <meta property="og:url" content={canonical} />
@@ -219,15 +253,15 @@ const jsonLd = graph.length
     <ClientRouter fallback="animate" />
   </head>
   <body>
-    <a class="gst-skip" href="#main">Skip to content</a>
+    <a class="gst-skip" href="#main">{lang === 'ar' ? 'تخطَّ إلى المحتوى' : 'Skip to content'}</a>
 
-    <Header />
+    <Header lang={lang} />
 
     <main id="main" class="gst-main">
       <slot />
     </main>
 
-    <Footer />
+    <Footer lang={lang} />
 
     {/*
       Empty mount that ships the o_rv reveal engine (its script + global CSS
@@ -250,17 +284,20 @@ const jsonLd = graph.length
 
   .gst-skip {
     position: absolute;
-    left: -9999px;
+    inset-inline-start: -9999px;
     top: 0;
     z-index: 9500;
     background: var(--white);
     color: var(--navy-900);
     padding: 12px 20px;
-    border-radius: 0 0 10px 0;
+    border-start-start-radius: 0;
+    border-start-end-radius: 0;
+    border-end-end-radius: 10px;
+    border-end-start-radius: 0;
     font-weight: 700;
   }
 
   .gst-skip:focus {
-    left: 0;
+    inset-inline-start: 0;
   }
 </style>

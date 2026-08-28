@@ -1,0 +1,57 @@
+---
+import BaseLayout from '../../layouts/BaseLayout.astro';
+import PageHero from '../../components/PageHero.astro';
+import ContactCards from '../../components/ContactCards.astro';
+import EnquiryForm from '../../components/EnquiryForm.astro';
+import bannerContact from '../../assets/site/banner-contact.jpg';
+import { company } from '../../data/site';
+import { t, type Lang } from '../../i18n';
+
+interface Props {
+  lang?: Lang;
+}
+
+const { lang = 'en' } = Astro.props;
+const L = t(lang);
+
+// Contact details come from company in src/data/site.ts (single source).
+const { mapsUrl } = company;
+const addressLines = lang === 'ar' ? company.addressLinesAr : company.addressLines;
+const name = lang === 'ar' ? company.nameAr : company.name;
+const locality = lang === 'ar' ? company.localityAr : company.locality;
+---
+
+<BaseLayout
+  lang={lang}
+  title={L.contact.seoTitle}
+  pageType="ContactPage"
+  description={L.contact.seoDesc(name, locality)}
+>
+  <PageHero heading={L.contact.heroHeading} image={bannerContact}>
+    <p>{L.contact.heroSub}</p>
+  </PageHero>
+
+  <!-- Interactive contact tiles: maps, dialer, mail, live working hours -->
+  <ContactCards
+    lang={lang}
+    addressLines={addressLines}
+    mapsUrl={mapsUrl}
+    crNumber={company.crNumber}
+    phone={company.phone}
+    email={company.email}
+    emailSubject={L.contact.emailSubject(name)}
+  />
+
+  <!--
+    Enquiry form + Find Us panel. No `action` yet, so the component's
+    demo submit shows the confirmation line — point `action` at a real
+    endpoint (Formspree/Basin/your API) to make it live.
+  -->
+  <EnquiryForm
+    lang={lang}
+    addressLines={addressLines}
+    mapsUrl={mapsUrl}
+    crNumber={company.crNumber}
+    embedSrc={company.mapEmbedSrc}
+  />
+</BaseLayout>

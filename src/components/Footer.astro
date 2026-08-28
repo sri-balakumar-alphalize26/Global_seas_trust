@@ -1,27 +1,38 @@
 ---
 import { company, navLinks, poweredBy } from '../data/site';
 import Icon from './Icon.astro';
+import { localePath, t, type Lang } from '../i18n';
 
+interface Props {
+  lang?: Lang;
+}
+
+const { lang = 'en' } = Astro.props;
+const L = t(lang);
 const year = new Date().getFullYear();
+const name = lang === 'ar' ? company.nameAr : company.name;
+const description = lang === 'ar' ? company.descriptionAr : company.description;
+const address = lang === 'ar' ? company.addressAr : company.address;
+const hours = lang === 'ar' ? L.cards.hoursSummary : company.hours;
 ---
 
 <footer class="site-footer">
   <div class="container footer-grid">
     <div class="footer-col footer-about">
       <div class="footer-logo">
-        <img src="/gst-logo.webp" alt={`${company.name} logo`} class="footer-logo-img" width="48" height="48" />
-        <strong>{company.name}</strong>
+        <img src="/gst-logo.webp" alt={`${name} ${L.header.logoAlt}`} class="footer-logo-img" width="48" height="48" />
+        <strong>{name}</strong>
       </div>
-      <p>{company.description}</p>
+      <p>{description}</p>
     </div>
 
     <div class="footer-col">
-      <h4>Quick Links</h4>
+      <h4>{L.footer.quickLinks}</h4>
       <ul>
         {
           navLinks.map((link) => (
             <li>
-              <a href={link.href}>{link.label}</a>
+              <a href={localePath(link.href, lang)}>{L.nav[link.key]}</a>
             </li>
           ))
         }
@@ -29,31 +40,31 @@ const year = new Date().getFullYear();
     </div>
 
     <div class="footer-col">
-      <h4>Contact</h4>
+      <h4>{L.footer.contact}</h4>
       <ul class="contact-list">
-        <li><Icon name="pin" size={18} /><span>{company.address}</span></li>
+        <li><Icon name="pin" size={18} /><span>{address}</span></li>
         <li>
           <Icon name="phone" size={18} />
-          <a href={`tel:${company.phone.replace(/[^\d+]/g, '')}`}>{company.phone}</a>
+          <a href={`tel:${company.phone.replace(/[^\d+]/g, '')}`} dir="ltr">{company.phone}</a>
         </li>
-        <li><Icon name="mail" size={18} /><a href={`mailto:${company.email}`}>{company.email}</a></li>
-        <li><Icon name="clock" size={18} /><span>{company.hours}</span></li>
-        <li><Icon name="shield" size={18} /><span>C.R. No. {company.crNumber} · P.Code {company.postalCode}</span></li>
+        <li><Icon name="mail" size={18} /><a href={`mailto:${company.email}`} dir="ltr">{company.email}</a></li>
+        <li><Icon name="clock" size={18} /><span>{hours}</span></li>
+        <li><Icon name="shield" size={18} /><span>{L.footer.crLine(company.crNumber, company.postalCode)}</span></li>
       </ul>
     </div>
   </div>
 
   <div class="footer-bottom">
     <div class="container footer-bottom-line">
-      <span>© {year} {company.name}. All rights reserved.</span>
+      <span>© {year} {name}. {L.footer.rights}</span>
       <a
         class="powered-by"
         href={poweredBy.url}
         target="_blank"
         rel="noopener"
-        aria-label={`Powered by ${poweredBy.name} (opens in a new tab)`}
+        aria-label={L.footer.poweredByAria(poweredBy.name)}
       >
-        <span>Powered by</span>
+        <span>{L.footer.poweredBy}</span>
         <img src={poweredBy.logo} alt={poweredBy.name} width="117" height="22" loading="lazy" />
       </a>
     </div>

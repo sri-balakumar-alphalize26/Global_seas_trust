@@ -1,35 +1,60 @@
 ---
 import { company, navLinks } from '../data/site';
+import { localePath, otherLangPath, t, type Lang } from '../i18n';
+
+interface Props {
+  lang?: Lang;
+}
+
+const { lang = 'en' } = Astro.props;
+const L = t(lang);
 
 const currentPath = Astro.url.pathname.replace(/\/+$/, '') || '/';
 const isActive = (href: string) => (href.replace(/\/+$/, '') || '/') === currentPath;
+
+// Same page in the other language — the toggle keeps the visitor in place.
+const switchHref = otherLangPath(Astro.url.pathname, lang);
+const name = lang === 'ar' ? company.nameAr : company.name;
+const tagline = lang === 'ar' ? company.taglineAr : company.tagline;
 ---
 
 <header class="site-header gst-header">
   <div class="container header-inner gst-header__inner">
-    <a href="/" class="logo" aria-label={`${company.name} home`}>
-      <img src="/gst-logo.webp" alt={`${company.name} logo`} class="logo-img" width="80" height="64" />
+    <a href={localePath('/', lang)} class="logo" aria-label={`${name} — ${L.header.homeAria}`}>
+      <img src="/gst-logo.webp" alt={`${name} ${L.header.logoAlt}`} class="logo-img" width="80" height="64" />
       <span class="logo-text">
-        <strong>{company.name}</strong>
-        <small>{company.tagline}</small>
+        <strong>{name}</strong>
+        <small>{tagline}</small>
       </span>
     </a>
 
-    <nav class="main-nav" aria-label="Main navigation">
+    <nav class="main-nav" aria-label={L.header.mainNav}>
       <input type="checkbox" id="nav-toggle" class="nav-toggle-input" />
-      <label for="nav-toggle" class="nav-toggle" aria-label="Toggle menu">
+      <label for="nav-toggle" class="nav-toggle" aria-label={L.header.toggleMenu}>
         <span></span><span></span><span></span>
       </label>
       <ul class="nav-list">
         {
-          navLinks.map((link) => (
-            <li>
-              <a href={link.href} class:list={{ active: isActive(link.href) }}>
-                {link.label}
-              </a>
-            </li>
-          ))
+          navLinks.map((link) => {
+            const href = localePath(link.href, lang);
+            return (
+              <li>
+                <a href={href} class:list={{ active: isActive(href) }}>
+                  {L.nav[link.key]}
+                </a>
+              </li>
+            );
+          })
         }
+        <li class="nav-lang">
+          <a href={switchHref} class="lang-btn" aria-label={L.header.switchLangAria} lang={lang === 'ar' ? 'en' : 'ar'}>
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" aria-hidden="true">
+              <circle cx="12" cy="12" r="9"></circle>
+              <path d="M3 12h18M12 3a15 15 0 0 1 0 18a15 15 0 0 1 0-18Z"></path>
+            </svg>
+            {L.header.switchLang}
+          </a>
+        </li>
       </ul>
     </nav>
   </div>
@@ -111,6 +136,34 @@ const isActive = (href: string) => (href.replace(/\/+$/, '') || '/') === current
     color: var(--blue-600);
   }
 
+  /* language toggle */
+  .nav-lang {
+    margin-inline-start: 0.35rem;
+  }
+
+  .lang-btn {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.4rem;
+    border: 1.5px solid var(--aqua-100);
+    border-radius: 999px;
+    padding: 0.4rem 0.9rem !important;
+    font-weight: 700;
+    color: var(--navy-900) !important;
+  }
+
+  .lang-btn svg {
+    width: 16px;
+    height: 16px;
+    color: var(--blue-500);
+    flex-shrink: 0;
+  }
+
+  .lang-btn:hover {
+    border-color: var(--blue-400);
+    background: var(--aqua-100) !important;
+  }
+
   .nav-toggle-input,
   .nav-toggle {
     display: none;
@@ -137,8 +190,7 @@ const isActive = (href: string) => (href.replace(/\/+$/, '') || '/') === current
       display: none;
       position: absolute;
       top: 100%;
-      left: 0;
-      right: 0;
+      inset-inline: 0;
       flex-direction: column;
       background: var(--white);
       padding: 0.75rem 1.25rem 1.25rem;
@@ -147,6 +199,15 @@ const isActive = (href: string) => (href.replace(/\/+$/, '') || '/') === current
 
     .nav-toggle-input:checked ~ .nav-list {
       display: flex;
+    }
+
+    .nav-lang {
+      margin-inline-start: 0;
+      margin-top: 0.4rem;
+    }
+
+    .lang-btn {
+      justify-content: center;
     }
 
     .nav-toggle-input:checked ~ .nav-toggle span:nth-child(1) {

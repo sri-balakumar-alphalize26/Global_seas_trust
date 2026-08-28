@@ -6,9 +6,11 @@
 interface Props {
   code: string; // e.g. "HACCP", "ISO 22000"
   label: string;
+  /** Arabic caption, shown under the English one (bilingual pages) */
+  labelAr?: string;
 }
 
-const { code, label } = Astro.props;
+const { code, label, labelAr } = Astro.props;
 const id = code.replace(/[^a-zA-Z0-9]/g, '').toLowerCase();
 // Split two-word codes ("ISO 22000") onto two lines inside the seal.
 const parts = code.split(' ');
@@ -64,7 +66,10 @@ const parts = code.split(' ');
     <path d="M 78 106 L 70 96 L 62 106 L 70 116 Z" fill="#1a5bd7" opacity="0.9"></path>
   </svg>
 
-  <small>{label}</small>
+  <small>
+    {label}
+    {labelAr && <span class="seal-ar" lang="ar" dir="rtl">{labelAr}</span>}
+  </small>
 </div>
 
 <style>
@@ -114,5 +119,10 @@ const parts = code.split(' ');
     color: var(--text-400);
     line-height: 1.4;
     max-width: 150px;
+  }
+
+  .seal-ar {
+    display: block;
+    margin-top: 0.2rem;
   }
 </style>

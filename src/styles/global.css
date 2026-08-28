@@ -146,6 +146,70 @@ a {
   background: rgba(255, 255, 255, 0.12);
 }
 
+/* ---- Right-to-left (Arabic pages) ---- */
+[dir='rtl'] body {
+  font-family: 'Tajawal', 'Segoe UI', Tahoma, Arial, sans-serif;
+}
+
+/* keep Latin fragments (phone, email, codes) running left-to-right */
+[dir='rtl'] [dir='ltr'] {
+  text-align: start;
+}
+
+/* ---- Bilingual text (English + Arabic) — see components/Bi.astro ---- */
+[lang='ar'] {
+  font-family: 'Tajawal', 'Segoe UI', Tahoma, Arial, sans-serif;
+  /* tracking/uppercase rules meant for Latin eyebrows break joined Arabic letters */
+  letter-spacing: 0;
+  text-transform: none;
+}
+
+.bi {
+  display: grid;
+  gap: 0.2em;
+}
+
+.bi__en,
+.bi__ar {
+  display: block;
+}
+
+.bi__ar {
+  font-size: 0.95em;
+  line-height: 1.75;
+  text-align: start;
+}
+
+h1.bi .bi__ar,
+h2.bi .bi__ar,
+h3.bi .bi__ar {
+  font-size: 0.85em;
+  font-weight: 700;
+  line-height: 1.4;
+}
+
+.section-head .bi__ar,
+.hero-inner .bi__ar,
+.cta-inner .bi__ar,
+.text-center .bi__ar {
+  text-align: center;
+}
+
+/* Button with the Arabic label under the English one — same pill */
+.btn--bi {
+  display: inline-grid;
+  gap: 0.05em;
+  line-height: 1.25;
+  padding: 0.65rem 1.7rem;
+  text-align: center;
+}
+
+.btn--bi [lang='ar'] {
+  font-size: 0.82em;
+  font-weight: 600;
+  opacity: 0.92;
+}
+
 .card {
   background: var(--white);
   border-radius: var(--radius);

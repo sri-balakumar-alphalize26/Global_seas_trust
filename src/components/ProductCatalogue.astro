@@ -42,12 +42,15 @@ interface Props {
   lede?: string;
   categories?: Category[];
   items?: Item[];
+  /** accessible name for the chip row */
+  chipsLabel?: string;
 }
 
 const {
   eyebrow = 'Catalogue',
   title = 'Browse by Category',
   lede = 'All species are available year round subject to season and quota. Custom grading, glazing and packing available on request.',
+  chipsLabel = 'Product categories',
   categories = [],
   items = [],
 } = Astro.props;
@@ -68,7 +71,7 @@ const hue = (s: string) => {
     <h2 class="pc__title">{title}</h2>
     <p class="pc__lede">{lede}</p>
 
-    <div class="pc__chips" role="tablist" aria-label="Product categories">
+    <div class="pc__chips" role="tablist" aria-label={chipsLabel}>
       <span class="pc__pill" aria-hidden="true"></span>
       {
         categories.map((c, i) => (
@@ -261,7 +264,7 @@ const hue = (s: string) => {
     display: grid;
     grid-template-columns: repeat(4, minmax(0, 1fr));
     gap: 22px;
-    text-align: left;
+    text-align: start;
   }
 
   .pc__card {

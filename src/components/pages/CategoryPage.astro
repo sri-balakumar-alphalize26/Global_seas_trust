@@ -1,0 +1,148 @@
+---
+/**
+ * /products/<category>/ — one landing page per catalogue category, generated
+ * from src/data/catalogue.ts. Gives each product family its own URL, title,
+ * description and ItemList schema so it can rank on its own.
+ */
+import BaseLayout from '../../layouts/BaseLayout.astro';
+import PageHero from '../../components/PageHero.astro';
+import Breadcrumbs from '../../components/Breadcrumbs.astro';
+import ProductCard from '../../components/ProductCard.astro';
+import bannerProducts from '../../assets/site/banner-products.jpg';
+import { getCategories, getAllProducts, categoryUrl, type Category } from '../../data/catalogue';
+import { company } from '../../data/site';
+import { localePath, t, type Lang } from '../../i18n';
+
+interface Props {
+  category: Category;
+  lang?: Lang;
+}
+
+const { category, lang = 'en' } = Astro.props;
+const L = t(lang);
+const items = getAllProducts(lang).filter((p) => p.category.id === category.id);
+const others = getCategories(lang).filter((c) => c.id !== category.id);
+const heroImage = category.items[0]?.image ?? bannerProducts;
+const site = Astro.site ?? new URL('https://www.globalseastrust.com');
+const name = lang === 'ar' ? company.nameAr : company.name;
+
+const copy = L.category.seo[category.id] ?? {
+  title: L.category.fallbackTitle(category.label),
+  h2: category.label,
+  intro: category.blurb,
+};
+
+const crumbs = [
+  { name: L.products.seoTitle, href: localePath('/products/', lang) },
+  { name: category.label, href: localePath(categoryUrl(category.id), lang) },
+];
+
+const listSchema = {
+  '@type': 'ItemList',
+  name: `${category.label} — ${name}`,
+  numberOfItems: items.length,
+  itemListElement: items.map((p, i) => ({
+    '@type': 'ListItem',
+    position: i + 1,
+    url: new URL(p.url, site).href,
+    name: p.name,
+  })),
+};
+---
+
+<BaseLayout
+  lang={lang}
+  title={copy.title}
+  description={L.category.seoDesc(category.blurb, items.length, name)}
+  pageType="CollectionPage"
+  breadcrumbs={crumbs}
+  schema={listSchema}
+>
+  <PageHero heading={category.label} image={heroImage} alt={`${category.label} — ${name}`}>
+    <p>{category.blurb}</p>
+  </PageHero>
+
+  <Breadcrumbs items={crumbs} lang={lang} />
+
+  <section class="section">
+    <div class="container">
+      <div class="section-head" data-rv>
+        <span class="eyebrow">{L.category.countLabel(items.length)}</span>
+        <h2>{copy.h2}</h2>
+        <p>{copy.intro}</p>
+      </div>
+      <div class="cat-grid" data-rv data-rv-stagger="80">
+        {items.map((p) => <ProductCard product={p} />)}
+      </div>
+    </div>
+  </section>
+
+  <section class="section section--tint">
+    <div class="container">
+      <div class="section-head" data-rv>
+        <span class="eyebrow">{L.category.moreEyebrow}</span>
+        <h2>{L.category.moreH2}</h2>
+      </div>
+      <ul class="cat-links" data-rv>
+        {
+          others.map((c) => (
+            <li>
+              <a href={localePath(categoryUrl(c.id), lang)} class="btn btn--outline">
+                {c.label}
+              </a>
+            </li>
+          ))
+        }
+        <li>
+          <a href={localePath('/products/', lang)} class="btn btn--outline">{L.common.fullCatalogue}</a>
+        </li>
+      </ul>
+      <div class="center-cta">
+        <a href={localePath('/contact/', lang)} class="btn btn--primary">{L.common.requestQuote}</a>
+      </div>
+    </div>
+  </section>
+</BaseLayout>
+
+<style>
+  .cat-grid {
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    gap: 1.5rem;
+  }
+
+  .cat-links {
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: center;
+    gap: 0.8rem;
+    list-style: none;
+  }
+
+  .btn--outline {
+    background: transparent;
+    color: var(--blue-600);
+    border: 2px solid var(--blue-400);
+  }
+
+  .btn--outline:hover {
+    background: var(--aqua-100);
+  }
+
+  .center-cta {
+    text-align: center;
+    margin-top: 2.5rem;
+  }
+
+  @media (max-width: 980px) {
+    .cat-grid {
+      grid-template-columns: repeat(2, 1fr);
+    }
+  }
+
+  @media (max-width: 560px) {
+    .cat-grid {
+      grid-template-columns: 1fr;
+    }
+  }
+</style>

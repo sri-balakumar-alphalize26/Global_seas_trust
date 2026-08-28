@@ -26,8 +26,10 @@ interface Hour {
 }
 
 import { company } from '../data/site';
+import { t, type Lang } from '../i18n';
 
 interface Props {
+  lang?: Lang;
   /** visually-hidden section heading — keeps the page outline h1 → h2 → h3 for search engines */
   heading?: string;
   addressLines?: string[];
@@ -47,28 +49,42 @@ interface Props {
   hours?: Hour[];
 }
 
+const { lang = 'en' } = Astro.props;
+const L = t(lang);
+
 const {
-  heading = 'Contact Details',
-  addressLines = company.addressLines,
+  heading = L.cards.heading,
+  addressLines = lang === 'ar' ? company.addressLinesAr : company.addressLines,
   mapQuery,
   mapsUrl: mapsUrlProp = company.mapsUrl,
   crNumber = company.crNumber,
   phone = company.phone,
   email = company.email,
-  emailSubject = `Enquiry from ${company.name} website`,
-  hoursSummary = company.hours,
+  emailSubject = L.contact.emailSubject(lang === 'ar' ? company.nameAr : company.name),
+  hoursSummary = lang === 'ar' ? L.cards.hoursSummary : company.hours,
   timeZone = 'Asia/Muscat',
-  timeZoneLabel = 'Oman (GST, UTC+4)',
+  timeZoneLabel = L.cards.tzLabel,
   hours = [
-    { dow: 0, label: 'Sunday', open: '08:00', close: '17:00' },
-    { dow: 1, label: 'Monday', open: '08:00', close: '17:00' },
-    { dow: 2, label: 'Tuesday', open: '08:00', close: '17:00' },
-    { dow: 3, label: 'Wednesday', open: '08:00', close: '17:00' },
-    { dow: 4, label: 'Thursday', open: '08:00', close: '17:00' },
-    { dow: 5, label: 'Friday' },
-    { dow: 6, label: 'Saturday' },
+    { dow: 0, label: L.cards.days[0], open: '08:00', close: '17:00' },
+    { dow: 1, label: L.cards.days[1], open: '08:00', close: '17:00' },
+    { dow: 2, label: L.cards.days[2], open: '08:00', close: '17:00' },
+    { dow: 3, label: L.cards.days[3], open: '08:00', close: '17:00' },
+    { dow: 4, label: L.cards.days[4], open: '08:00', close: '17:00' },
+    { dow: 5, label: L.cards.days[5] },
+    { dow: 6, label: L.cards.days[6] },
   ],
 } = Astro.props;
+
+/** Strings the client script needs (status line, AM/PM, today/tomorrow). */
+const i18nPayload = JSON.stringify({
+  am: L.cards.am,
+  pm: L.cards.pm,
+  today: L.cards.today,
+  tomorrow: L.cards.tomorrow,
+  closed: L.cards.closed,
+  openNow: L.cards.openNowTpl,
+  closedUntil: L.cards.closedUntilTpl,
+});
 
 const query = mapQuery ?? addressLines.join(' ').replace(/,\s*$/, '');
 const mapsUrl = mapsUrlProp ?? `https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(query)}`;
@@ -80,13 +96,19 @@ const pretty = (t?: string) => {
   if (!t) return '';
   const [h, m] = t.split(':').map(Number);
   const suffix = h >= 12 ? 'PM' : 'AM';
-  return `${((h + 11) % 12) + 1}:${String(m).padStart(2, '0')} ${suffix}`;
+  return `${((h + 11) % 12) + 1}:${String(m).padStart(2, '0')} ${suffix === 'PM' ? L.cards.pm : L.cards.am}`;
 };
 
 const payload = JSON.stringify({ timeZone, hours });
 ---
 
-<section class="cc" data-hours={payload} data-tz-label={timeZoneLabel}>
+<section
+  class="cc"
+  data-hours={payload}
+  data-tz-label={timeZoneLabel}
+  data-i18n={i18nPayload}
+  style={`--cc-today: ' · ${L.cards.today}'`}
+>
   <div class="cc__inner">
     <h2 class="cc__title">{heading}</h2>
     <div class="cc__grid">
@@ -97,7 +119,7 @@ const payload = JSON.stringify({ timeZone, hours });
         href={mapsUrl}
         target="_blank"
         rel="noopener noreferrer"
-        aria-label={`Open ${query} in Google Maps`}
+        aria-label={L.common.openInMapsAria(query)}
       >
         <span class="cc__chip">
           <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
@@ -105,14 +127,14 @@ const payload = JSON.stringify({ timeZone, hours });
             <circle cx="12" cy="10.2" r="2.5" fill="#fff" />
           </svg>
         </span>
-        <h3>Visit Us</h3>
+        <h3>{L.cards.visitUs}</h3>
         {addressLines.map((l) => <p>{l}</p>)}
-        {crNumber && <p>C.R. No. {crNumber}</p>}
-        <span class="cc__hint">Open in Google Maps →</span>
+        {crNumber && <p>{L.common.crNo(crNumber)}</p>}
+        <span class="cc__hint">{L.common.openInMaps}</span>
       </a>
 
       <!-- Call Us --------------------------------------------------------- -->
-      <a class="cc__card" style="--i:1" href={telHref} aria-label={`Call ${phone}`}>
+      <a class="cc__card" style="--i:1" href={telHref} aria-label={L.cards.callAria(phone)}>
         <span class="cc__chip">
           <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
             <path
@@ -121,9 +143,9 @@ const payload = JSON.stringify({ timeZone, hours });
               stroke="none"></path>
           </svg>
         </span>
-        <h3>Call Us</h3>
-        <p>{phone}</p>
-        <span class="cc__hint">Tap to call →</span>
+        <h3>{L.cards.callUs}</h3>
+        <p dir="ltr">{phone}</p>
+        <span class="cc__hint">{L.cards.tapToCall}</span>
       </a>
 
       <!-- Email Us -------------------------------------------------------- -->
@@ -133,7 +155,7 @@ const payload = JSON.stringify({ timeZone, hours });
         href={mailtoHref}
         data-email={email}
         data-subject={emailSubject}
-        aria-label={`Email ${email}`}
+        aria-label={L.cards.emailAria(email)}
       >
         <span class="cc__chip">
           <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
@@ -141,9 +163,9 @@ const payload = JSON.stringify({ timeZone, hours });
             <path d="m4.6 7.6 7.4 5.3 7.4-5.3" stroke="#fff" stroke-width="1.9" fill="none" />
           </svg>
         </span>
-        <h3>Email Us</h3>
-        <p class="cc__mail">{email}</p>
-        <span class="cc__hint">Compose in Gmail →</span>
+        <h3>{L.cards.emailUs}</h3>
+        <p class="cc__mail" dir="ltr">{email}</p>
+        <span class="cc__hint">{L.cards.composeGmail}</span>
       </a>
 
       <!-- Working Hours --------------------------------------------------- -->
@@ -154,9 +176,9 @@ const payload = JSON.stringify({ timeZone, hours });
             <path d="M12 7.2V12l3.2 2" />
           </svg>
         </span>
-        <h3>Working Hours</h3>
+        <h3>{L.cards.workingHours}</h3>
         <p>{hoursSummary}</p>
-        <span class="cc__hint">See the full week →</span>
+        <span class="cc__hint">{L.cards.seeWeek}</span>
       </button>
     </div>
   </div>
@@ -172,10 +194,10 @@ const payload = JSON.stringify({ timeZone, hours });
           </svg>
         </span>
         <div>
-          <h3 id="cc-hours-title">Working Hours</h3>
+          <h3 id="cc-hours-title">{L.cards.workingHours}</h3>
           <p>{timeZoneLabel}</p>
         </div>
-        <button class="cc__x" type="button" data-hours-close aria-label="Close">
+        <button class="cc__x" type="button" data-hours-close aria-label={L.cards.close}>
           <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.1" stroke-linecap="round" aria-hidden="true">
             <path d="m6 6 12 12M18 6 6 18" />
           </svg>
@@ -190,16 +212,14 @@ const payload = JSON.stringify({ timeZone, hours });
             <li class="cc__row" style={`--r:${i}`} data-dow={d.dow}>
               <span>{d.label}</span>
               <b class:list={{ 'is-closed': !d.open }}>
-                {d.open ? `${pretty(d.open)} – ${pretty(d.close)}` : 'Closed'}
+                {d.open ? `${pretty(d.open)} – ${pretty(d.close)}` : L.cards.closed}
               </b>
             </li>
           ))
         }
       </ul>
 
-      <footer class="cc__sheet-foot">
-        Closed on public holidays. Cold-store dispatch runs outside these hours by prior arrangement.
-      </footer>
+      <footer class="cc__sheet-foot">{L.cards.holidayNote}</footer>
     </div>
   </dialog>
 </section>
@@ -560,7 +580,7 @@ const payload = JSON.stringify({ timeZone, hours });
   }
 
   .cc__row.is-today span::after {
-    content: ' · today';
+    content: var(--cc-today, ' · today');
     font-weight: 600;
     opacity: 0.65;
   }
@@ -644,6 +664,29 @@ const payload = JSON.stringify({ timeZone, hours });
 
 <script>
   type Hour = { dow: number; label: string; open?: string; close?: string };
+  /** Locale strings rendered into data-i18n by the component. */
+  type I18n = {
+    am: string;
+    pm: string;
+    today: string;
+    tomorrow: string;
+    closed: string;
+    openNow: string; // "… {time}"
+    closedUntil: string; // "… {when} … {time}"
+  };
+
+  const EN: I18n = {
+    am: 'AM',
+    pm: 'PM',
+    today: 'today',
+    tomorrow: 'tomorrow',
+    closed: 'Closed',
+    openNow: 'Open now · closes at {time}',
+    closedUntil: 'Closed · opens {when} at {time}',
+  };
+
+  const fill = (tpl: string, vars: Record<string, string>) =>
+    tpl.replace(/\{(\w+)\}/g, (_, k: string) => vars[k] ?? '');
 
   let io: IntersectionObserver | null = null;
 
@@ -652,9 +695,9 @@ const payload = JSON.stringify({ timeZone, hours });
     return h * 60 + m;
   };
 
-  const pretty = (t: string) => {
+  const pretty = (t: string, i18n: I18n) => {
     const [h, m] = t.split(':').map(Number);
-    return `${((h + 11) % 12) + 1}:${String(m).padStart(2, '0')} ${h >= 12 ? 'PM' : 'AM'}`;
+    return `${((h + 11) % 12) + 1}:${String(m).padStart(2, '0')} ${h >= 12 ? i18n.pm : i18n.am}`;
   };
 
   /** Today, in the BUSINESS timezone — not the visitor's. */
@@ -674,7 +717,7 @@ const payload = JSON.stringify({ timeZone, hours });
     };
   }
 
-  function describe(hours: Hour[], timeZone: string) {
+  function describe(hours: Hour[], timeZone: string, i18n: I18n) {
     const now = localNow(timeZone);
     const byDow = new Map(hours.map((h) => [h.dow, h]));
     const today = byDow.get(now.dow);
@@ -683,7 +726,7 @@ const payload = JSON.stringify({ timeZone, hours });
       const from = toMin(today.open);
       const to = toMin(today.close);
       if (now.minutes >= from && now.minutes < to) {
-        return { dow: now.dow, open: true, text: `Open now · closes at ${pretty(today.close)}` };
+        return { dow: now.dow, open: true, text: fill(i18n.openNow, { time: pretty(today.close, i18n) }) };
       }
     }
 
@@ -693,10 +736,10 @@ const payload = JSON.stringify({ timeZone, hours });
       const day = byDow.get(dow);
       if (!day?.open) continue;
       if (step === 0 && now.minutes >= toMin(day.open)) continue; // already past today's opening
-      const when = step === 0 ? 'today' : step === 1 ? 'tomorrow' : day.label;
-      return { dow: now.dow, open: false, text: `Closed · opens ${when} at ${pretty(day.open)}` };
+      const when = step === 0 ? i18n.today : step === 1 ? i18n.tomorrow : day.label;
+      return { dow: now.dow, open: false, text: fill(i18n.closedUntil, { when, time: pretty(day.open, i18n) }) };
     }
-    return { dow: now.dow, open: false, text: 'Closed' };
+    return { dow: now.dow, open: false, text: i18n.closed };
   }
 
   function wire(section: HTMLElement) {
@@ -705,9 +748,10 @@ const payload = JSON.stringify({ timeZone, hours });
     if (!dialog || !openBtn) return;
 
     const config = JSON.parse(section.dataset.hours ?? '{}') as { timeZone: string; hours: Hour[] };
+    const i18n: I18n = { ...EN, ...(JSON.parse(section.dataset.i18n ?? '{}') as Partial<I18n>) };
 
     const refresh = () => {
-      const state = describe(config.hours, config.timeZone);
+      const state = describe(config.hours, config.timeZone, i18n);
       const status = dialog.querySelector<HTMLElement>('[data-hours-status]');
       if (status) {
         status.textContent = state.text;

@@ -1,0 +1,153 @@
+---
+import BaseLayout from '../../layouts/BaseLayout.astro';
+import PageHero from '../../components/PageHero.astro';
+import ObjectiveSection from '../../components/ObjectiveSection.astro';
+import CoreValues from '../../components/CoreValues.astro';
+import bannerAbout from '../../assets/site/banner-about.jpg';
+import Icon from '../../components/Icon.astro';
+import { company, divisions, siteImages } from '../../data/site';
+import { pick, t, type Lang } from '../../i18n';
+
+interface Props {
+  lang?: Lang;
+}
+
+const { lang = 'en' } = Astro.props;
+const L = t(lang);
+const name = lang === 'ar' ? company.nameAr : company.name;
+
+// Official company copy — <mark> wraps the highlighted phrases.
+const objectiveParagraphs = [L.about.p1, L.about.p2, L.about.p3];
+
+const objectiveCards = [
+  { title: L.about.missionTitle, body: [L.about.missionP1, L.about.missionP2] },
+  { title: L.about.visionTitle, body: [L.about.visionP1] },
+];
+
+const valueIcons = ['shield', 'fish', 'trust', 'droplet', 'anchor', 'globe'] as const;
+const coreValues = L.values.items.map((v, i) => ({ title: v.title, body: v.text, icon: valueIcons[i] }));
+---
+
+<BaseLayout
+  lang={lang}
+  title={L.about.seoTitle}
+  pageType="AboutPage"
+  description={L.about.seoDesc(name, company.founded)}
+>
+  <PageHero heading={L.about.heroHeading(name)} image={bannerAbout}>
+    <p>{L.about.heroSub}</p>
+  </PageHero>
+
+  <ObjectiveSection
+    eyebrow={L.about.eyebrow}
+    title={L.about.title}
+    paragraphs={objectiveParagraphs}
+    image={siteImages.about.src}
+    imageAlt={L.about.imageAlt}
+    cards={objectiveCards}
+  />
+
+  <CoreValues eyebrow={L.values.eyebrow} title={L.values.title} values={coreValues} />
+
+  <section class="section">
+    <div class="container">
+      <div class="section-head" data-rv>
+        <span class="eyebrow">{L.about.opsEyebrow}</span>
+        <h2>{L.about.opsH2}</h2>
+      </div>
+      <div class="ops-grid" data-rv data-rv-stagger="90">
+        {
+          divisions.map((d) => (
+            <article class="card ops-card">
+              <span class="ops-icon">
+                <Icon name={d.icon} size={30} />
+              </span>
+              <div>
+                <h3>{pick(d, 'title', lang)}</h3>
+                <p>{pick(d, 'text', lang)}</p>
+              </div>
+            </article>
+          ))
+        }
+      </div>
+    </div>
+  </section>
+
+  <!-- ============ OUR GLOBAL AMBITION ============ -->
+  <section class="section section--navy ambition">
+    <div class="container ambition-inner" data-rv>
+      <h2>{L.about.ambitionH2}</h2>
+      <p>{L.about.ambitionP1}</p>
+      <p>{L.about.ambitionP2}</p>
+      <p class="ambition-signoff">{L.about.signoff}</p>
+    </div>
+  </section>
+</BaseLayout>
+
+<style>
+  .ops-grid {
+    display: grid;
+    grid-template-columns: 1fr;
+    gap: 1.25rem;
+    max-width: 820px;
+    margin: 0 auto;
+  }
+
+  .ops-card {
+    display: flex;
+    gap: 1.4rem;
+    padding: 1.6rem 1.8rem;
+    align-items: flex-start;
+  }
+
+  .ops-icon {
+    display: grid;
+    place-items: center;
+    flex-shrink: 0;
+    width: 56px;
+    height: 56px;
+    border-radius: 14px;
+    background: linear-gradient(150deg, var(--blue-500), var(--navy-800));
+    color: var(--white);
+  }
+
+  .ops-card h3 {
+    color: var(--navy-900);
+    margin-bottom: 0.35rem;
+  }
+
+  .ops-card p {
+    font-size: 0.92rem;
+    color: var(--text-600);
+  }
+
+  @media (max-width: 560px) {
+    .ops-card {
+      flex-direction: column;
+    }
+  }
+
+  /* ---- Global Ambition ---- */
+  .ambition-inner {
+    max-width: 720px;
+    text-align: center;
+  }
+
+  .ambition h2 {
+    color: var(--white);
+    font-size: clamp(1.6rem, 3.2vw, 2.3rem);
+    margin-bottom: 1.2rem;
+  }
+
+  .ambition p {
+    color: var(--aqua-100);
+    margin-bottom: 1rem;
+  }
+
+  .ambition-signoff {
+    margin-top: 1.6rem;
+    font-weight: 700;
+    color: var(--white) !important;
+    letter-spacing: 0.02em;
+  }
+</style>

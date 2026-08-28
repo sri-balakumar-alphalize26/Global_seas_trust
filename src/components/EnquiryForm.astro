@@ -13,7 +13,10 @@
 import 'intl-tel-input/styles';
 import { company } from '../data/site';
 
+import { t, type Lang } from '../i18n';
+
 interface Props {
+  lang?: Lang;
   addressLines?: string[];
   mapQuery?: string;
   /** direct Google Maps link (share URL) — wins over `mapQuery` when set */
@@ -25,8 +28,11 @@ interface Props {
   action?: string;
 }
 
+const { lang = 'en' } = Astro.props;
+const L = t(lang);
+
 const {
-  addressLines = company.addressLines,
+  addressLines = lang === 'ar' ? company.addressLinesAr : company.addressLines,
   mapQuery,
   mapsUrl: mapsUrlProp = company.mapsUrl,
   crNumber = company.crNumber,
@@ -38,15 +44,15 @@ const query = mapQuery ?? addressLines.join(' ').replace(/,\s*$/, '');
 const mapsUrl = mapsUrlProp ?? `https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(query)}`;
 
 const fields = [
-  { name: 'name', label: 'Full Name', type: 'text', placeholder: 'Your name', required: true, half: true },
-  { name: 'company', label: 'Company', type: 'text', placeholder: 'Company name', required: false, half: true },
-  { name: 'email', label: 'Email', type: 'email', placeholder: 'you@company.com', required: true, half: true },
-  { name: 'phone', label: 'Phone', type: 'tel', placeholder: '+000 0000 0000', required: false, half: true },
+  { name: 'name', label: L.form.name, type: 'text', placeholder: L.form.namePh, required: true, half: true },
+  { name: 'company', label: L.form.company, type: 'text', placeholder: L.form.companyPh, required: false, half: true },
+  { name: 'email', label: L.form.email, type: 'email', placeholder: L.form.emailPh, required: true, half: true },
+  { name: 'phone', label: L.form.phone, type: 'tel', placeholder: L.form.phonePh, required: false, half: true },
   {
     name: 'subject',
-    label: 'Subject',
+    label: L.form.subject,
     type: 'text',
-    placeholder: 'e.g. Quote request — Yellowfin Tuna, EU port',
+    placeholder: L.form.subjectPh,
     required: true,
     half: false,
   },
@@ -57,8 +63,8 @@ const fields = [
   <div class="eq__inner">
     <!-- ------------------------------------------------------------ form -->
     <div class="eq__form-col">
-      <h2 class="eq__title" style="--i:0">Send an Enquiry</h2>
-      <p class="eq__sub" style="--i:1">Fill in the form and we will respond by email. Fields marked * are required.</p>
+      <h2 class="eq__title" style="--i:0">{L.form.h2}</h2>
+      <p class="eq__sub" style="--i:1">{L.form.lede}</p>
 
       <form class="eq__form" action={action} method="post" novalidate>
         <div class="eq__rows">
@@ -72,11 +78,9 @@ const fields = [
                       inside one (label clicks re-focus the input and close it). */}
                   {/* display-only: no name, so its national digits never post.
                       The hidden field below carries the full +E.164 number. */}
-                  <input type="tel" data-iti aria-labelledby="eq-phone-label" autocomplete="tel" />
+                  <input type="tel" data-iti aria-labelledby="eq-phone-label" autocomplete="tel" dir="ltr" />
                   <input type="hidden" name="phone" data-phone-e164 />
-                  <em class="eq__err" data-phone-err hidden>
-                    Enter a valid phone number for the selected country
-                  </em>
+                  <em class="eq__err" data-phone-err hidden>{L.form.phoneError}</em>
                 </div>
               ) : (
                 <label class:list={['eq__field', { 'eq__field--half': f.half }]} style={`--i:${i + 2}`}>
@@ -90,20 +94,19 @@ const fields = [
           }
 
           <label class="eq__field" style={`--i:${fields.length + 2}`}>
-            <span>Message <i aria-hidden="true">*</i></span>
-            <textarea name="message" rows="6" placeholder="Species, quantity, grade, packing, destination port…" required
-            ></textarea>
+            <span>{L.form.message} <i aria-hidden="true">*</i></span>
+            <textarea name="message" rows="6" placeholder={L.form.messagePh} required></textarea>
           </label>
         </div>
 
         <button class="eq__submit" type="submit" style={`--i:${fields.length + 3}`}>
-          <span>Send Message</span>
+          <span>{L.form.submit}</span>
           <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
             <path d="M4 12h15M13 6l6 6-6 6" />
           </svg>
         </button>
 
-        <p class="eq__done" data-done hidden>Thanks — your enquiry is with the trade desk. We reply within one working day.</p>
+        <p class="eq__done" data-done hidden>{L.form.success}</p>
       </form>
 
       <!-- shown when Send is tapped with an invalid phone number -->
@@ -116,9 +119,9 @@ const fields = [
               <circle cx="12" cy="16.8" r="0.6" fill="currentColor"></circle>
             </svg>
           </span>
-          <h3 id="eq-alert-title">Invalid phone number</h3>
-          <p>Please enter a valid phone number for the selected country.</p>
-          <button type="button" class="eq__alert-ok" data-alert-ok>OK</button>
+          <h3 id="eq-alert-title">{L.form.invalidTitle}</h3>
+          <p>{L.form.invalidText}</p>
+          <button type="button" class="eq__alert-ok" data-alert-ok>{L.form.ok}</button>
         </div>
       </dialog>
     </div>
@@ -129,7 +132,7 @@ const fields = [
         <div class="eq__map eq__map--embed" style="--i:2">
           <iframe
             src={embedSrc}
-            title={`${company.name} location`}
+            title={L.form.mapTitle(lang === 'ar' ? company.nameAr : company.name)}
             loading="lazy"
             referrerpolicy="no-referrer-when-downgrade"
             allowfullscreen
@@ -139,13 +142,13 @@ const fields = [
             href={mapsUrl}
             target="_blank"
             rel="noopener noreferrer"
-            aria-label={`Open ${query} in Google Maps`}
+            aria-label={L.common.openInMapsAria(query)}
           >
             {addressLines.map((l) => (
               <span class="eq__addr">{l}</span>
             ))}
-            {crNumber && <span class="eq__addr">C.R. No. {crNumber}</span>}
-            <span class="eq__map-hint">Open in Google Maps →</span>
+            {crNumber && <span class="eq__addr">{L.common.crNo(crNumber)}</span>}
+            <span class="eq__map-hint">{L.common.openInMaps}</span>
           </a>
         </div>
       ) : (
@@ -155,7 +158,7 @@ const fields = [
           href={mapsUrl}
           target="_blank"
           rel="noopener noreferrer"
-          aria-label={`Open ${query} in Google Maps`}
+          aria-label={L.common.openInMapsAria(query)}
         >
           <span class="eq__pin">
             <span class="eq__ripple" aria-hidden="true" />
@@ -164,12 +167,12 @@ const fields = [
               <circle cx="12" cy="10" r="2.7" fill="#fff" />
             </svg>
           </span>
-          <strong>Find Us</strong>
+          <strong>{L.form.findUs}</strong>
           {addressLines.map((l) => (
             <span class="eq__addr">{l}</span>
           ))}
-          {crNumber && <span class="eq__addr">C.R. No. {crNumber}</span>}
-          <span class="eq__map-hint">Open in Google Maps →</span>
+          {crNumber && <span class="eq__addr">{L.common.crNo(crNumber)}</span>}
+          <span class="eq__map-hint">{L.common.openInMaps}</span>
         </a>
       )
     }
@@ -434,6 +437,15 @@ const fields = [
 
   .eq__submit:hover svg {
     transform: translateX(4px);
+  }
+
+  /* the arrow points the way the text runs */
+  :global([dir='rtl']) .eq__submit svg {
+    transform: scaleX(-1);
+  }
+
+  :global([dir='rtl']) .eq__submit:hover svg {
+    transform: scaleX(-1) translateX(4px);
   }
 
   .eq__submit:active {

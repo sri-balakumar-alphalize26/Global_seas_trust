@@ -24,8 +24,15 @@ export default defineConfig({
     // Emits /sitemap-index.xml (+ sitemap-0.xml); referenced from public/robots.txt.
     sitemap({
       filter: (page) => !page.includes('/credits/') && !page.includes('/404'),
+      // English at /, Arabic at /ar/ — emits <xhtml:link rel="alternate" hreflang>
+      // pairs so Google serves the right language per visitor.
+      i18n: {
+        defaultLocale: 'en',
+        locales: { en: 'en', ar: 'ar' },
+      },
       serialize(item) {
-        const path = new URL(item.url).pathname;
+        // Arabic and English share the same priority — strip the /ar prefix first.
+        const path = new URL(item.url).pathname.replace(/^\/ar(?=\/)/, '') || '/';
         const [priority, changefreq] =
           ROUTE_META[path] ??
           (/^\/products\/[^/]+\/$/.test(path)

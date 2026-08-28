@@ -1,0 +1,19 @@
+---
+import ProductPage from '../../../../../components/pages/ProductPage.astro';
+import { getAllProducts, type CatalogueEntry } from '../../../../../data/catalogue';
+
+export function getStaticPaths() {
+  return getAllProducts('ar').map((p) => ({
+    params: { category: p.category.id, slug: p.slug },
+    props: { product: p },
+  }));
+}
+
+interface Props {
+  product: CatalogueEntry;
+}
+
+const { product } = Astro.props;
+---
+
+<ProductPage lang="ar" product={product} />

@@ -1,0 +1,93 @@
+---
+// Static hosts (Netlify, Vercel, Cloudflare, Nginx with error_page) serve
+// dist/404.html for unknown URLs. Kept out of the sitemap and marked noindex.
+import BaseLayout from '../../layouts/BaseLayout.astro';
+import PageHero from '../../components/PageHero.astro';
+import bannerAbout from '../../assets/site/banner-about.jpg';
+import { navLinks } from '../../data/site';
+import { localePath, t, type Lang } from '../../i18n';
+
+interface Props {
+  lang?: Lang;
+}
+
+const { lang = 'en' } = Astro.props;
+const L = t(lang);
+---
+
+<BaseLayout lang={lang} title={L.notFound.seoTitle} description={L.notFound.seoDesc} noindex>
+  <PageHero heading={L.notFound.seoTitle} image={bannerAbout}>
+    <p>{L.notFound.heroSub}</p>
+  </PageHero>
+
+  <section class="section">
+    <div class="container nf-wrap" data-rv>
+      <p class="nf-code" aria-hidden="true">404</p>
+      <p class="nf-lede">{L.notFound.lede}</p>
+      <div class="nf-actions">
+        <a href={localePath('/', lang)} class="btn btn--primary">{L.notFound.backHome}</a>
+        <a href={localePath('/products/', lang)} class="btn btn--outline">{L.notFound.browseProducts}</a>
+      </div>
+      <nav class="nf-links" aria-label={L.notFound.sitePages}>
+        {navLinks.map((link) => <a href={localePath(link.href, lang)}>{L.nav[link.key]}</a>)}
+      </nav>
+    </div>
+  </section>
+</BaseLayout>
+
+<style>
+  .nf-wrap {
+    text-align: center;
+    max-width: 640px;
+  }
+
+  .nf-code {
+    font-size: clamp(4rem, 12vw, 7rem);
+    font-weight: 800;
+    line-height: 1;
+    letter-spacing: -0.04em;
+    color: var(--aqua-100);
+    margin-bottom: 0.5rem;
+  }
+
+  .nf-lede {
+    font-size: 1.15rem;
+    color: var(--text-600);
+    margin-bottom: 1.6rem;
+  }
+
+  .nf-actions {
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: center;
+    gap: 0.8rem;
+    margin-bottom: 2rem;
+  }
+
+  /* outline variant for light backgrounds (global .btn--ghost is for navy) */
+  .btn--outline {
+    background: transparent;
+    color: var(--blue-600);
+    border: 2px solid var(--blue-400);
+  }
+
+  .btn--outline:hover {
+    background: var(--aqua-100);
+  }
+
+  .nf-links {
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: center;
+    gap: 0.4rem 1.4rem;
+    font-size: 0.9rem;
+  }
+
+  .nf-links a {
+    color: var(--text-400);
+  }
+
+  .nf-links a:hover {
+    color: var(--blue-600);
+  }
+</style>

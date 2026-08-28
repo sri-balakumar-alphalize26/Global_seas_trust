@@ -129,6 +129,11 @@ const {
     transition: background-size 900ms var(--obj-ease);
   }
 
+  /* sweep from the side the text starts on */
+  :global([dir='rtl']) .obj__para :global(mark) {
+    background-position: right;
+  }
+
   /* ------------------------------------------------------------ right col */
 
   .obj__side {
