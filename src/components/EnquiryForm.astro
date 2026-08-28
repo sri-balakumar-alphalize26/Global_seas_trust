@@ -1,0 +1,605 @@
+---
+/**
+ * EnquiryForm.astro — "Send an Enquiry" + the Find Us panel.
+ *
+ * Entrance: heading, then the fields deal in one after another from the left;
+ * the map panel scales up on the right and its pin drops with a bounce and a
+ * single ripple. The whole panel is a link into Google Maps.
+ *
+ * Site adaptation: reduced-motion opt-out removed per the site-wide
+ * always-animate decision (see transitions.css note).
+ */
+
+import 'intl-tel-input/styles';
+
+interface Props {
+  addressLines?: string[];
+  mapQuery?: string;
+  /** optional Google Maps embed src; falls back to the illustrated panel */
+  embedSrc?: string;
+  action?: string;
+}
+
+const {
+  addressLines = ['P.O. Box 1234, Industrial Port Area,', 'Muscat, Sultanate of Oman'],
+  mapQuery,
+  embedSrc,
+  action,
+} = Astro.props;
+
+const query = mapQuery ?? addressLines.join(' ').replace(/,\s*$/, '');
+const mapsUrl = `https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(query)}`;
+
+const fields = [
+  { name: 'name', label: 'Full Name', type: 'text', placeholder: 'Your name', required: true, half: true },
+  { name: 'company', label: 'Company', type: 'text', placeholder: 'Company name', required: false, half: true },
+  { name: 'email', label: 'Email', type: 'email', placeholder: 'you@company.com', required: true, half: true },
+  { name: 'phone', label: 'Phone', type: 'tel', placeholder: '+000 0000 0000', required: false, half: true },
+  {
+    name: 'subject',
+    label: 'Subject',
+    type: 'text',
+    placeholder: 'e.g. Quote request — Yellowfin Tuna, EU port',
+    required: true,
+    half: false,
+  },
+];
+---
+
+<section class="eq">
+  <div class="eq__inner">
+    <!-- ------------------------------------------------------------ form -->
+    <div class="eq__form-col">
+      <h2 class="eq__title" style="--i:0">Send an Enquiry</h2>
+      <p class="eq__sub" style="--i:1">Fill in the form and we will respond by email. Fields marked * are required.</p>
+
+      <form class="eq__form" action={action} method="post" novalidate>
+        <div class="eq__rows">
+          {
+            fields.map((f, i) =>
+              f.name === 'phone' ? (
+                <div class="eq__field eq__field--half eq__field--phone" style={`--i:${i + 2}`}>
+                  <span id="eq-phone-label">{f.label}</span>
+                  {/* intl-tel-input attaches here: country dropdown + per-country
+                      digit rules. Kept outside a <label> — the dropdown misbehaves
+                      inside one (label clicks re-focus the input and close it). */}
+                  <input type="tel" name="phone" data-iti aria-labelledby="eq-phone-label" autocomplete="tel" />
+                  <em class="eq__err" data-phone-err hidden>
+                    Enter a valid phone number for the selected country
+                  </em>
+                </div>
+              ) : (
+                <label class:list={['eq__field', { 'eq__field--half': f.half }]} style={`--i:${i + 2}`}>
+                  <span>
+                    {f.label} {f.required && <i aria-hidden="true">*</i>}
+                  </span>
+                  <input type={f.type} name={f.name} placeholder={f.placeholder} required={f.required} />
+                </label>
+              )
+            )
+          }
+
+          <label class="eq__field" style={`--i:${fields.length + 2}`}>
+            <span>Message <i aria-hidden="true">*</i></span>
+            <textarea name="message" rows="6" placeholder="Species, quantity, grade, packing, destination port…" required
+            ></textarea>
+          </label>
+        </div>
+
+        <button class="eq__submit" type="submit" style={`--i:${fields.length + 3}`}>
+          <span>Send Message</span>
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+            <path d="M4 12h15M13 6l6 6-6 6" />
+          </svg>
+        </button>
+
+        <p class="eq__done" data-done hidden>Thanks — your enquiry is with the trade desk. We reply within one working day.</p>
+      </form>
+    </div>
+
+    <!-- ------------------------------------------------------------- map -->
+    {
+      embedSrc ? (
+        <div class="eq__map eq__map--embed" style="--i:2">
+          <iframe
+            src={embedSrc}
+            title="Global Seas Trust location"
+            loading="lazy"
+            referrerpolicy="no-referrer-when-downgrade"
+            allowfullscreen
+          />
+        </div>
+      ) : (
+        <a
+          class="eq__map"
+          style="--i:2"
+          href={mapsUrl}
+          target="_blank"
+          rel="noopener noreferrer"
+          aria-label={`Open ${query} in Google Maps`}
+        >
+          <span class="eq__pin">
+            <span class="eq__ripple" aria-hidden="true" />
+            <svg viewBox="0 0 24 24" aria-hidden="true">
+              <path d="M12 22s7.5-6.6 7.5-11.8A7.5 7.5 0 1 0 4.5 10.2C4.5 15.4 12 22 12 22Z" fill="currentColor" />
+              <circle cx="12" cy="10" r="2.7" fill="#fff" />
+            </svg>
+          </span>
+          <strong>Find Us at the Port</strong>
+          {addressLines.map((l) => (
+            <span class="eq__addr">{l}</span>
+          ))}
+          <span class="eq__map-hint">Open in Google Maps →</span>
+        </a>
+      )
+    }
+  </div>
+</section>
+
+<style>
+  .eq {
+    --eq-ink: #0a2258;
+    --eq-body: #46596b;
+    --eq-brand: #1a5bd7;
+    --eq-soft: #e8f0fd;
+    --eq-field: #f6f8fd;
+    --eq-line: #e2e9f8;
+    --eq-step: 70ms;
+    --eq-ease: cubic-bezier(0.22, 1, 0.36, 1);
+
+    padding-block: 40px 84px;
+    background: #fff;
+  }
+
+  .eq__inner {
+    width: 100%;
+    max-width: 1200px;
+    margin-inline: auto;
+    padding-inline: 28px;
+    display: grid;
+    grid-template-columns: 1.15fr 0.85fr;
+    gap: 48px;
+    align-items: start;
+  }
+
+  .eq__title {
+    margin: 0 0 8px;
+    font-size: 1.5rem;
+    font-weight: 800;
+    letter-spacing: -0.02em;
+    color: var(--eq-ink);
+  }
+
+  .eq__sub {
+    margin: 0 0 26px;
+    font-size: 0.875rem;
+    color: var(--eq-brand);
+  }
+
+  .eq__rows {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 18px;
+  }
+
+  .eq__field {
+    display: grid;
+    gap: 7px;
+    grid-column: 1 / -1;
+  }
+
+  .eq__field--half {
+    grid-column: span 1;
+  }
+
+  .eq__field span {
+    font-size: 0.8125rem;
+    font-weight: 700;
+    color: var(--eq-ink);
+  }
+
+  .eq__field i {
+    font-style: normal;
+    color: var(--eq-brand);
+  }
+
+  .eq__field input,
+  .eq__field textarea {
+    font: inherit;
+    font-size: 0.9063rem;
+    color: var(--eq-ink);
+    background: var(--eq-field);
+    border: 1px solid var(--eq-line);
+    border-radius: 8px;
+    padding: 12px 14px;
+    transition:
+      border-color 240ms ease,
+      background-color 240ms ease,
+      box-shadow 240ms ease;
+  }
+
+  .eq__field textarea {
+    resize: vertical;
+    line-height: 1.6;
+  }
+
+  .eq__field input::placeholder,
+  .eq__field textarea::placeholder {
+    color: #9aa7bd;
+  }
+
+  .eq__field input:focus,
+  .eq__field textarea:focus {
+    outline: none;
+    background: #fff;
+    border-color: var(--eq-brand);
+    box-shadow: 0 0 0 4px rgba(26, 91, 215, 0.13);
+  }
+
+  /* ---- country-code phone input ---- */
+  .eq__field--phone :global(.iti) {
+    width: 100%;
+  }
+
+  .eq__field--phone :global(.iti__dropdown-content) {
+    border-radius: 10px;
+    border: 1px solid var(--eq-line);
+    box-shadow: 0 18px 40px rgba(10, 34, 88, 0.16);
+    z-index: 20;
+  }
+
+  .eq__field--phone :global(.iti__country.iti__highlight) {
+    background: var(--eq-soft);
+  }
+
+  .eq__field--phone :global(.iti__search-input) {
+    font: inherit;
+    padding: 10px 12px;
+  }
+
+  .eq__err {
+    font-style: normal;
+    font-size: 0.78rem;
+    font-weight: 600;
+    color: #b23b32;
+  }
+
+  .eq__field.is-invalid input {
+    border-color: #b23b32;
+    box-shadow: 0 0 0 4px rgba(178, 59, 50, 0.12);
+  }
+
+  .eq__submit {
+    appearance: none;
+    font: inherit;
+    font-weight: 700;
+    font-size: 0.9375rem;
+    display: inline-flex;
+    align-items: center;
+    gap: 9px;
+    margin-top: 22px;
+    padding: 13px 26px;
+    border: 0;
+    border-radius: 999px;
+    background: var(--eq-brand);
+    color: #fff;
+    cursor: pointer;
+    box-shadow: 0 10px 24px rgba(26, 91, 215, 0.3);
+    transition:
+      transform 260ms var(--eq-ease),
+      box-shadow 260ms var(--eq-ease),
+      background-color 260ms ease;
+  }
+
+  .eq__submit svg {
+    width: 17px;
+    height: 17px;
+    transition: transform 320ms var(--eq-ease);
+  }
+
+  .eq__submit:hover {
+    background: #1650c4;
+    transform: translateY(-2px);
+    box-shadow: 0 16px 32px rgba(26, 91, 215, 0.36);
+  }
+
+  .eq__submit:hover svg {
+    transform: translateX(4px);
+  }
+
+  .eq__submit:active {
+    transform: translateY(0) scale(0.98);
+  }
+
+  .eq__done {
+    margin: 16px 0 0;
+    font-size: 0.9063rem;
+    font-weight: 600;
+    color: #0f7a48;
+    animation: eqDone 480ms var(--eq-ease) both;
+  }
+
+  @keyframes eqDone {
+    from {
+      opacity: 0;
+      transform: translateY(8px);
+    }
+  }
+
+  /* -------------------------------------------------------------- map -- */
+
+  .eq__map {
+    display: grid;
+    justify-items: center;
+    align-content: center;
+    text-align: center;
+    min-height: 420px;
+    padding: 40px 28px;
+    border-radius: 12px;
+    background: var(--eq-soft);
+    border: 1.5px dashed #a9c3f2;
+    color: var(--eq-body);
+    transition:
+      border-color 320ms ease,
+      box-shadow 320ms ease,
+      transform 420ms var(--eq-ease);
+  }
+
+  .eq__map:hover {
+    border-color: var(--eq-brand);
+    box-shadow: 0 18px 44px rgba(26, 91, 215, 0.14);
+    transform: translateY(-3px);
+  }
+
+  .eq__map--embed {
+    padding: 0;
+    overflow: hidden;
+    border-style: solid;
+  }
+
+  .eq__map--embed iframe {
+    width: 100%;
+    height: 100%;
+    min-height: 420px;
+    border: 0;
+    display: block;
+  }
+
+  .eq__pin {
+    position: relative;
+    display: grid;
+    place-items: center;
+    color: var(--eq-brand);
+    margin-bottom: 18px;
+  }
+
+  .eq__pin svg {
+    width: 34px;
+    height: 34px;
+  }
+
+  .eq__ripple {
+    position: absolute;
+    left: 50%;
+    bottom: -6px;
+    width: 34px;
+    height: 12px;
+    margin-left: -17px;
+    border-radius: 50%;
+    border: 2px solid var(--eq-brand);
+    opacity: 0;
+  }
+
+  .eq__map strong {
+    font-size: 1rem;
+    font-weight: 700;
+    color: #0f2f7a;
+    margin-bottom: 10px;
+  }
+
+  .eq__addr {
+    font-size: 0.875rem;
+    line-height: 1.6;
+  }
+
+  .eq__map-hint {
+    margin-top: 16px;
+    font-size: 0.75rem;
+    font-weight: 700;
+    color: var(--eq-brand);
+    opacity: 0;
+    transform: translateY(-4px);
+    transition:
+      opacity 300ms var(--eq-ease),
+      transform 300ms var(--eq-ease);
+  }
+
+  .eq__map:hover .eq__map-hint,
+  .eq__map:focus-visible .eq__map-hint {
+    opacity: 1;
+    transform: none;
+  }
+
+  /* ------------------------------------------------------ entrance state */
+
+  :global(html.eq-ready) .eq__title,
+  :global(html.eq-ready) .eq__sub,
+  :global(html.eq-ready) .eq__field,
+  :global(html.eq-ready) .eq__submit {
+    opacity: 0;
+    transform: translate3d(-18px, 0, 0);
+  }
+
+  :global(html.eq-ready) .eq__map {
+    opacity: 0;
+    transform: translate3d(0, 20px, 0) scale(0.97);
+  }
+
+  :global(html.eq-ready) .eq__pin {
+    opacity: 0;
+    transform: translateY(-26px);
+  }
+
+  .eq.is-in .eq__title,
+  .eq.is-in .eq__sub,
+  .eq.is-in .eq__field,
+  .eq.is-in .eq__submit {
+    opacity: 1;
+    transform: none;
+    transition:
+      opacity 560ms var(--eq-ease) calc(var(--i) * var(--eq-step)),
+      transform 560ms var(--eq-ease) calc(var(--i) * var(--eq-step));
+  }
+
+  .eq.is-in .eq__map {
+    opacity: 1;
+    transform: none;
+    transition:
+      opacity 700ms var(--eq-ease) calc(var(--i) * var(--eq-step)),
+      transform 700ms var(--eq-ease) calc(var(--i) * var(--eq-step)),
+      border-color 320ms ease,
+      box-shadow 320ms ease;
+  }
+
+  /* the pin falls in after the panel has landed */
+  .eq.is-in .eq__pin {
+    opacity: 1;
+    transform: none;
+    transition:
+      opacity 260ms ease 420ms,
+      transform 720ms cubic-bezier(0.3, 1.5, 0.5, 1) 420ms;
+  }
+
+  .eq.is-in .eq__ripple {
+    animation: eqRipple 900ms var(--eq-ease) 900ms;
+  }
+
+  @keyframes eqRipple {
+    0% {
+      opacity: 0.6;
+      transform: scale(0.4);
+    }
+    100% {
+      opacity: 0;
+      transform: scale(2.4);
+    }
+  }
+
+  /* ---------------------------------------------------------- responsive */
+
+  @media (max-width: 940px) {
+    .eq__inner {
+      grid-template-columns: minmax(0, 1fr);
+      gap: 34px;
+    }
+    .eq__map {
+      min-height: 300px;
+    }
+  }
+
+  @media (max-width: 560px) {
+    .eq__rows {
+      grid-template-columns: minmax(0, 1fr);
+    }
+    .eq__field--half {
+      grid-column: 1 / -1;
+    }
+    .eq__map-hint {
+      opacity: 1;
+      transform: none;
+    }
+  }
+</style>
+
+<script>
+  import intlTelInput from 'intl-tel-input';
+
+  let io: IntersectionObserver | null = null;
+
+  function seed() {
+    const sections = document.querySelectorAll<HTMLElement>('.eq');
+    if (!sections.length) return;
+
+    document.documentElement.classList.add('eq-ready');
+    io?.disconnect();
+
+    for (const s of sections) {
+      s.classList.remove('is-in');
+
+      // ---- country-code phone input (intl-tel-input + libphonenumber rules).
+      // strictMode caps typing at the selected country's max length (e.g. 10
+      // digits for India +91) and utils validate prefixes (6/7/8/9 for IN).
+      const phoneInput = s.querySelector<HTMLInputElement>('input[data-iti]');
+      let iti: ReturnType<typeof intlTelInput> | null = null;
+      if (phoneInput && !phoneInput.closest('.iti')) {
+        iti = intlTelInput(phoneInput, {
+          initialCountry: 'in',
+          separateDialCode: true,
+          strictMode: true,
+          countryOrder: ['in', 'om', 'ae', 'sa', 'qa', 'us', 'gb'],
+          loadUtils: () => import('intl-tel-input/utils'),
+        });
+      } else if (phoneInput) {
+        iti = intlTelInput.getInstance(phoneInput);
+      }
+
+      const err = s.querySelector<HTMLElement>('[data-phone-err]');
+      const fieldWrap = phoneInput?.closest<HTMLElement>('.eq__field');
+
+      const validatePhone = () => {
+        if (!iti || !phoneInput) return true;
+        const empty = phoneInput.value.trim() === '';
+        const ok = empty || iti.isValidNumber() === true;
+        if (err) err.hidden = ok;
+        fieldWrap?.classList.toggle('is-invalid', !ok);
+        return ok;
+      };
+
+      phoneInput?.addEventListener('blur', validatePhone);
+      phoneInput?.addEventListener('input', () => {
+        // clear the error live once the number becomes valid again
+        if (fieldWrap?.classList.contains('is-invalid')) validatePhone();
+      });
+      phoneInput?.addEventListener('countrychange', validatePhone);
+
+      const form = s.querySelector<HTMLFormElement>('.eq__form');
+      form?.addEventListener('submit', (e) => {
+        // phone rules apply whether or not a backend is wired up
+        if (!validatePhone()) {
+          e.preventDefault();
+          phoneInput?.focus();
+          return;
+        }
+        // hand any backend the full international number (+91XXXXXXXXXX)
+        if (iti && phoneInput && phoneInput.value.trim() !== '') {
+          phoneInput.value = iti.getNumber();
+        }
+
+        // demo-only completion — drop once `action` points at your endpoint
+        if (!form.getAttribute('action')) {
+          e.preventDefault();
+          if (!form.reportValidity()) return;
+          const done = form.querySelector<HTMLElement>('[data-done]');
+          if (done) done.hidden = false;
+          form.reset();
+          iti?.setNumber('');
+        }
+      });
+    }
+
+    io = new IntersectionObserver(
+      (entries) => {
+        for (const e of entries) {
+          if (!e.isIntersecting) continue;
+          e.target.classList.add('is-in');
+          io?.unobserve(e.target);
+        }
+      },
+      { threshold: 0.12 },
+    );
+
+    for (const s of sections) io.observe(s);
+  }
+
+  document.addEventListener('astro:page-load', seed);
+</script>

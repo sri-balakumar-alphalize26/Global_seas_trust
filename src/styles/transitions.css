@@ -1,5 +1,5 @@
 /* ==========================================================================
-   Global Sea Trust — ocean wave sweep page transition
+   Global Seas Trust — ocean wave sweep page transition
    --------------------------------------------------------------------------
    The whole effect is driven by Astro's own <ClientRouter /> lifecycle
    (astro:before-preparation → astro:after-swap). The browser's native View
@@ -10,7 +10,7 @@
 
 :root {
   --gst-wave-rise: 560ms;      /* bottom of screen → fully covered            */
-  --gst-wave-hold: 110ms;      /* beat at full cover, where the swap lands    */
+  --gst-wave-hold: 1200ms;     /* blue holds while the boat crosses the centre */
   --gst-wave-exit: 640ms;      /* fully covered → swept off the top           */
   --gst-wave-ease: cubic-bezier(0.76, 0, 0.24, 1);
   --gst-wave-crest: 120px;     /* height of the foam crest above/below panel  */
@@ -102,40 +102,40 @@
   to   { transform: translateX(0); }
 }
 
-/* Brand mark that surfaces for the beat where the page is fully covered.
-   Driven by a class rather than a fixed-length keyframe, so a slow network
-   holds the mark up instead of letting it vanish behind the curtain. */
-.gst-wave__mark {
+/* The boat sails across the covered screen. `.gst-wave__sea` centres it;
+   `.gst-wave__boat` carries the horizontal travel (driven from JS, so the legs
+   can match the real rise / hold / exit durations); `.gst-wave__bob` rides. */
+.gst-wave__sea {
   position: absolute;
   inset: 0;
   display: grid;
-  place-content: center;
-  justify-items: center;
-  gap: 16px;
-  opacity: 0;
-  transform: translate3d(0, 16px, 0) scale(0.92);
-  transition:
-    opacity 380ms ease,
-    transform 620ms cubic-bezier(0.22, 1, 0.36, 1);
+  place-items: center;
+  overflow: hidden;
 }
 
-.gst-wave.is-covering .gst-wave__mark {
-  opacity: 1;
-  transform: none;
+.gst-wave__boat {
+  will-change: transform;
+  transform: translate3d(-65vw, 0, 0);
 }
 
-.gst-wave__mark svg {
-  width: 62px;
-  height: 62px;
-  filter: drop-shadow(0 12px 28px rgba(0, 0, 0, 0.38));
+.gst-wave__bob {
+  animation: gstBoatBob 2.8s ease-in-out infinite alternate;
+  transform-origin: 50% 80%;
 }
 
-.gst-wave__mark span {
-  font-size: 0.6875rem;
-  font-weight: 700;
-  letter-spacing: 0.34em;
-  text-transform: uppercase;
-  color: rgba(169, 205, 229, 0.9);
+.gst-wave__bob svg {
+  width: clamp(112px, 15vw, 210px);
+  height: auto;
+  filter: drop-shadow(0 16px 34px rgba(0, 0, 0, 0.32));
+}
+
+@keyframes gstBoatBob {
+  from {
+    transform: translateY(-5px) rotate(-3.2deg);
+  }
+  to {
+    transform: translateY(5px) rotate(3.2deg);
+  }
 }
 
 /* --------------------------------------------------------------------------
@@ -175,7 +175,7 @@
 
 /* --------------------------------------------------------------------------
    4. Reduced-motion note: the OS-level guard was removed at the site owner's
-   request — the wave and reveals run for every visitor. Restore the original
-   @media (prefers-reduced-motion: reduce) fallback from the source zip if an
-   accessibility-first behaviour is wanted again.
+   request — the wave, boat and reveals run for every visitor. Restore the
+   original @media (prefers-reduced-motion: reduce) fallback from the source
+   component if an accessibility-first behaviour is wanted again.
    -------------------------------------------------------------------------- */

@@ -32,7 +32,10 @@ const year = new Date().getFullYear();
       <h4>Contact</h4>
       <ul class="contact-list">
         <li><Icon name="pin" size={18} /><span>{company.address}</span></li>
-        <li><Icon name="phone" size={18} /><span>{company.phone}</span></li>
+        <li>
+          <Icon name="phone" size={18} />
+          <a href={`tel:${company.phone.replace(/[^\d+]/g, '')}`}>{company.phone}</a>
+        </li>
         <li><Icon name="mail" size={18} /><span>{company.email}</span></li>
         <li><Icon name="clock" size={18} /><span>{company.hours}</span></li>
       </ul>

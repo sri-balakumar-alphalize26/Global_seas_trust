@@ -9,6 +9,11 @@
  * Motion is choreographed from Astro's router lifecycle:
  *   astro:before-preparation → the wave rises while the next page is fetched
  *   astro:after-swap         → the wave sweeps up and off, content surfaces
+ *
+ * Site adaptations to the provided component: swells retinted to the
+ * royal-blue brand palette (front swell must match the panel's top color),
+ * and the reduced-motion gates removed per the site-wide always-animate
+ * decision (see transitions.css note).
  */
 
 const PERIOD = 500;
@@ -47,17 +52,29 @@ const swells = [
     }
   </svg>
 
-  <div class="gst-wave__mark">
-    <svg viewBox="0 0 64 64" focusable="false">
-      <circle cx="32" cy="32" r="31" fill="none" stroke="rgba(169,205,229,.55)" stroke-width="1.5"></circle>
-      <path
-        d="M13 36c5-6.5 9-6.5 14 0s9 6.5 14 0 7-5 10 0"
-        fill="none"
-        stroke="#ffffff"
-        stroke-width="4.5"
-        stroke-linecap="round"></path>
-    </svg>
-    <span>Global Seas Trust</span>
+  {/* The mark sails left → right across the whole covered phase. */}
+  <div class="gst-wave__sea">
+    <div class="gst-wave__boat">
+      <div class="gst-wave__bob">
+        <svg viewBox="0 0 136 114" focusable="false">
+          <g fill="#ffffff">
+            <path d="M60 3 C 41 25, 28 50, 24 70 C 34 68, 48 68, 60 69 Z"></path>
+            <path d="M68 19 C 82 38, 93 56, 98 70 C 88 68, 78 68, 68 68 Z" opacity=".8"></path>
+            <path
+              d="M3 66 C 7 85, 24 96, 46 97 C 70 98, 93 90, 109 78 C 113 75, 117 74, 121 75
+                 C 119 82, 113 87, 106 91 C 88 100, 62 105, 42 102 C 20 99, 5 85, 3 66 Z"></path>
+            <path
+              d="M12 88 C 26 102, 50 108, 72 104 C 85 101, 96 96, 105 90
+                 C 101 99, 88 106, 72 109 C 46 113, 21 103, 12 88 Z"
+              opacity=".5"></path>
+            <circle cx="108" cy="81" r="3" fill="#0a2258"></circle>
+            <circle cx="127" cy="63" r="4"></circle>
+            <circle cx="129" cy="75" r="3"></circle>
+            <circle cx="125" cy="85" r="2.2"></circle>
+          </g>
+        </svg>
+      </div>
+    </div>
   </div>
 
   <svg
@@ -91,12 +108,53 @@ const swells = [
   const EASE = 'cubic-bezier(0.76, 0, 0.24, 1)';
 
   const curtain = () => document.getElementById('gst-wave');
+  const boat = () => document.querySelector<HTMLElement>('.gst-wave__boat');
 
   /** 'idle' → 'rising' → 'covering' → 'leaving' → 'idle' */
   let phase: 'idle' | 'rising' | 'covering' | 'leaving' = 'idle';
   let running: Animation | null = null;
   let rising: Promise<void> | null = null;
+  let voyage: Animation | null = null;
+  let legs: { rise: number; hold: number; exit: number; x0: number; x1: number; x2: number; x3: number } | null = null;
   let safety = 0;
+
+  /** Split one left → right crossing across the three curtain phases, with
+   *  each leg's distance proportional to its duration — so the boat holds a
+   *  constant speed instead of changing gear at the phase boundaries. */
+  function planVoyage() {
+    const rise = token('--gst-wave-rise', 560);
+    const hold = token('--gst-wave-hold', 1200);
+    const exit = token('--gst-wave-exit', 640);
+    const total = rise + hold + exit;
+    const span = window.innerWidth * 1.4; // clears the viewport on both sides
+    const x0 = -span / 2;
+    return {
+      rise,
+      hold,
+      exit,
+      x0,
+      x1: x0 + span * (rise / total),
+      x2: x0 + span * ((rise + hold) / total),
+      x3: x0 + span,
+    };
+  }
+
+  function sail(from: number, to: number, duration: number) {
+    const el = boat();
+    if (!el) return;
+    voyage?.cancel();
+    voyage = el.animate(
+      [{ transform: `translate3d(${from}px, 0, 0)` }, { transform: `translate3d(${to}px, 0, 0)` }],
+      { duration, easing: 'linear', fill: 'forwards' },
+    );
+  }
+
+  /** Where the boat actually is, so an early exit never snaps it sideways. */
+  function boatX() {
+    const el = boat();
+    if (!el) return 0;
+    return new DOMMatrixReadOnly(getComputedStyle(el).transform).m41;
+  }
 
   /** Distance the panel must travel to hide its crests completely. */
   function clearance(el: HTMLElement) {
@@ -123,11 +181,20 @@ const swells = [
     phase = 'rising';
     const d = clearance(el);
     el.classList.add('is-running');
-    // Let the browser paint the start frame before the mark fades in.
     requestAnimationFrame(() => el.classList.add('is-covering'));
 
+    // leg 1: the boat enters from the left while the water climbs
+    legs = planVoyage();
+    sail(legs.x0, legs.x1, legs.rise);
+
     rising = play(el, d, 0, token('--gst-wave-rise', 560)).then(() => {
-      if (phase === 'rising') phase = 'covering';
+      if (phase !== 'rising') return;
+      phase = 'covering';
+      // Leg 2: the long drift through the centre, on solid blue. Aimed past
+      // its waypoint at the same speed — the swap can land a little late, and
+      // a boat that keeps gliding beats one that parks mid-screen. Leg 3
+      // picks up from wherever it actually got to.
+      if (legs) sail(legs.x1, legs.x1 + (legs.x2 - legs.x1) * 1.35, legs.hold * 1.35);
     });
     return rising;
   }
@@ -139,9 +206,16 @@ const swells = [
 
     phase = 'leaving';
     el.classList.remove('is-covering');
+
+    // leg 3: the boat carries on off the right as the water sweeps up
+    if (legs) sail(boatX(), legs.x3, legs.exit);
+
     await play(el, 0, -clearance(el), token('--gst-wave-exit', 640));
     running?.cancel();
     running = null;
+    voyage?.cancel();
+    voyage = null;
+    legs = null;
     el.classList.remove('is-running');
     el.style.transform = '';
     phase = 'idle';
@@ -174,7 +248,7 @@ const swells = [
     surface();
     if (phase === 'idle') return;
     window.clearTimeout(safety);
-    window.setTimeout(fall, token('--gst-wave-hold', 110));
+    window.setTimeout(fall, token('--gst-wave-hold', 1200));
   });
 
   // 3. Safety net: if a navigation is aborted or a load fails, never leave
@@ -183,6 +257,6 @@ const swells = [
     window.clearTimeout(safety);
     safety = window.setTimeout(() => {
       if (phase !== 'idle') fall();
-    }, 2500);
+    }, 3000);
   });
 </script>

@@ -1,16 +1,13 @@
 ---
 import BaseLayout from '../layouts/BaseLayout.astro';
-import Icon from '../components/Icon.astro';
 import PageHero from '../components/PageHero.astro';
+import ContactCards from '../components/ContactCards.astro';
+import EnquiryForm from '../components/EnquiryForm.astro';
 import bannerContact from '../assets/site/banner-contact.jpg';
 import { company } from '../data/site';
 
-const contactCards = [
-  { icon: 'pin', title: 'Visit Us', lines: [company.address] },
-  { icon: 'phone', title: 'Call Us', lines: [company.phone] },
-  { icon: 'mail', title: 'Email Us', lines: [company.email] },
-  { icon: 'clock', title: 'Working Hours', lines: [company.hours] },
-];
+// Split for the two-line display in the tiles and the map panel.
+const addressLines = ['P.O. Box 1234, Industrial Port Area,', 'Muscat, Sultanate of Oman'];
 ---
 
 <BaseLayout title="Contact Us" description={`Get in touch with ${company.name} for quotes, specifications and partnership enquiries.`}>
@@ -21,229 +18,20 @@ const contactCards = [
     </p>
   </PageHero>
 
-  <section class="section">
-    <div class="container">
-      <div class="contact-cards" data-rv data-rv-stagger="90">
-        {
-          contactCards.map((c) => (
-            <div class="card contact-card">
-              <span class="contact-icon">
-                <Icon name={c.icon} size={26} />
-              </span>
-              <h3>{c.title}</h3>
-              {c.lines.map((line) => (
-                <p>{line}</p>
-              ))}
-            </div>
-          ))
-        }
-      </div>
+  <!-- Interactive contact tiles: maps, dialer, mail, live working hours -->
+  <ContactCards
+    addressLines={addressLines}
+    phone={company.phone}
+    email={company.email}
+    emailSubject="Enquiry from Global Seas Trust website"
+    hoursSummary={company.hours}
+  />
 
-      <div class="contact-layout">
-        <div class="form-wrap" data-rv="left">
-          <h2>Send an Enquiry</h2>
-          <p class="form-note">
-            Fill in the form and we will respond by email. Fields marked * are
-            required.
-          </p>
-          <!--
-            This form posts nowhere yet. Point `action` at your form backend
-            (e.g. Formspree, Basin, or your own API endpoint) to make it live.
-          -->
-          <form class="enquiry-form" method="POST" action="#">
-            <div class="form-row">
-              <label>
-                Full Name *
-                <input type="text" name="name" required placeholder="Your name" />
-              </label>
-              <label>
-                Company
-                <input type="text" name="company" placeholder="Company name" />
-              </label>
-            </div>
-            <div class="form-row">
-              <label>
-                Email *
-                <input type="email" name="email" required placeholder="you@company.com" />
-              </label>
-              <label>
-                Phone
-                <input type="tel" name="phone" placeholder="+000 0000 0000" />
-              </label>
-            </div>
-            <label>
-              Subject *
-              <input type="text" name="subject" required placeholder="e.g. Quote request — Yellowfin Tuna, EU port" />
-            </label>
-            <label>
-              Message *
-              <textarea name="message" rows="6" required placeholder="Species, quantity, grade, packing, destination port..."></textarea>
-            </label>
-            <button type="submit" class="btn btn--primary">Send Message</button>
-          </form>
-        </div>
-
-        <aside class="map-wrap" aria-label="Location" data-rv="right">
-          <!--
-            Replace this placeholder with an embedded map iframe, e.g. from
-            Google Maps: Share → Embed a map → copy the <iframe>.
-          -->
-          <div class="map-placeholder">
-            <Icon name="pin" size={54} />
-            <strong>Find Us at the Port</strong>
-            <p>{company.address}</p>
-          </div>
-        </aside>
-      </div>
-    </div>
-  </section>
+  <!--
+    Enquiry form + Find Us panel. No `action` yet, so the component's
+    demo submit shows the confirmation line — point `action` at a real
+    endpoint (Formspree/Basin/your API) to make it live, and pass
+    `embedSrc` for a real Google Maps embed instead of the panel.
+  -->
+  <EnquiryForm addressLines={addressLines} />
 </BaseLayout>
-
-<style>
-  .contact-cards {
-    display: grid;
-    grid-template-columns: repeat(4, 1fr);
-    gap: 1.5rem;
-    margin-bottom: 3.5rem;
-  }
-
-  .contact-card {
-    padding: 1.7rem 1.4rem;
-    text-align: center;
-  }
-
-  .contact-icon {
-    display: inline-grid;
-    place-items: center;
-    width: 54px;
-    height: 54px;
-    border-radius: 50%;
-    background: var(--aqua-100);
-    color: var(--blue-600);
-    margin-bottom: 0.8rem;
-  }
-
-  .contact-card h3 {
-    font-size: 1rem;
-    color: var(--navy-900);
-    margin-bottom: 0.4rem;
-  }
-
-  .contact-card p {
-    font-size: 0.87rem;
-    color: var(--text-600);
-  }
-
-  .contact-layout {
-    display: grid;
-    grid-template-columns: 1.3fr 1fr;
-    gap: 2.5rem;
-    align-items: stretch;
-  }
-
-  .form-wrap h2 {
-    color: var(--navy-900);
-    margin-bottom: 0.4rem;
-  }
-
-  .form-note {
-    color: var(--text-600);
-    font-size: 0.92rem;
-    margin-bottom: 1.6rem;
-  }
-
-  .enquiry-form {
-    display: flex;
-    flex-direction: column;
-    gap: 1.1rem;
-  }
-
-  .form-row {
-    display: grid;
-    grid-template-columns: 1fr 1fr;
-    gap: 1.1rem;
-  }
-
-  .enquiry-form label {
-    display: flex;
-    flex-direction: column;
-    gap: 0.4rem;
-    font-size: 0.85rem;
-    font-weight: 700;
-    color: var(--navy-800);
-  }
-
-  .enquiry-form input,
-  .enquiry-form textarea {
-    font: inherit;
-    font-weight: 400;
-    padding: 0.75rem 0.9rem;
-    border: 1.5px solid #d5e3ee;
-    border-radius: 10px;
-    background: var(--sand-50);
-    color: var(--text-900);
-    transition: border-color 0.15s ease, background 0.15s ease;
-    resize: vertical;
-  }
-
-  .enquiry-form input:focus,
-  .enquiry-form textarea:focus {
-    outline: none;
-    border-color: var(--blue-500);
-    background: var(--white);
-  }
-
-  .enquiry-form .btn {
-    align-self: flex-start;
-  }
-
-  .map-wrap {
-    display: flex;
-  }
-
-  .map-placeholder {
-    flex: 1;
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    justify-content: center;
-    gap: 0.6rem;
-    text-align: center;
-    padding: 2rem;
-    border-radius: var(--radius);
-    border: 2px dashed var(--aqua-300);
-    background: var(--aqua-100);
-    color: var(--navy-800);
-    min-height: 320px;
-  }
-
-  .map-placeholder :global(svg) {
-    color: var(--blue-500);
-  }
-
-  .map-placeholder p {
-    font-size: 0.9rem;
-    color: var(--text-600);
-    max-width: 260px;
-  }
-
-  @media (max-width: 900px) {
-    .contact-cards {
-      grid-template-columns: repeat(2, 1fr);
-    }
-
-    .contact-layout {
-      grid-template-columns: 1fr;
-    }
-  }
-
-  @media (max-width: 560px) {
-    .contact-cards {
-      grid-template-columns: 1fr;
-    }
-
-    .form-row {
-      grid-template-columns: 1fr;
-    }
-  }
-</style>

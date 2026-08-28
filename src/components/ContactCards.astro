@@ -1,0 +1,768 @@
+---
+/**
+ * ContactCards.astro — the four contact tiles.
+ *
+ * Each tile does something when tapped:
+ *   Visit Us      → Google Maps (deep-links into the app on mobile)
+ *   Call Us       → tel: dialer
+ *   Email Us      → Gmail compose on desktop, the device mail app on mobile
+ *   Working Hours → a modal with the full week, today highlighted, plus a
+ *                   live open/closed status computed in the BUSINESS timezone
+ *
+ * Entrance: tiles stagger in and their icon chips pop. Re-seeds on
+ * astro:page-load so it replays after a ClientRouter navigation.
+ *
+ * Site adaptation: reduced-motion opt-out removed per the site-wide
+ * always-animate decision (see transitions.css note).
+ */
+
+interface Hour {
+  /** 0 = Sunday … 6 = Saturday */
+  dow: number;
+  label: string;
+  /** 24h "HH:MM"; omit both for a closed day */
+  open?: string;
+  close?: string;
+}
+
+interface Props {
+  addressLines?: string[];
+  /** what Google Maps should search for; defaults to the address lines joined */
+  mapQuery?: string;
+  phone?: string;
+  email?: string;
+  emailSubject?: string;
+  hoursSummary?: string;
+  /** IANA zone the business actually operates in — not the visitor's */
+  timeZone?: string;
+  timeZoneLabel?: string;
+  hours?: Hour[];
+}
+
+const {
+  addressLines = ['P.O. Box 1234, Industrial Port Area,', 'Muscat, Sultanate of Oman'],
+  mapQuery,
+  phone = '+968 9000 0000',
+  email = 'info@globalseastrust.com',
+  emailSubject = 'Enquiry from Global Seas Trust website',
+  hoursSummary = 'Sunday – Thursday, 8:00 AM – 5:00 PM',
+  timeZone = 'Asia/Muscat',
+  timeZoneLabel = 'Muscat (GST, UTC+4)',
+  hours = [
+    { dow: 0, label: 'Sunday', open: '08:00', close: '17:00' },
+    { dow: 1, label: 'Monday', open: '08:00', close: '17:00' },
+    { dow: 2, label: 'Tuesday', open: '08:00', close: '17:00' },
+    { dow: 3, label: 'Wednesday', open: '08:00', close: '17:00' },
+    { dow: 4, label: 'Thursday', open: '08:00', close: '17:00' },
+    { dow: 5, label: 'Friday' },
+    { dow: 6, label: 'Saturday' },
+  ],
+} = Astro.props;
+
+const query = mapQuery ?? addressLines.join(' ').replace(/,\s*$/, '');
+const mapsUrl = `https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(query)}`;
+const telHref = `tel:${phone.replace(/[^\d+]/g, '')}`;
+const mailtoHref = `mailto:${email}?subject=${encodeURIComponent(emailSubject)}`;
+
+/** "08:00" → "8:00 AM" */
+const pretty = (t?: string) => {
+  if (!t) return '';
+  const [h, m] = t.split(':').map(Number);
+  const suffix = h >= 12 ? 'PM' : 'AM';
+  return `${((h + 11) % 12) + 1}:${String(m).padStart(2, '0')} ${suffix}`;
+};
+
+const payload = JSON.stringify({ timeZone, hours });
+---
+
+<section class="cc" data-hours={payload} data-tz-label={timeZoneLabel}>
+  <div class="cc__inner">
+    <div class="cc__grid">
+      <!-- Visit Us -------------------------------------------------------- -->
+      <a
+        class="cc__card"
+        style="--i:0"
+        href={mapsUrl}
+        target="_blank"
+        rel="noopener noreferrer"
+        aria-label={`Open ${query} in Google Maps`}
+      >
+        <span class="cc__chip">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+            <path d="M12 21.5s7-6.1 7-11a7 7 0 1 0-14 0c0 4.9 7 11 7 11Z" fill="currentColor" stroke="none" />
+            <circle cx="12" cy="10.2" r="2.5" fill="#fff" />
+          </svg>
+        </span>
+        <h3>Visit Us</h3>
+        {addressLines.map((l) => <p>{l}</p>)}
+        <span class="cc__hint">Open in Google Maps →</span>
+      </a>
+
+      <!-- Call Us --------------------------------------------------------- -->
+      <a class="cc__card" style="--i:1" href={telHref} aria-label={`Call ${phone}`}>
+        <span class="cc__chip">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+            <path
+              d="M6.5 3h3l1.5 4-2 1.4a12.5 12.5 0 0 0 6.6 6.6L17 13l4 1.5v3a2 2 0 0 1-2.2 2A17.5 17.5 0 0 1 3.5 5.2 2 2 0 0 1 5.5 3Z"
+              fill="currentColor"
+              stroke="none"></path>
+          </svg>
+        </span>
+        <h3>Call Us</h3>
+        <p>{phone}</p>
+        <span class="cc__hint">Tap to call →</span>
+      </a>
+
+      <!-- Email Us -------------------------------------------------------- -->
+      <a
+        class="cc__card cc__card--mail"
+        style="--i:2"
+        href={mailtoHref}
+        data-email={email}
+        data-subject={emailSubject}
+        aria-label={`Email ${email}`}
+      >
+        <span class="cc__chip">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+            <rect x="2.5" y="5" width="19" height="14" rx="2.4" fill="currentColor" stroke="none" />
+            <path d="m4.6 7.6 7.4 5.3 7.4-5.3" stroke="#fff" stroke-width="1.9" fill="none" />
+          </svg>
+        </span>
+        <h3>Email Us</h3>
+        <p class="cc__mail">{email}</p>
+        <span class="cc__hint">Compose in Gmail →</span>
+      </a>
+
+      <!-- Working Hours --------------------------------------------------- -->
+      <button class="cc__card" style="--i:3" type="button" data-hours-open aria-haspopup="dialog">
+        <span class="cc__chip">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+            <circle cx="12" cy="12" r="9" />
+            <path d="M12 7.2V12l3.2 2" />
+          </svg>
+        </span>
+        <h3>Working Hours</h3>
+        <p>{hoursSummary}</p>
+        <span class="cc__hint">See the full week →</span>
+      </button>
+    </div>
+  </div>
+
+  <!-- ------------------------------------------------------------ dialog -->
+  <dialog class="cc__dialog" aria-labelledby="cc-hours-title">
+    <div class="cc__sheet">
+      <header class="cc__sheet-head">
+        <span class="cc__chip cc__chip--solid">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+            <circle cx="12" cy="12" r="9" />
+            <path d="M12 7.2V12l3.2 2" />
+          </svg>
+        </span>
+        <div>
+          <h3 id="cc-hours-title">Working Hours</h3>
+          <p>{timeZoneLabel}</p>
+        </div>
+        <button class="cc__x" type="button" data-hours-close aria-label="Close">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.1" stroke-linecap="round" aria-hidden="true">
+            <path d="m6 6 12 12M18 6 6 18" />
+          </svg>
+        </button>
+      </header>
+
+      <p class="cc__status" data-hours-status hidden></p>
+
+      <ul class="cc__rows">
+        {
+          hours.map((d, i) => (
+            <li class="cc__row" style={`--r:${i}`} data-dow={d.dow}>
+              <span>{d.label}</span>
+              <b class:list={{ 'is-closed': !d.open }}>
+                {d.open ? `${pretty(d.open)} – ${pretty(d.close)}` : 'Closed'}
+              </b>
+            </li>
+          ))
+        }
+      </ul>
+
+      <footer class="cc__sheet-foot">
+        Closed on public holidays. Cold-store dispatch runs outside these hours by prior arrangement.
+      </footer>
+    </div>
+  </dialog>
+</section>
+
+<style>
+  .cc {
+    --cc-ink: #0a2258;
+    --cc-body: #46596b;
+    --cc-brand: #1447c0;
+    --cc-brand-bright: #1a5bd7;
+    --cc-soft: #e8f0fd;
+    --cc-line: #e8f0fd;
+    --cc-step: 90ms;
+    --cc-ease: cubic-bezier(0.22, 1, 0.36, 1);
+
+    padding-block: 56px 8px;
+    background: #fff;
+  }
+
+  .cc__inner {
+    width: 100%;
+    max-width: 1200px;
+    margin-inline: auto;
+    padding-inline: 28px;
+  }
+
+  .cc__grid {
+    display: grid;
+    grid-template-columns: repeat(4, minmax(0, 1fr));
+    gap: 20px;
+  }
+
+  .cc__card {
+    /* it is a button in one case and an anchor in three — normalise both */
+    appearance: none;
+    font: inherit;
+    text-align: center;
+    display: block;
+    width: 100%;
+    cursor: pointer;
+    -webkit-tap-highlight-color: transparent;
+
+    background: #fff;
+    border: 1px solid var(--cc-line);
+    border-radius: 10px;
+    padding: 26px 22px 22px;
+    box-shadow: 0 1px 2px rgba(10, 34, 88, 0.03);
+    transition:
+      transform 380ms var(--cc-ease),
+      box-shadow 380ms var(--cc-ease),
+      border-color 380ms var(--cc-ease);
+  }
+
+  .cc__card:hover {
+    transform: translateY(-5px);
+    border-color: #cfe0fb;
+    box-shadow: 0 18px 40px rgba(10, 34, 88, 0.1);
+  }
+
+  /* the tap itself gets a press, so a thumb sees the hit register */
+  .cc__card:active {
+    transform: translateY(-1px) scale(0.985);
+    transition-duration: 90ms;
+  }
+
+  .cc__card:focus-visible {
+    outline: 3px solid rgba(26, 91, 215, 0.4);
+    outline-offset: 3px;
+  }
+
+  .cc__chip {
+    display: grid;
+    place-items: center;
+    width: 44px;
+    height: 44px;
+    margin: 0 auto 16px;
+    border-radius: 50%;
+    background: var(--cc-soft);
+    color: var(--cc-brand);
+    transition:
+      background-color 340ms var(--cc-ease),
+      color 340ms var(--cc-ease),
+      transform 600ms cubic-bezier(0.34, 1.56, 0.64, 1);
+  }
+
+  .cc__chip svg {
+    width: 21px;
+    height: 21px;
+  }
+
+  .cc__card:hover .cc__chip {
+    background: var(--cc-brand-bright);
+    color: #fff;
+    transform: scale(1.08);
+  }
+
+  .cc__chip--solid {
+    background: var(--cc-brand-bright);
+    color: #fff;
+    margin: 0;
+    flex: none;
+  }
+
+  .cc__card h3 {
+    margin: 0 0 8px;
+    font-size: 0.9375rem;
+    font-weight: 700;
+    color: var(--cc-ink);
+  }
+
+  .cc__card p {
+    margin: 0;
+    font-size: 0.8438rem;
+    line-height: 1.6;
+    color: var(--cc-body);
+  }
+
+  .cc__mail {
+    color: var(--cc-brand-bright);
+    word-break: break-word;
+  }
+
+  /* the affordance only shows once you are actually pointing at the card */
+  .cc__hint {
+    display: block;
+    margin-top: 12px;
+    font-size: 0.75rem;
+    font-weight: 600;
+    letter-spacing: 0.02em;
+    color: var(--cc-brand-bright);
+    opacity: 0;
+    transform: translateY(-4px);
+    transition:
+      opacity 300ms var(--cc-ease),
+      transform 300ms var(--cc-ease);
+  }
+
+  .cc__card:hover .cc__hint,
+  .cc__card:focus-visible .cc__hint {
+    opacity: 1;
+    transform: none;
+  }
+
+  /* ------------------------------------------------------------- dialog -- */
+
+  .cc__dialog {
+    /* the global `* { margin: 0 }` reset kills the UA's dialog centering —
+       restore it explicitly so the sheet opens dead-centre */
+    position: fixed;
+    inset: 0;
+    margin: auto;
+    height: fit-content;
+
+    border: 0;
+    padding: 0;
+    background: transparent;
+    max-width: min(440px, calc(100vw - 32px));
+    width: 100%;
+    color: inherit;
+    overflow: visible;
+  }
+
+  .cc__dialog::backdrop {
+    background: rgba(6, 20, 52, 0.45);
+    backdrop-filter: blur(2px);
+    opacity: 0;
+  }
+
+  .cc__dialog[open]::backdrop {
+    animation: ccFade 260ms var(--cc-ease) forwards;
+  }
+
+  .cc__dialog.is-closing::backdrop {
+    animation: ccFade 200ms ease forwards reverse;
+  }
+
+  .cc__sheet {
+    background: #fff;
+    border-radius: 16px;
+    padding: 24px 24px 20px;
+    box-shadow: 0 30px 70px rgba(6, 20, 52, 0.3);
+  }
+
+  .cc__dialog[open] .cc__sheet {
+    animation: ccSheetIn 380ms var(--cc-ease) both;
+  }
+
+  .cc__dialog.is-closing .cc__sheet {
+    animation: ccSheetOut 200ms ease both;
+  }
+
+  @keyframes ccFade {
+    to {
+      opacity: 1;
+    }
+  }
+
+  @keyframes ccSheetIn {
+    from {
+      opacity: 0;
+      transform: translateY(22px) scale(0.94);
+    }
+    to {
+      opacity: 1;
+      transform: none;
+    }
+  }
+
+  @keyframes ccSheetOut {
+    to {
+      opacity: 0;
+      transform: translateY(10px) scale(0.97);
+    }
+  }
+
+  .cc__sheet-head {
+    display: flex;
+    align-items: center;
+    gap: 14px;
+    padding-bottom: 18px;
+    border-bottom: 1px solid var(--cc-line);
+  }
+
+  .cc__sheet-head h3 {
+    margin: 0;
+    font-size: 1.0625rem;
+    font-weight: 700;
+    color: var(--cc-ink);
+  }
+
+  .cc__sheet-head p {
+    margin: 2px 0 0;
+    font-size: 0.75rem;
+    letter-spacing: 0.04em;
+    color: var(--cc-body);
+  }
+
+  .cc__sheet-head div {
+    flex: 1;
+  }
+
+  .cc__x {
+    appearance: none;
+    border: 0;
+    background: var(--cc-soft);
+    color: var(--cc-ink);
+    width: 32px;
+    height: 32px;
+    border-radius: 50%;
+    display: grid;
+    place-items: center;
+    cursor: pointer;
+    flex: none;
+    transition: background-color 220ms ease;
+  }
+
+  .cc__x:hover {
+    background: #d9e6fb;
+  }
+
+  .cc__x svg {
+    width: 15px;
+    height: 15px;
+  }
+
+  .cc__status {
+    margin: 16px 0 4px;
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    padding: 7px 14px;
+    border-radius: 999px;
+    font-size: 0.8125rem;
+    font-weight: 600;
+  }
+
+  .cc__status::before {
+    content: '';
+    width: 8px;
+    height: 8px;
+    border-radius: 50%;
+    background: currentColor;
+    box-shadow: 0 0 0 0 currentColor;
+    animation: ccPing 2.2s ease-out infinite;
+  }
+
+  .cc__status[data-open='yes'] {
+    background: #e6f7ee;
+    color: #0f7a48;
+  }
+
+  .cc__status[data-open='no'] {
+    background: #fdeceb;
+    color: #b23b32;
+  }
+
+  @keyframes ccPing {
+    0% {
+      box-shadow: 0 0 0 0 currentColor;
+      opacity: 1;
+    }
+    70% {
+      box-shadow: 0 0 0 7px transparent;
+      opacity: 0.85;
+    }
+    100% {
+      box-shadow: 0 0 0 0 transparent;
+      opacity: 1;
+    }
+  }
+
+  .cc__rows {
+    list-style: none;
+    margin: 12px 0 0;
+    padding: 0;
+  }
+
+  .cc__row {
+    display: flex;
+    align-items: baseline;
+    justify-content: space-between;
+    gap: 16px;
+    padding: 11px 12px;
+    border-radius: 8px;
+    font-size: 0.9063rem;
+    color: var(--cc-body);
+  }
+
+  .cc__row b {
+    font-weight: 600;
+    color: var(--cc-ink);
+    font-variant-numeric: tabular-nums;
+  }
+
+  .cc__row b.is-closed {
+    color: #9aa7b8;
+    font-weight: 500;
+  }
+
+  .cc__row.is-today {
+    background: var(--cc-soft);
+  }
+
+  .cc__row.is-today span {
+    color: var(--cc-brand);
+    font-weight: 700;
+  }
+
+  .cc__row.is-today span::after {
+    content: ' · today';
+    font-weight: 600;
+    opacity: 0.65;
+  }
+
+  .cc__dialog[open] .cc__row {
+    animation: ccRow 420ms var(--cc-ease) both;
+    animation-delay: calc(140ms + var(--r) * 45ms);
+  }
+
+  @keyframes ccRow {
+    from {
+      opacity: 0;
+      transform: translateX(-10px);
+    }
+    to {
+      opacity: 1;
+      transform: none;
+    }
+  }
+
+  .cc__sheet-foot {
+    margin-top: 16px;
+    padding-top: 14px;
+    border-top: 1px solid var(--cc-line);
+    font-size: 0.75rem;
+    line-height: 1.6;
+    color: #8494a8;
+  }
+
+  /* ------------------------------------------------------ entrance state */
+
+  :global(html.cc-ready) .cc__card {
+    opacity: 0;
+    transform: translate3d(0, 22px, 0);
+  }
+
+  :global(html.cc-ready) .cc__card .cc__chip {
+    transform: scale(0.6);
+    opacity: 0;
+  }
+
+  .cc.is-in .cc__card {
+    opacity: 1;
+    transform: none;
+    transition:
+      opacity 640ms var(--cc-ease) calc(var(--i) * var(--cc-step)),
+      transform 640ms var(--cc-ease) calc(var(--i) * var(--cc-step)),
+      box-shadow 380ms var(--cc-ease),
+      border-color 380ms var(--cc-ease);
+  }
+
+  .cc.is-in .cc__card .cc__chip {
+    opacity: 1;
+    transform: none;
+    transition:
+      opacity 380ms var(--cc-ease) calc(120ms + var(--i) * var(--cc-step)),
+      transform 640ms cubic-bezier(0.34, 1.56, 0.64, 1) calc(120ms + var(--i) * var(--cc-step)),
+      background-color 340ms var(--cc-ease),
+      color 340ms var(--cc-ease);
+  }
+
+  /* ---------------------------------------------------------- responsive */
+
+  @media (max-width: 1024px) {
+    .cc__grid {
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+    }
+  }
+
+  @media (max-width: 560px) {
+    .cc__grid {
+      grid-template-columns: minmax(0, 1fr);
+    }
+    /* on a touch device the hint is the only affordance, so keep it visible */
+    .cc__hint {
+      opacity: 1;
+      transform: none;
+    }
+  }
+</style>
+
+<script>
+  type Hour = { dow: number; label: string; open?: string; close?: string };
+
+  let io: IntersectionObserver | null = null;
+
+  const toMin = (t: string) => {
+    const [h, m] = t.split(':').map(Number);
+    return h * 60 + m;
+  };
+
+  const pretty = (t: string) => {
+    const [h, m] = t.split(':').map(Number);
+    return `${((h + 11) % 12) + 1}:${String(m).padStart(2, '0')} ${h >= 12 ? 'PM' : 'AM'}`;
+  };
+
+  /** Today, in the BUSINESS timezone — not the visitor's. */
+  function localNow(timeZone: string) {
+    const parts = new Intl.DateTimeFormat('en-US', {
+      timeZone,
+      weekday: 'short',
+      hour: '2-digit',
+      minute: '2-digit',
+      hour12: false,
+    }).formatToParts(new Date());
+    const get = (t: string) => parts.find((p) => p.type === t)?.value ?? '';
+    const days = ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'];
+    return {
+      dow: Math.max(0, days.indexOf(get('weekday'))),
+      minutes: (Number(get('hour')) % 24) * 60 + Number(get('minute')),
+    };
+  }
+
+  function describe(hours: Hour[], timeZone: string) {
+    const now = localNow(timeZone);
+    const byDow = new Map(hours.map((h) => [h.dow, h]));
+    const today = byDow.get(now.dow);
+
+    if (today?.open && today.close) {
+      const from = toMin(today.open);
+      const to = toMin(today.close);
+      if (now.minutes >= from && now.minutes < to) {
+        return { dow: now.dow, open: true, text: `Open now · closes at ${pretty(today.close)}` };
+      }
+    }
+
+    // walk forward to the next day that has hours
+    for (let step = 0; step < 8; step++) {
+      const dow = (now.dow + step) % 7;
+      const day = byDow.get(dow);
+      if (!day?.open) continue;
+      if (step === 0 && now.minutes >= toMin(day.open)) continue; // already past today's opening
+      const when = step === 0 ? 'today' : step === 1 ? 'tomorrow' : day.label;
+      return { dow: now.dow, open: false, text: `Closed · opens ${when} at ${pretty(day.open)}` };
+    }
+    return { dow: now.dow, open: false, text: 'Closed' };
+  }
+
+  function wire(section: HTMLElement) {
+    const dialog = section.querySelector<HTMLDialogElement>('.cc__dialog');
+    const openBtn = section.querySelector<HTMLButtonElement>('[data-hours-open]');
+    if (!dialog || !openBtn) return;
+
+    const config = JSON.parse(section.dataset.hours ?? '{}') as { timeZone: string; hours: Hour[] };
+
+    const refresh = () => {
+      const state = describe(config.hours, config.timeZone);
+      const status = dialog.querySelector<HTMLElement>('[data-hours-status]');
+      if (status) {
+        status.textContent = state.text;
+        status.dataset.open = state.open ? 'yes' : 'no';
+        status.hidden = false;
+      }
+      dialog.querySelectorAll<HTMLElement>('.cc__row').forEach((row) => {
+        row.classList.toggle('is-today', Number(row.dataset.dow) === state.dow);
+      });
+    };
+
+    const open = () => {
+      refresh();
+      dialog.showModal();
+    };
+
+    // animate out before the element is actually removed from the top layer
+    const close = () => {
+      if (dialog.classList.contains('is-closing')) return;
+      dialog.classList.add('is-closing');
+      const done = (e: AnimationEvent) => {
+        if (e.target !== dialog.querySelector('.cc__sheet')) return;
+        dialog.removeEventListener('animationend', done);
+        dialog.classList.remove('is-closing');
+        dialog.close();
+      };
+      dialog.addEventListener('animationend', done);
+    };
+
+    openBtn.addEventListener('click', open);
+    dialog.querySelector('[data-hours-close]')?.addEventListener('click', close);
+
+    // Esc: let the browser start it, but play the exit first
+    dialog.addEventListener('cancel', (e) => {
+      e.preventDefault();
+      close();
+    });
+
+    // click on the backdrop (the dialog box itself, outside the sheet)
+    dialog.addEventListener('click', (e) => {
+      if (e.target === dialog) close();
+    });
+
+    // Gmail on desktop, the device's mail app on touch
+    const mail = section.querySelector<HTMLAnchorElement>('.cc__card--mail');
+    mail?.addEventListener('click', (e) => {
+      if (window.matchMedia('(pointer: coarse)').matches) return; // let mailto: run
+      e.preventDefault();
+      const to = mail.dataset.email ?? '';
+      const su = encodeURIComponent(mail.dataset.subject ?? '');
+      window.open(`https://mail.google.com/mail/?view=cm&fs=1&to=${to}&su=${su}`, '_blank', 'noopener');
+    });
+  }
+
+  function seed() {
+    const sections = document.querySelectorAll<HTMLElement>('.cc');
+    if (!sections.length) return;
+
+    document.documentElement.classList.add('cc-ready');
+    io?.disconnect();
+
+    for (const s of sections) {
+      s.classList.remove('is-in');
+      wire(s);
+    }
+
+    io = new IntersectionObserver(
+      (entries) => {
+        for (const e of entries) {
+          if (!e.isIntersecting) continue;
+          e.target.classList.add('is-in');
+          io?.unobserve(e.target);
+        }
+      },
+      { threshold: 0.2 },
+    );
+
+    for (const s of sections) io.observe(s);
+  }
+
+  document.addEventListener('astro:page-load', seed);
+</script>
