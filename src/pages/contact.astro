@@ -6,14 +6,14 @@ import EnquiryForm from '../components/EnquiryForm.astro';
 import bannerContact from '../assets/site/banner-contact.jpg';
 import { company } from '../data/site';
 
-// Split for the two-line display in the tiles and the map panel.
-const addressLines = ['P.O. Box 1234, Industrial Port Area,', 'Muscat, Sultanate of Oman'];
+// Contact details come from company in src/data/site.ts (single source).
+const { addressLines, mapsUrl } = company;
 ---
 
 <BaseLayout
   title="Contact Us"
   pageType="ContactPage"
-  description={`Contact ${company.name} in Muscat, Oman for seafood export quotes, product specifications, private-label packing and partnership enquiries.`}
+  description={`Contact ${company.name} in ${company.locality}, Oman for seafood export quotes, product specifications, private-label packing and partnership enquiries.`}
 >
   <PageHero heading="Contact Us" image={bannerContact}>
     <p>
@@ -25,6 +25,8 @@ const addressLines = ['P.O. Box 1234, Industrial Port Area,', 'Muscat, Sultanate
   <!-- Interactive contact tiles: maps, dialer, mail, live working hours -->
   <ContactCards
     addressLines={addressLines}
+    mapsUrl={mapsUrl}
+    crNumber={company.crNumber}
     phone={company.phone}
     email={company.email}
     emailSubject="Enquiry from Global Seas Trust website"
@@ -37,5 +39,10 @@ const addressLines = ['P.O. Box 1234, Industrial Port Area,', 'Muscat, Sultanate
     endpoint (Formspree/Basin/your API) to make it live, and pass
     `embedSrc` for a real Google Maps embed instead of the panel.
   -->
-  <EnquiryForm addressLines={addressLines} />
+  <EnquiryForm
+    addressLines={addressLines}
+    mapsUrl={mapsUrl}
+    crNumber={company.crNumber}
+    embedSrc={company.mapEmbedSrc}
+  />
 </BaseLayout>

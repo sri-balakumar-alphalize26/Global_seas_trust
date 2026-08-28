@@ -36,9 +36,25 @@ export const company = {
   founded: 2012,
   description:
     'At Global Seas Trust, our mission is to bring high-quality seafood from trusted sources to customers across the world. We are committed to delivering fresh and frozen seafood with uncompromising standards of quality, freshness, food safety, and reliability.',
-  address: 'P.O. Box 1234, Industrial Port Area, Muscat, Sultanate of Oman',
-  phone: '+968 9000 0000',
-  email: 'info@globalseastrust.com',
+  // Official details (company letterhead, C.R. 1403379).
+  address: 'Quroon, Jalan Bani Bu Hassan, P.Code 415, Sultanate of Oman',
+  /** Two-line form for tiles and panels. */
+  addressLines: ['Quroon, Jalan Bani Bu Hassan,', 'P.Code 415, Sultanate of Oman'],
+  locality: 'Jalan Bani Bu Hassan',
+  region: 'Ash Sharqiyah South Governorate',
+  postalCode: '415',
+  /** Commercial Registration number (shown on the site — expected in the Gulf market). */
+  crNumber: '1403379',
+  phone: '+968 9333 3731',
+  email: 'globalseastrust@gmail.com',
+  mapsUrl: 'https://maps.app.goo.gl/17quP2LEkg3EuGxh7',
+  /** Pin location (21°24'52.5"N 59°15'47.2"E) — from the Maps link above. */
+  geo: { lat: 21.4145716, lng: 59.2631178 },
+  /**
+   * Key-free Google Maps embed, satellite layer (t=k). If Google ever retires
+   * this endpoint, paste the iframe src from Maps → Share → "Embed a map" here.
+   */
+  mapEmbedSrc: 'https://maps.google.com/maps?q=21.4145716,59.2631178&t=k&z=17&hl=en&output=embed',
   hours: 'Sunday – Thursday, 8:00 AM – 5:00 PM',
   /** Structured form of `hours` → schema.org `openingHoursSpecification`. */
   openingHours: {

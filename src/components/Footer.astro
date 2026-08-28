@@ -36,8 +36,9 @@ const year = new Date().getFullYear();
           <Icon name="phone" size={18} />
           <a href={`tel:${company.phone.replace(/[^\d+]/g, '')}`}>{company.phone}</a>
         </li>
-        <li><Icon name="mail" size={18} /><span>{company.email}</span></li>
+        <li><Icon name="mail" size={18} /><a href={`mailto:${company.email}`}>{company.email}</a></li>
         <li><Icon name="clock" size={18} /><span>{company.hours}</span></li>
+        <li><Icon name="shield" size={18} /><span>C.R. No. {company.crNumber} · P.Code {company.postalCode}</span></li>
       </ul>
     </div>
   </div>

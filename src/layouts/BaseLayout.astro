@@ -84,8 +84,18 @@ const organization: Record<string, unknown> = {
   telephone: company.phone,
   address: {
     '@type': 'PostalAddress',
-    streetAddress: company.address,
+    streetAddress: 'Quroon',
+    addressLocality: company.locality,
+    addressRegion: company.region,
+    postalCode: company.postalCode,
     addressCountry: 'OM',
+  },
+  hasMap: company.mapsUrl,
+  geo: { '@type': 'GeoCoordinates', latitude: company.geo.lat, longitude: company.geo.lng },
+  identifier: {
+    '@type': 'PropertyValue',
+    propertyID: 'Commercial Registration (Oman)',
+    value: company.crNumber,
   },
   areaServed: 'Worldwide',
   openingHoursSpecification: [

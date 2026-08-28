@@ -25,12 +25,18 @@ interface Hour {
   close?: string;
 }
 
+import { company } from '../data/site';
+
 interface Props {
   /** visually-hidden section heading — keeps the page outline h1 → h2 → h3 for search engines */
   heading?: string;
   addressLines?: string[];
   /** what Google Maps should search for; defaults to the address lines joined */
   mapQuery?: string;
+  /** direct Google Maps link (share URL) — wins over `mapQuery` when set */
+  mapsUrl?: string;
+  /** Commercial Registration number, shown under the address */
+  crNumber?: string;
   phone?: string;
   email?: string;
   emailSubject?: string;
@@ -43,14 +49,16 @@ interface Props {
 
 const {
   heading = 'Contact Details',
-  addressLines = ['P.O. Box 1234, Industrial Port Area,', 'Muscat, Sultanate of Oman'],
+  addressLines = company.addressLines,
   mapQuery,
-  phone = '+968 9000 0000',
-  email = 'info@globalseastrust.com',
-  emailSubject = 'Enquiry from Global Seas Trust website',
-  hoursSummary = 'Sunday – Thursday, 8:00 AM – 5:00 PM',
+  mapsUrl: mapsUrlProp = company.mapsUrl,
+  crNumber = company.crNumber,
+  phone = company.phone,
+  email = company.email,
+  emailSubject = `Enquiry from ${company.name} website`,
+  hoursSummary = company.hours,
   timeZone = 'Asia/Muscat',
-  timeZoneLabel = 'Muscat (GST, UTC+4)',
+  timeZoneLabel = 'Oman (GST, UTC+4)',
   hours = [
     { dow: 0, label: 'Sunday', open: '08:00', close: '17:00' },
     { dow: 1, label: 'Monday', open: '08:00', close: '17:00' },
@@ -63,7 +71,7 @@ const {
 } = Astro.props;
 
 const query = mapQuery ?? addressLines.join(' ').replace(/,\s*$/, '');
-const mapsUrl = `https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(query)}`;
+const mapsUrl = mapsUrlProp ?? `https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(query)}`;
 const telHref = `tel:${phone.replace(/[^\d+]/g, '')}`;
 const mailtoHref = `mailto:${email}?subject=${encodeURIComponent(emailSubject)}`;
 
@@ -99,6 +107,7 @@ const payload = JSON.stringify({ timeZone, hours });
         </span>
         <h3>Visit Us</h3>
         {addressLines.map((l) => <p>{l}</p>)}
+        {crNumber && <p>C.R. No. {crNumber}</p>}
         <span class="cc__hint">Open in Google Maps →</span>
       </a>
 

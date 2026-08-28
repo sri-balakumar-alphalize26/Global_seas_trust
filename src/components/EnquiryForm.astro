@@ -11,24 +11,31 @@
  */
 
 import 'intl-tel-input/styles';
+import { company } from '../data/site';
 
 interface Props {
   addressLines?: string[];
   mapQuery?: string;
+  /** direct Google Maps link (share URL) — wins over `mapQuery` when set */
+  mapsUrl?: string;
+  /** Commercial Registration number, shown under the address */
+  crNumber?: string;
   /** optional Google Maps embed src; falls back to the illustrated panel */
   embedSrc?: string;
   action?: string;
 }
 
 const {
-  addressLines = ['P.O. Box 1234, Industrial Port Area,', 'Muscat, Sultanate of Oman'],
+  addressLines = company.addressLines,
   mapQuery,
+  mapsUrl: mapsUrlProp = company.mapsUrl,
+  crNumber = company.crNumber,
   embedSrc,
   action,
 } = Astro.props;
 
 const query = mapQuery ?? addressLines.join(' ').replace(/,\s*$/, '');
-const mapsUrl = `https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(query)}`;
+const mapsUrl = mapsUrlProp ?? `https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(query)}`;
 
 const fields = [
   { name: 'name', label: 'Full Name', type: 'text', placeholder: 'Your name', required: true, half: true },
@@ -122,11 +129,24 @@ const fields = [
         <div class="eq__map eq__map--embed" style="--i:2">
           <iframe
             src={embedSrc}
-            title="Global Seas Trust location"
+            title={`${company.name} location`}
             loading="lazy"
             referrerpolicy="no-referrer-when-downgrade"
             allowfullscreen
           />
+          <a
+            class="eq__map-foot"
+            href={mapsUrl}
+            target="_blank"
+            rel="noopener noreferrer"
+            aria-label={`Open ${query} in Google Maps`}
+          >
+            {addressLines.map((l) => (
+              <span class="eq__addr">{l}</span>
+            ))}
+            {crNumber && <span class="eq__addr">C.R. No. {crNumber}</span>}
+            <span class="eq__map-hint">Open in Google Maps →</span>
+          </a>
         </div>
       ) : (
         <a
@@ -144,10 +164,11 @@ const fields = [
               <circle cx="12" cy="10" r="2.7" fill="#fff" />
             </svg>
           </span>
-          <strong>Find Us at the Port</strong>
+          <strong>Find Us</strong>
           {addressLines.map((l) => (
             <span class="eq__addr">{l}</span>
           ))}
+          {crNumber && <span class="eq__addr">C.R. No. {crNumber}</span>}
           <span class="eq__map-hint">Open in Google Maps →</span>
         </a>
       )
@@ -460,6 +481,9 @@ const fields = [
   }
 
   .eq__map--embed {
+    grid-template-rows: 1fr auto;
+    justify-items: stretch;
+    align-content: stretch;
     padding: 0;
     overflow: hidden;
     border-style: solid;
@@ -468,9 +492,19 @@ const fields = [
   .eq__map--embed iframe {
     width: 100%;
     height: 100%;
-    min-height: 420px;
+    min-height: 340px;
     border: 0;
     display: block;
+  }
+
+  /* address + C.R. + link under the live map */
+  .eq__map-foot {
+    display: grid;
+    gap: 2px;
+    justify-items: center;
+    padding: 14px 18px 16px;
+    background: var(--eq-soft);
+    color: inherit;
   }
 
   .eq__pin {
