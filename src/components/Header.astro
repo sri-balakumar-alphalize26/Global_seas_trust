@@ -8,7 +8,7 @@ const isActive = (href: string) => (href.replace(/\/+$/, '') || '/') === current
 <header class="site-header gst-header">
   <div class="container header-inner gst-header__inner">
     <a href="/" class="logo" aria-label={`${company.name} home`}>
-      <img src="/gst-logo-full.jpg" alt="" class="logo-img" width="64" height="64" />
+      <img src="/gst-logo.png" alt="" class="logo-img" width="80" height="64" />
       <span class="logo-text">
         <strong>{company.name}</strong>
         <small>{company.tagline}</small>
@@ -60,11 +60,10 @@ const isActive = (href: string) => (href.replace(/\/+$/, '') || '/') === current
   }
 
   .logo-img {
-    width: 64px;
+    /* transparent PNG — sits straight on the header, no chip behind it */
     height: 64px;
-    border-radius: 10px;
+    width: auto;
     object-fit: contain;
-    background: var(--white);
     flex-shrink: 0;
   }
 

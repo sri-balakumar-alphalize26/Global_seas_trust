@@ -42,6 +42,13 @@ export const company = {
   hours: 'Sunday – Thursday, 8:00 AM – 5:00 PM',
 };
 
+/** Reseller credit shown in the footer bar ("Powered by" + logo → their site). */
+export const poweredBy = {
+  name: 'Nex Genn POS',
+  url: 'https://nexgennpos.com/',
+  logo: '/nexgenn-logo.png',
+};
+
 export const navLinks = [
   { label: 'Home', href: '/' },
   { label: 'About Us', href: '/about/' },
