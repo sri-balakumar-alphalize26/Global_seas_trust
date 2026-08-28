@@ -4,23 +4,23 @@
    ============================================ */
 
 :root {
-  --navy-900: #06263e;
-  --navy-800: #0a3354;
-  --navy-700: #0e4470;
-  --blue-600: #1266a3;
-  --blue-500: #1a7fc4;
-  --blue-400: #3f9ad3;
-  --aqua-300: #7cc3e8;
-  --aqua-100: #e3f2fb;
-  --sand-50: #f7fafc;
+  --navy-900: #0a2258;
+  --navy-800: #0f2f7a;
+  --navy-700: #123a9c;
+  --blue-600: #1447c0;
+  --blue-500: #1a5bd7;
+  --blue-400: #3d7be8;
+  --aqua-300: #8fb4f2;
+  --aqua-100: #e8f0fd;
+  --sand-50: #f6f8fd;
   --white: #ffffff;
   --text-900: #12202e;
   --text-600: #46596b;
   --text-400: #7b8c9c;
   --gold-500: #d9a441;
   --radius: 12px;
-  --shadow-sm: 0 2px 8px rgba(6, 38, 62, 0.08);
-  --shadow-md: 0 8px 28px rgba(6, 38, 62, 0.14);
+  --shadow-sm: 0 2px 8px rgba(10, 34, 88, 0.08);
+  --shadow-md: 0 8px 28px rgba(10, 34, 88, 0.14);
   --container: 1160px;
 }
 

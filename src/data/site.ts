@@ -9,6 +9,12 @@ import type { ImageMetadata } from 'astro';
 import heroImage from '../assets/site/hero.jpg';
 import featureImage from '../assets/site/feature.jpg';
 import aboutImage from '../assets/site/about.jpg';
+import imgColdchain from '../assets/site/process-coldchain.jpg';
+import imgGrading from '../assets/site/process-grading.jpg';
+import imgPacking from '../assets/site/process-packing.jpg';
+import imgQa from '../assets/site/process-qa.jpg';
+import imgDelivery from '../assets/site/process-delivery.jpg';
+import imgRetail from '../assets/site/division-retail.jpg';
 import imgYellowfinTuna from '../assets/products/yellowfin-tuna.jpg';
 import imgKingfish from '../assets/products/kingfish.jpg';
 import imgIndianMackerel from '../assets/products/indian-mackerel.jpg';
@@ -25,14 +31,13 @@ export const siteImages = {
 };
 
 export const company = {
-  name: 'Global Sea Trust',
-  tagline: 'From Ocean to the World',
+  name: 'Global Seas Trust',
   founded: 2012,
   description:
-    'Global Sea Trust is an international seafood sourcing, processing and export company. We connect responsibly harvested catch from trusted fishing fleets with importers, distributors and food brands across the globe — with cold-chain integrity guaranteed at every step.',
+    'Global Seas Trust is an international seafood sourcing, processing and export company. We connect responsibly harvested catch from trusted fishing fleets with importers, distributors and food brands across the globe — with cold-chain integrity guaranteed at every step.',
   address: 'P.O. Box 1234, Industrial Port Area, Muscat, Sultanate of Oman',
   phone: '+968 9000 0000',
-  email: 'info@globalseatrust.com',
+  email: 'info@globalseastrust.com',
   hours: 'Sunday – Thursday, 8:00 AM – 5:00 PM',
 };
 
@@ -83,27 +88,30 @@ export const divisions = [
   {
     title: 'Seafood Processing',
     icon: 'factory',
+    image: aboutImage,
     text: 'Modern processing lines for grading, filleting, IQF and block freezing — engineered to preserve freshness from landing site to final packing.',
   },
   {
     title: 'Fish Meal & Fish Oil',
     icon: 'drop',
+    image: imgSardine,
     text: 'By-products and pelagic catch converted into high-protein fish meal and refined fish oil for aquaculture and animal nutrition industries.',
   },
   {
     title: 'Value-Added Manufacturing',
     icon: 'box',
+    image: imgRetail,
     text: 'Retail-ready portions, marinated lines and private-label packing tailored to supermarket chains and food-service partners worldwide.',
   },
 ];
 
 export const processSteps = [
-  { step: '01', title: 'Responsible Sourcing', text: 'Catch secured daily from vetted fishing fleets and landing centres.' },
-  { step: '02', title: 'Cold-Chain Intake', text: 'Rapid icing and temperature-controlled transfer to our facilities.' },
-  { step: '03', title: 'Processing & Grading', text: 'Hygienic processing, size grading and quality inspection by trained teams.' },
-  { step: '04', title: 'Freezing & Packing', text: 'IQF and blast freezing locked at −40°C, packed to customer specification.' },
-  { step: '05', title: 'Quality Assurance', text: 'Lab testing and documentation against international food-safety standards.' },
-  { step: '06', title: 'Global Delivery', text: 'Reefer-container logistics to ports across Asia, Europe, Africa and the Americas.' },
+  { step: '01', title: 'Responsible Sourcing', image: featureImage, text: 'Catch secured daily from vetted fishing fleets and landing centres.' },
+  { step: '02', title: 'Cold-Chain Intake', image: imgColdchain, text: 'Rapid icing and temperature-controlled transfer to our facilities.' },
+  { step: '03', title: 'Processing & Grading', image: imgGrading, text: 'Hygienic processing, size grading and quality inspection by trained teams.' },
+  { step: '04', title: 'Freezing & Packing', image: imgPacking, text: 'IQF and blast freezing locked at −40°C, packed to customer specification.' },
+  { step: '05', title: 'Quality Assurance', image: imgQa, text: 'Lab testing and documentation against international food-safety standards.' },
+  { step: '06', title: 'Global Delivery', image: imgDelivery, text: 'Reefer-container logistics to ports across Asia, Europe, Africa and the Americas.' },
 ];
 
 export const brands = [
@@ -111,12 +119,12 @@ export const brands = [
     name: 'OceanCrest',
     positioning: 'Premium Export Range',
     text: 'Our flagship label for sashimi-grade tuna, kingfish and premium cephalopods — hand-graded and destined for discerning wholesale and HoReCa buyers.',
-    color: '#0e4470',
+    color: '#123a9c',
   },
   {
     name: 'BlueHarvest',
     positioning: 'Everyday Family Seafood',
     text: 'Wholesome, affordable frozen seafood for retail shelves — sardines, mackerel and shrimp in family-sized packs with clear traceability.',
-    color: '#1a7fc4',
+    color: '#1a5bd7',
   },
 ];

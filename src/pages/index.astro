@@ -2,6 +2,9 @@
 import { Image } from 'astro:assets';
 import BaseLayout from '../layouts/BaseLayout.astro';
 import Icon from '../components/Icon.astro';
+import StatsGlance from '../components/StatsGlance.astro';
+import CertBadge from '../components/CertBadge.astro';
+import WaveDivider from '../components/WaveDivider.astro';
 import {
   company,
   stats,
@@ -31,18 +34,15 @@ import {
         <a href="/contact/" class="btn btn--ghost">Get in Touch</a>
       </div>
     </div>
-    <svg class="hero-wave" viewBox="0 0 1440 90" preserveAspectRatio="none" aria-hidden="true">
-      <path
-        fill="#ffffff"
-        d="M0,50 C240,90 480,10 720,40 C960,70 1200,20 1440,55 L1440,90 L0,90 Z"
-      ></path>
-    </svg>
+    <div class="hero-wave" aria-hidden="true">
+      <WaveDivider fill="#ffffff" height={90} speed={11} />
+    </div>
   </section>
 
   <!-- ============ SOURCING FEATURE ============ -->
   <section class="section">
     <div class="container feature-grid">
-      <div class="feature-art">
+      <div class="feature-art" data-rv="left">
         <Image
           src={siteImages.feature}
           alt="Fishing fleet docked at the harbor beside the seafood distribution facility"
@@ -54,7 +54,7 @@ import {
           <span>Quality First</span>
         </div>
       </div>
-      <div class="feature-text">
+      <div class="feature-text" data-rv="right">
         <span class="eyebrow">Freshness You Can Trust</span>
         <h2>Harvested From Pristine Waters</h2>
         <p>
@@ -74,32 +74,19 @@ import {
   </section>
 
   <!-- ============ STATS ============ -->
-  <section class="section section--navy stats-section">
-    <div class="container">
-      <div class="section-head">
-        <span class="eyebrow">{company.name} at a Glance</span>
-        <h2>A Decade of Steady Growth</h2>
-      </div>
-      <div class="stats-grid">
-        {
-          stats.map((s) => (
-            <div class="stat-card">
-              <span class="stat-icon">
-                <Icon name={s.icon} size={34} />
-              </span>
-              <strong>{s.value}</strong>
-              <span class="stat-label">{s.label}</span>
-            </div>
-          ))
-        }
-      </div>
-    </div>
-  </section>
+  <StatsGlance
+    eyebrow={`${company.name} at a Glance`}
+    stats={stats.map((s) => ({
+      value: s.value,
+      label: s.label,
+      icon: (s.icon === 'people' ? 'team' : s.icon) as 'anchor' | 'team' | 'globe' | 'truck',
+    }))}
+  />
 
   <!-- ============ PRODUCTS ============ -->
   <section class="section section--tint">
     <div class="container">
-      <div class="section-head">
+      <div class="section-head" data-rv>
         <span class="eyebrow">Our Products</span>
         <h2>Signature Catch From Our Waters</h2>
         <p>
@@ -108,7 +95,7 @@ import {
           specification.
         </p>
       </div>
-      <div class="product-grid">
+      <div class="product-grid" data-rv data-rv-stagger="90">
         {
           products.map((p) => (
             <article class="card product-card">
@@ -133,22 +120,12 @@ import {
   <!-- ============ CERTIFICATIONS ============ -->
   <section class="section">
     <div class="container">
-      <div class="section-head">
+      <div class="section-head" data-rv>
         <span class="eyebrow">Certified Quality</span>
         <h2>International Standards, Independently Verified</h2>
       </div>
-      <div class="cert-grid">
-        {
-          certifications.map((c) => (
-            <div class="cert-badge" title={c.label}>
-              <span class="cert-ring">
-                <Icon name="shield" size={22} />
-              </span>
-              <strong>{c.code}</strong>
-              <small>{c.label}</small>
-            </div>
-          ))
-        }
+      <div class="cert-grid" data-rv data-rv-stagger="90">
+        {certifications.map((c) => <CertBadge code={c.code} label={c.label} />)}
       </div>
     </div>
   </section>
@@ -156,19 +133,21 @@ import {
   <!-- ============ DIVISIONS ============ -->
   <section class="section section--tint">
     <div class="container">
-      <div class="section-head">
+      <div class="section-head" data-rv>
         <span class="eyebrow">What We Do</span>
         <h2>Three Integrated Divisions</h2>
       </div>
-      <div class="division-grid">
+      <div class="division-grid" data-rv data-rv-stagger="90">
         {
           divisions.map((d) => (
             <article class="card division-card">
-              <span class="division-icon">
-                <Icon name={d.icon} size={36} />
-              </span>
-              <h3>{d.title}</h3>
-              <p>{d.text}</p>
+              <div class="card-visual">
+                <Image src={d.image} alt={d.title} class="card-img" width={720} loading="lazy" />
+              </div>
+              <div class="card-body">
+                <h3>{d.title}</h3>
+                <p>{d.text}</p>
+              </div>
             </article>
           ))
         }
@@ -179,17 +158,22 @@ import {
   <!-- ============ PROCESS ============ -->
   <section class="section">
     <div class="container">
-      <div class="section-head">
+      <div class="section-head" data-rv>
         <span class="eyebrow">From Catch to Consumer</span>
         <h2>Our Journey of Quality</h2>
       </div>
-      <ol class="process-grid">
+      <ol class="process-grid" data-rv data-rv-stagger="90">
         {
           processSteps.map((s) => (
-            <li class="process-step">
-              <span class="process-num">{s.step}</span>
-              <h3>{s.title}</h3>
-              <p>{s.text}</p>
+            <li class="card process-step">
+              <div class="card-visual">
+                <Image src={s.image} alt={s.title} class="card-img" width={720} loading="lazy" />
+                <span class="process-num">{s.step}</span>
+              </div>
+              <div class="card-body">
+                <h3>{s.title}</h3>
+                <p>{s.text}</p>
+              </div>
             </li>
           ))
         }
@@ -199,7 +183,7 @@ import {
 
   <!-- ============ CTA BAND ============ -->
   <section class="cta-band">
-    <div class="container cta-inner">
+    <div class="container cta-inner" data-rv>
       <h2>Ready to Source Premium Seafood?</h2>
       <p>Tell us your specification — species, grade, packing and port — and our export team will respond within one business day.</p>
       <a href="/contact/" class="btn btn--primary">Request a Quote</a>
@@ -229,8 +213,8 @@ import {
     position: absolute;
     inset: 0;
     background:
-      radial-gradient(ellipse at 20% 120%, rgba(26, 127, 196, 0.45), transparent 55%),
-      linear-gradient(160deg, rgba(6, 38, 62, 0.92) 0%, rgba(10, 51, 84, 0.82) 55%, rgba(14, 68, 112, 0.72) 100%);
+      radial-gradient(ellipse at 20% 120%, rgba(26, 91, 215, 0.4), transparent 55%),
+      linear-gradient(160deg, rgba(10, 34, 88, 0.8) 0%, rgba(15, 47, 122, 0.62) 55%, rgba(18, 58, 156, 0.45) 100%);
   }
 
   .hero-inner {
@@ -344,44 +328,6 @@ import {
     margin-top: 0.6rem;
   }
 
-  /* ---- Stats ---- */
-  .stats-grid {
-    display: grid;
-    grid-template-columns: repeat(4, 1fr);
-    gap: 1.5rem;
-  }
-
-  .stat-card {
-    text-align: center;
-    padding: 2rem 1rem;
-    border-radius: var(--radius);
-    background: rgba(255, 255, 255, 0.07);
-    border: 1px solid rgba(255, 255, 255, 0.14);
-  }
-
-  .stat-icon {
-    display: inline-grid;
-    place-items: center;
-    width: 64px;
-    height: 64px;
-    border-radius: 50%;
-    background: rgba(124, 195, 232, 0.18);
-    color: var(--aqua-300);
-    margin-bottom: 0.9rem;
-  }
-
-  .stat-card strong {
-    display: block;
-    font-size: 2.2rem;
-    color: var(--white);
-    line-height: 1.2;
-  }
-
-  .stat-label {
-    font-size: 0.9rem;
-    color: var(--aqua-300);
-  }
-
   /* ---- Products ---- */
   .product-grid {
     display: grid;
@@ -395,7 +341,7 @@ import {
 
   .product-visual {
     height: 150px;
-    background: linear-gradient(150deg, var(--aqua-100), #cfe8f7);
+    background: linear-gradient(150deg, var(--aqua-100), #d9e6fb);
   }
 
   .product-visual :global(.product-img) {
@@ -438,42 +384,34 @@ import {
     gap: 1.25rem;
   }
 
-  .cert-badge {
-    text-align: center;
-    padding: 1.4rem 0.8rem;
-    border: 1.5px solid var(--aqua-100);
-    border-radius: var(--radius);
-    transition: border-color 0.15s ease, transform 0.15s ease;
+  /* ---- Shared photo-card layout (divisions + process, per reference) ---- */
+  .card-visual {
+    position: relative;
+    height: 175px;
+    overflow: hidden;
   }
 
-  .cert-badge:hover {
-    border-color: var(--blue-400);
-    transform: translateY(-3px);
+  .card-visual :global(img) {
+    position: absolute;
+    inset: 0;
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
   }
 
-  .cert-ring {
-    display: inline-grid;
-    place-items: center;
-    width: 46px;
-    height: 46px;
-    border-radius: 50%;
-    background: var(--aqua-100);
-    color: var(--blue-600);
-    margin-bottom: 0.6rem;
+  .card-body {
+    padding: 1.15rem 1.35rem 1.4rem;
   }
 
-  .cert-badge strong {
-    display: block;
-    font-size: 0.95rem;
+  .card-body h3 {
+    font-size: 1.02rem;
     color: var(--navy-900);
+    margin-bottom: 0.45rem;
   }
 
-  .cert-badge small {
-    font-size: 0.72rem;
-    color: var(--text-400);
-    line-height: 1.4;
-    display: block;
-    margin-top: 0.25rem;
+  .card-body p {
+    font-size: 0.9rem;
+    color: var(--text-600);
   }
 
   /* ---- Divisions ---- */
@@ -484,28 +422,8 @@ import {
   }
 
   .division-card {
-    padding: 2rem 1.6rem;
-  }
-
-  .division-icon {
-    display: inline-grid;
-    place-items: center;
-    width: 64px;
-    height: 64px;
-    border-radius: 16px;
-    background: linear-gradient(150deg, var(--blue-500), var(--navy-800));
-    color: var(--white);
-    margin-bottom: 1.1rem;
-  }
-
-  .division-card h3 {
-    color: var(--navy-900);
-    margin-bottom: 0.6rem;
-  }
-
-  .division-card p {
-    font-size: 0.93rem;
-    color: var(--text-600);
+    overflow: hidden;
+    background: var(--white);
   }
 
   /* ---- Process ---- */
@@ -514,42 +432,28 @@ import {
     grid-template-columns: repeat(3, 1fr);
     gap: 1.5rem;
     list-style: none;
-    counter-reset: step;
   }
 
   .process-step {
-    position: relative;
-    padding: 1.8rem 1.5rem 1.5rem;
-    border-radius: var(--radius);
-    background: var(--sand-50);
-    border: 1.5px solid var(--aqua-100);
+    overflow: hidden;
+    background: var(--white);
   }
 
   .process-num {
     position: absolute;
-    top: -16px;
-    left: 1.4rem;
+    bottom: 12px;
+    left: 12px;
     display: inline-grid;
     place-items: center;
     min-width: 42px;
-    height: 32px;
+    height: 30px;
     padding: 0 0.5rem;
     border-radius: 999px;
     background: var(--blue-500);
     color: var(--white);
     font-weight: 700;
-    font-size: 0.9rem;
-  }
-
-  .process-step h3 {
-    font-size: 1.02rem;
-    color: var(--navy-900);
-    margin: 0.4rem 0 0.4rem;
-  }
-
-  .process-step p {
-    font-size: 0.9rem;
-    color: var(--text-600);
+    font-size: 0.85rem;
+    box-shadow: 0 2px 10px rgba(10, 34, 88, 0.35);
   }
 
   /* ---- CTA band ---- */
@@ -576,8 +480,7 @@ import {
 
   /* ---- Responsive ---- */
   @media (max-width: 980px) {
-    .product-grid,
-    .stats-grid {
+    .product-grid {
       grid-template-columns: repeat(2, 1fr);
     }
 

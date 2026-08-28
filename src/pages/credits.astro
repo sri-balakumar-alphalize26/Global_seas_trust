@@ -1,5 +1,7 @@
 ---
 import BaseLayout from '../layouts/BaseLayout.astro';
+import PageHero from '../components/PageHero.astro';
+import bannerBrands from '../assets/site/banner-brands.jpg';
 import credits from '../data/image-credits.json';
 ---
 
@@ -7,19 +9,16 @@ import credits from '../data/image-credits.json';
   title="Image Credits"
   description="Attribution for the Creative Commons photographs used on this website."
 >
-  <section class="page-hero">
-    <div class="container">
-      <h1>Image Credits</h1>
-      <p>
-        The photographs on this website are used under Creative Commons and
-        public-domain licenses. We thank the photographers below.
-      </p>
-    </div>
-  </section>
+  <PageHero heading="Image Credits" image={bannerBrands}>
+    <p>
+      The photographs on this website are used under Creative Commons and
+      public-domain licenses. We thank the photographers below.
+    </p>
+  </PageHero>
 
   <section class="section">
     <div class="container credits-wrap">
-      <ul class="credit-list">
+      <ul class="credit-list" data-rv data-rv-stagger="60">
         {
           credits.map((c) => (
             <li>

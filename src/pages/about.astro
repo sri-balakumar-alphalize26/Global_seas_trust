@@ -1,6 +1,8 @@
 ---
 import { Image } from 'astro:assets';
 import BaseLayout from '../layouts/BaseLayout.astro';
+import PageHero from '../components/PageHero.astro';
+import bannerAbout from '../assets/site/banner-about.jpg';
 import Icon from '../components/Icon.astro';
 import { company, stats, divisions, siteImages } from '../data/site';
 
@@ -29,16 +31,13 @@ const values = [
 ---
 
 <BaseLayout title="About Us" description={`Learn about ${company.name} — our history, mission and values.`}>
-  <section class="page-hero">
-    <div class="container">
-      <h1>About {company.name}</h1>
-      <p>Over a decade of connecting the ocean's finest catch with markets around the world.</p>
-    </div>
-  </section>
+  <PageHero heading={`About ${company.name}`} image={bannerAbout}>
+    <p>Over a decade of connecting the ocean's finest catch with markets around the world.</p>
+  </PageHero>
 
   <section class="section">
     <div class="container story-grid">
-      <div>
+      <div data-rv="left">
         <span class="eyebrow-inline">Our Story</span>
         <h2>Built on the Water's Edge, Grown Across Continents</h2>
         <p>
@@ -59,7 +58,7 @@ const values = [
           local fishing heritage with modern food-safety science.
         </p>
       </div>
-      <aside class="mission-stack">
+      <aside class="mission-stack" data-rv="right">
         <Image
           src={siteImages.about}
           alt="Fresh catch displayed on a market stall"
@@ -86,11 +85,11 @@ const values = [
 
   <section class="section section--tint">
     <div class="container">
-      <div class="section-head">
+      <div class="section-head" data-rv>
         <span class="eyebrow">What Guides Us</span>
         <h2>Our Core Values</h2>
       </div>
-      <div class="values-grid">
+      <div class="values-grid" data-rv data-rv-stagger="90">
         {
           values.map((v) => (
             <article class="card value-card">
@@ -108,11 +107,11 @@ const values = [
 
   <section class="section">
     <div class="container">
-      <div class="section-head">
+      <div class="section-head" data-rv>
         <span class="eyebrow">Our Operations</span>
         <h2>Integrated From Landing Site to Loading Port</h2>
       </div>
-      <div class="ops-grid">
+      <div class="ops-grid" data-rv data-rv-stagger="90">
         {
           divisions.map((d) => (
             <article class="card ops-card">

@@ -1,0 +1,118 @@
+---
+// Original seal-style certification badge (SVG, brand colors).
+// Deliberately NOT the certifying bodies' official trademarked logos —
+// swap in official artwork only once the company holds the certification
+// and a license to display the mark.
+interface Props {
+  code: string; // e.g. "HACCP", "ISO 22000"
+  label: string;
+}
+
+const { code, label } = Astro.props;
+const id = code.replace(/[^a-zA-Z0-9]/g, '').toLowerCase();
+// Split two-word codes ("ISO 22000") onto two lines inside the seal.
+const parts = code.split(' ');
+---
+
+<div class="seal-card" title={label}>
+  <svg class="seal" viewBox="0 0 120 120" role="img" aria-label={`${code} — ${label}`}>
+    <defs>
+      <linearGradient id={`g-${id}`} x1="0" y1="0" x2="1" y2="1">
+        <stop offset="0" stop-color="#1a5bd7"></stop>
+        <stop offset="1" stop-color="#0f2f7a"></stop>
+      </linearGradient>
+      <path id={`arc-t-${id}`} d="M 22,60 A 38,38 0 0 1 98,60" fill="none"></path>
+      <path id={`arc-b-${id}`} d="M 24,60 A 36,36 0 0 0 96,60" fill="none"></path>
+    </defs>
+
+    <!-- scalloped outer edge -->
+    <circle cx="60" cy="60" r="56" fill={`url(#g-${id})`}></circle>
+    <circle
+      cx="60"
+      cy="60"
+      r="56"
+      fill="none"
+      stroke="rgba(255,255,255,0.55)"
+      stroke-width="2.5"
+      stroke-dasharray="2 6"
+      stroke-linecap="round"></circle>
+
+    <!-- inner face -->
+    <circle cx="60" cy="60" r="45" fill="#ffffff"></circle>
+    <circle cx="60" cy="60" r="49" fill="none" stroke="rgba(255,255,255,0.9)" stroke-width="1"></circle>
+
+    <!-- ring lettering -->
+    <text class="ring-text">
+      <textPath href={`#arc-t-${id}`} startOffset="50%" text-anchor="middle">CERTIFIED</textPath>
+    </text>
+    <text class="ring-text">
+      <textPath href={`#arc-b-${id}`} startOffset="50%" text-anchor="middle">★ QUALITY ★</textPath>
+    </text>
+
+    <!-- centre code -->
+    <text class="code" x="60" y={parts.length > 1 ? 56 : 64} text-anchor="middle">
+      {parts[0]}
+    </text>
+    {parts.length > 1 && (
+      <text class="code code--sub" x="60" y="74" text-anchor="middle">
+        {parts.slice(1).join(' ')}
+      </text>
+    )}
+
+    <!-- ribbon tails -->
+    <path d="M 42 106 L 50 96 L 58 106 L 50 116 Z" fill="#1447c0" opacity="0.9"></path>
+    <path d="M 78 106 L 70 96 L 62 106 L 70 116 Z" fill="#1a5bd7" opacity="0.9"></path>
+  </svg>
+
+  <small>{label}</small>
+</div>
+
+<style>
+  .seal-card {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 0.6rem;
+    text-align: center;
+    padding: 1rem 0.5rem;
+  }
+
+  .seal {
+    width: 108px;
+    height: 108px;
+    overflow: visible;
+    filter: drop-shadow(0 6px 16px rgba(10, 34, 88, 0.22));
+    transition: transform 0.25s cubic-bezier(0.22, 1, 0.36, 1);
+  }
+
+  .seal-card:hover .seal {
+    transform: translateY(-4px) rotate(-2deg);
+  }
+
+  .ring-text {
+    font-family: var(--font-body, sans-serif);
+    font-size: 8.5px;
+    font-weight: 700;
+    letter-spacing: 0.28em;
+    fill: rgba(255, 255, 255, 0.92);
+  }
+
+  .code {
+    font-family: var(--font-body, sans-serif);
+    font-size: 17px;
+    font-weight: 800;
+    letter-spacing: 0.02em;
+    fill: var(--navy-900);
+  }
+
+  .code--sub {
+    font-size: 14px;
+  }
+
+  .seal-card small {
+    font-size: 0.75rem;
+    color: var(--text-400);
+    line-height: 1.4;
+    max-width: 150px;
+  }
+</style>

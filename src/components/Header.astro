@@ -1,18 +1,16 @@
 ---
 import { company, navLinks } from '../data/site';
-import Icon from './Icon.astro';
 
 const currentPath = Astro.url.pathname.replace(/\/+$/, '') || '/';
 const isActive = (href: string) => (href.replace(/\/+$/, '') || '/') === currentPath;
 ---
 
-<header class="site-header">
-  <div class="container header-inner">
+<header class="site-header gst-header">
+  <div class="container header-inner gst-header__inner">
     <a href="/" class="logo" aria-label={`${company.name} home`}>
-      <span class="logo-mark"><Icon name="wave" size={26} /></span>
+      <img src="/gst-logo-full.jpg" alt="" class="logo-img" width="64" height="64" />
       <span class="logo-text">
         <strong>{company.name}</strong>
-        <small>{company.tagline}</small>
       </span>
     </a>
 
@@ -43,7 +41,7 @@ const isActive = (href: string) => (href.replace(/\/+$/, '') || '/') === current
     z-index: 50;
     background: rgba(255, 255, 255, 0.96);
     backdrop-filter: blur(8px);
-    box-shadow: 0 1px 0 rgba(6, 38, 62, 0.08);
+    box-shadow: 0 1px 0 rgba(10, 34, 88, 0.08);
   }
 
   .header-inner {
@@ -60,14 +58,12 @@ const isActive = (href: string) => (href.replace(/\/+$/, '') || '/') === current
     gap: 0.65rem;
   }
 
-  .logo-mark {
-    display: grid;
-    place-items: center;
-    width: 44px;
-    height: 44px;
-    border-radius: 50%;
-    background: linear-gradient(150deg, var(--blue-500), var(--navy-800));
-    color: var(--white);
+  .logo-img {
+    width: 64px;
+    height: 64px;
+    border-radius: 10px;
+    object-fit: contain;
+    background: var(--white);
     flex-shrink: 0;
   }
 
@@ -78,16 +74,9 @@ const isActive = (href: string) => (href.replace(/\/+$/, '') || '/') === current
   }
 
   .logo-text strong {
-    font-size: 1.05rem;
+    font-size: 1.15rem;
     color: var(--navy-900);
     letter-spacing: 0.01em;
-  }
-
-  .logo-text small {
-    font-size: 0.7rem;
-    color: var(--text-400);
-    letter-spacing: 0.08em;
-    text-transform: uppercase;
   }
 
   .nav-list {
