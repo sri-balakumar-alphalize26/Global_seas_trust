@@ -1,109 +1,51 @@
 ---
-import { Image } from 'astro:assets';
 import BaseLayout from '../layouts/BaseLayout.astro';
 import PageHero from '../components/PageHero.astro';
+import ObjectiveSection from '../components/ObjectiveSection.astro';
+import CoreValues from '../components/CoreValues.astro';
 import bannerAbout from '../assets/site/banner-about.jpg';
 import Icon from '../components/Icon.astro';
-import { company, stats, divisions, siteImages } from '../data/site';
+import { company, divisions, siteImages } from '../data/site';
 
-const values = [
+// Official company copy, verbatim — <mark> wraps the highlighted phrases.
+const objectiveParagraphs = [
+  'Our objective is to establish Global Seas Trust as a trusted and recognized global <mark>seafood processing and export company</mark>, supplying premium-quality seafood to international markets.',
+  'We specialize in processing and supplying a wide range of seafood, including <mark>Sardine, Mackerel, Tuna, Aquaculture Shrimp</mark>, and other wild-caught fishes. By combining careful sourcing, professional processing, quality control, and reliable export operations, we strive to deliver products that consistently meet the expectations of our customers worldwide.',
+  'We aim to continuously expand our international market presence, strengthen our processing and supply capabilities, develop new seafood products, and build lasting relationships with importers, distributors, wholesalers, retailers, and food-service businesses.',
+];
+
+const objectiveCards = [
   {
-    icon: 'shield',
-    title: 'Uncompromising Quality',
-    text: 'Every consignment passes laboratory testing and multi-point inspection before it leaves our facility.',
+    title: 'Our Mission',
+    body: [
+      'At Global Seas Trust, our mission is to bring high-quality seafood from trusted sources to customers across the world. We are committed to delivering fresh and frozen seafood with uncompromising standards of quality, freshness, food safety, and reliability.',
+      'Through responsible sourcing, modern processing, efficient cold-chain management, and dependable international logistics, we aim to create long-term partnerships with customers in global seafood markets.',
+    ],
   },
   {
-    icon: 'wave',
-    title: 'Responsible Sourcing',
-    text: 'We work only with vetted fleets and landing centres that respect seasonal regulations and sustainable practice.',
-  },
-  {
-    icon: 'people',
-    title: 'Partnership Mindset',
-    text: 'Long-term relationships over one-off deals — many of our first customers still ship with us today.',
-  },
-  {
-    icon: 'globe',
-    title: 'Global Reliability',
-    text: 'Documented, on-time delivery to ports across Asia, Europe, Africa and the Americas.',
+    title: 'Our Vision',
+    body: ['To deliver quality Fresh and Frozen seafood to the entire world.'],
   },
 ];
+
+// Core values live in CoreValues.astro (official copy, verbatim, as defaults).
 ---
 
 <BaseLayout title="About Us" description={`Learn about ${company.name} — our history, mission and values.`}>
   <PageHero heading={`About ${company.name}`} image={bannerAbout}>
-    <p>Over a decade of connecting the ocean's finest catch with markets around the world.</p>
+    <p>From the ocean to the world, we are committed to delivering seafood you can trust.</p>
   </PageHero>
 
-  <section class="section">
-    <div class="container story-grid">
-      <div data-rv="left">
-        <span class="eyebrow-inline">Our Story</span>
-        <h2>Built on the Water's Edge, Grown Across Continents</h2>
-        <p>
-          Founded in {company.founded}, {company.name} began as a small
-          fish-trading operation supplying regional markets. Today we operate
-          integrated processing, freezing and export facilities, shipping
-          premium seafood to more than 25 countries.
-        </p>
-        <p>
-          Our growth has been anchored in one simple belief: quality is a chain,
-          not a checkpoint. From the moment a catch is landed to the moment a
-          container is sealed, every link — icing, grading, freezing, packing,
-          documentation — is managed by our own trained teams.
-        </p>
-        <p>
-          With {stats[1].value.replace('+', '')}-plus professionals across
-          sourcing, production, quality assurance and logistics, we combine
-          local fishing heritage with modern food-safety science.
-        </p>
-      </div>
-      <aside class="mission-stack" data-rv="right">
-        <Image
-          src={siteImages.about}
-          alt="Fresh catch displayed on a market stall"
-          class="story-photo"
-          width={900}
-        />
-        <div class="mission-card">
-          <h3>Our Mission</h3>
-          <p>
-            To deliver the freshness of the ocean to every market we serve —
-            safely, sustainably and consistently.
-          </p>
-        </div>
-        <div class="mission-card mission-card--alt">
-          <h3>Our Vision</h3>
-          <p>
-            To be the region's most trusted seafood partner, recognised for
-            quality, traceability and integrity in every shipment.
-          </p>
-        </div>
-      </aside>
-    </div>
-  </section>
+  <ObjectiveSection
+    eyebrow="About Us"
+    title="Our Objective"
+    paragraphs={objectiveParagraphs}
+    image={siteImages.about.src}
+    imageAlt="Fresh catch displayed on a market stall"
+    cards={objectiveCards}
+  />
 
-  <section class="section section--tint">
-    <div class="container">
-      <div class="section-head" data-rv>
-        <span class="eyebrow">What Guides Us</span>
-        <h2>Our Core Values</h2>
-      </div>
-      <div class="values-grid" data-rv data-rv-stagger="90">
-        {
-          values.map((v) => (
-            <article class="card value-card">
-              <span class="value-icon">
-                <Icon name={v.icon} size={30} />
-              </span>
-              <h3>{v.title}</h3>
-              <p>{v.text}</p>
-            </article>
-          ))
-        }
-      </div>
-    </div>
-  </section>
+  <CoreValues />
 
   <section class="section">
     <div class="container">
@@ -128,105 +70,26 @@ const values = [
       </div>
     </div>
   </section>
+
+  <!-- ============ OUR GLOBAL AMBITION ============ -->
+  <section class="section section--navy ambition">
+    <div class="container ambition-inner" data-rv>
+      <h2>Our Global Ambition</h2>
+      <p>
+        We are building Global Seas Trust with a clear ambition—to connect the
+        world's seafood markets with quality products they can trust.
+      </p>
+      <p>
+        From responsibly sourced seafood to carefully processed and frozen
+        products, we work to ensure that quality is maintained at every stage
+        of the journey.
+      </p>
+      <p class="ambition-signoff">Global Seas Trust — Quality Seafood. Trusted Worldwide.</p>
+    </div>
+  </section>
 </BaseLayout>
 
 <style>
-  .eyebrow-inline {
-    display: inline-block;
-    font-size: 0.8rem;
-    font-weight: 700;
-    letter-spacing: 0.18em;
-    text-transform: uppercase;
-    color: var(--blue-500);
-    margin-bottom: 0.6rem;
-  }
-
-  .story-grid {
-    display: grid;
-    grid-template-columns: 1.4fr 1fr;
-    gap: 3rem;
-    align-items: start;
-  }
-
-  .story-grid h2 {
-    font-size: clamp(1.5rem, 3vw, 2.1rem);
-    color: var(--navy-900);
-    margin-bottom: 1rem;
-  }
-
-  .story-grid p {
-    color: var(--text-600);
-    margin-bottom: 1rem;
-  }
-
-  .mission-stack {
-    display: flex;
-    flex-direction: column;
-    gap: 1.25rem;
-  }
-
-  .mission-stack :global(.story-photo) {
-    width: 100%;
-    height: 220px;
-    object-fit: cover;
-    border-radius: var(--radius);
-    box-shadow: var(--shadow-md);
-  }
-
-  .mission-card {
-    background: linear-gradient(150deg, var(--navy-800), var(--navy-700));
-    color: var(--white);
-    padding: 1.8rem;
-    border-radius: var(--radius);
-    box-shadow: var(--shadow-md);
-  }
-
-  .mission-card--alt {
-    background: linear-gradient(150deg, var(--blue-500), var(--blue-600));
-  }
-
-  .mission-card h3 {
-    margin-bottom: 0.5rem;
-  }
-
-  .mission-card p {
-    color: var(--aqua-100);
-    font-size: 0.95rem;
-  }
-
-  .values-grid {
-    display: grid;
-    grid-template-columns: repeat(4, 1fr);
-    gap: 1.5rem;
-  }
-
-  .value-card {
-    padding: 1.8rem 1.4rem;
-    text-align: center;
-  }
-
-  .value-icon {
-    display: inline-grid;
-    place-items: center;
-    width: 58px;
-    height: 58px;
-    border-radius: 50%;
-    background: var(--aqua-100);
-    color: var(--blue-600);
-    margin-bottom: 1rem;
-  }
-
-  .value-card h3 {
-    font-size: 1.02rem;
-    color: var(--navy-900);
-    margin-bottom: 0.5rem;
-  }
-
-  .value-card p {
-    font-size: 0.88rem;
-    color: var(--text-600);
-  }
-
   .ops-grid {
     display: grid;
     grid-template-columns: 1fr;
@@ -263,23 +126,33 @@ const values = [
     color: var(--text-600);
   }
 
-  @media (max-width: 900px) {
-    .story-grid {
-      grid-template-columns: 1fr;
-    }
-
-    .values-grid {
-      grid-template-columns: repeat(2, 1fr);
-    }
-  }
-
   @media (max-width: 560px) {
-    .values-grid {
-      grid-template-columns: 1fr;
-    }
-
     .ops-card {
       flex-direction: column;
     }
+  }
+
+  /* ---- Global Ambition ---- */
+  .ambition-inner {
+    max-width: 720px;
+    text-align: center;
+  }
+
+  .ambition h2 {
+    color: var(--white);
+    font-size: clamp(1.6rem, 3.2vw, 2.3rem);
+    margin-bottom: 1.2rem;
+  }
+
+  .ambition p {
+    color: var(--aqua-100);
+    margin-bottom: 1rem;
+  }
+
+  .ambition-signoff {
+    margin-top: 1.6rem;
+    font-weight: 700;
+    color: var(--white) !important;
+    letter-spacing: 0.02em;
   }
 </style>

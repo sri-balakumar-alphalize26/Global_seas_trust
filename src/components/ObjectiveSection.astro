@@ -1,0 +1,301 @@
+---
+/**
+ * ObjectiveSection.astro — "Our Objective" / mission / vision block.
+ *
+ * Entrance choreography, all from one observer:
+ *   1. eyebrow → heading → paragraphs rise in from the left, 90ms apart
+ *   2. the gold highlights get swept in with a highlighter wipe
+ *   3. the photo unmasks top-to-bottom and settles out of a slow Ken Burns
+ *   4. mission and vision cards rise from the right, each with a sheen pass
+ *
+ * Re-seeds on astro:page-load, so it replays after a ClientRouter navigation.
+ * Paragraph strings accept <mark>…</mark> for the highlighted phrases.
+ *
+ * Site adaptations to the provided component: palette mapped to the brand
+ * tokens (royal blue + gold accent), and the reduced-motion opt-out removed
+ * per the site-wide always-animate decision (see transitions.css note).
+ */
+
+interface Card {
+  title: string;
+  body: string[];
+}
+
+interface Props {
+  eyebrow?: string;
+  title?: string;
+  paragraphs?: string[];
+  image?: string;
+  imageAlt?: string;
+  cards?: Card[];
+}
+
+const {
+  eyebrow = 'About Us',
+  title = 'Our Objective',
+  paragraphs = [],
+  image = '',
+  imageAlt = '',
+  cards = [],
+} = Astro.props;
+---
+
+<section class="obj">
+  <div class="obj__inner">
+    <div class="obj__text">
+      <p class="obj__eyebrow" style="--i:0">{eyebrow}</p>
+      <h2 class="obj__title" style="--i:1">{title}</h2>
+      {paragraphs.map((p, i) => <p class="obj__para" style={`--i:${i + 2}`} set:html={p} />)}
+    </div>
+
+    <div class="obj__side">
+      <figure class="obj__figure" style="--i:1">
+        <img src={image} alt={imageAlt} width="1200" height="760" loading="lazy" decoding="async" />
+      </figure>
+
+      {
+        cards.map((c, i) => (
+          <article class:list={['obj__card', { 'obj__card--bright': i > 0 }]} style={`--i:${i + 2}`}>
+            <span class="obj__sheen" aria-hidden="true" />
+            <h3>{c.title}</h3>
+            {c.body.map((b) => (
+              <p>{b}</p>
+            ))}
+          </article>
+        ))
+      }
+    </div>
+  </div>
+</section>
+
+<style>
+  .obj {
+    --obj-ink: var(--navy-900, #0a2258);
+    --obj-body: var(--text-600, #46596b);
+    --obj-brand: var(--blue-500, #1a5bd7);
+    --obj-accent: #b07f24; /* deepened gold for text contrast on white */
+    --obj-step: 90ms; /* stagger between elements */
+    --obj-dur: 760ms;
+    --obj-ease: cubic-bezier(0.22, 1, 0.36, 1);
+
+    padding-block: 96px;
+    background: #fff;
+  }
+
+  .obj__inner {
+    width: 100%;
+    max-width: 1200px;
+    margin-inline: auto;
+    padding-inline: 28px;
+    display: grid;
+    grid-template-columns: 1.08fr 0.92fr;
+    gap: 64px;
+    align-items: start;
+  }
+
+  /* ------------------------------------------------------------- left col */
+
+  .obj__eyebrow {
+    margin: 0 0 14px;
+    font-size: 0.75rem;
+    font-weight: 700;
+    letter-spacing: 0.22em;
+    text-transform: uppercase;
+    color: var(--obj-brand);
+  }
+
+  .obj__title {
+    margin: 0 0 26px;
+    font-size: clamp(1.9rem, 3.2vw, 2.5rem);
+    font-weight: 800;
+    letter-spacing: -0.025em;
+    line-height: 1.14;
+    color: var(--obj-ink);
+  }
+
+  .obj__para {
+    margin: 0 0 20px;
+    color: var(--obj-body);
+    font-size: 1rem;
+    line-height: 1.75;
+  }
+
+  /* the highlighted phrases: a gold wash swept left-to-right */
+  .obj__para :global(mark) {
+    background: linear-gradient(transparent 62%, rgba(217, 164, 65, 0.28) 0) left / 0% 100% no-repeat;
+    color: var(--obj-accent);
+    font-weight: 600;
+    padding-inline: 1px;
+    transition: background-size 900ms var(--obj-ease);
+  }
+
+  /* ------------------------------------------------------------ right col */
+
+  .obj__side {
+    display: grid;
+    gap: 18px;
+  }
+
+  .obj__figure {
+    margin: 0;
+    border-radius: 14px;
+    overflow: hidden;
+    aspect-ratio: 16 / 10;
+    background: var(--navy-900, #0a2258);
+    /* the mask the image is unveiled through */
+    clip-path: inset(0 0 100% 0 round 14px);
+    transition: clip-path 900ms var(--obj-ease);
+  }
+
+  .obj__figure img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    transform: scale(1.12);
+    transition: transform 2600ms cubic-bezier(0.16, 0.8, 0.3, 1);
+  }
+
+  .obj__card {
+    position: relative;
+    overflow: hidden;
+    border-radius: 14px;
+    padding: 26px 26px 24px;
+    color: #fff;
+    background: linear-gradient(152deg, #0f2f7a 0%, #123a9c 52%, #1a5bd7 100%);
+    box-shadow: 0 16px 40px rgba(10, 34, 88, 0.24);
+    transition:
+      transform 420ms var(--obj-ease),
+      box-shadow 420ms var(--obj-ease);
+  }
+
+  .obj__card--bright {
+    background: linear-gradient(152deg, #1447c0 0%, #1a5bd7 100%);
+  }
+
+  .obj__card:hover {
+    transform: translateY(-5px);
+    box-shadow: 0 24px 56px rgba(10, 34, 88, 0.32);
+  }
+
+  .obj__card h3 {
+    margin: 0 0 12px;
+    font-size: 1.0625rem;
+    font-weight: 700;
+    letter-spacing: -0.01em;
+    color: #fff;
+  }
+
+  .obj__card p {
+    margin: 0 0 14px;
+    font-size: 0.9063rem;
+    line-height: 1.72;
+    color: rgba(255, 255, 255, 0.86);
+  }
+
+  .obj__card p:last-child {
+    margin-bottom: 0;
+  }
+
+  /* one diagonal light pass as the card lands */
+  .obj__sheen {
+    position: absolute;
+    inset: 0;
+    pointer-events: none;
+    background: linear-gradient(105deg, transparent 38%, rgba(255, 255, 255, 0.18) 50%, transparent 62%);
+    transform: translateX(-130%);
+  }
+
+  /* ------------------------------------------------------- entrance state */
+
+  :global(html.obj-ready) .obj__eyebrow,
+  :global(html.obj-ready) .obj__title,
+  :global(html.obj-ready) .obj__para {
+    opacity: 0;
+    transform: translate3d(-26px, 0, 0);
+  }
+
+  :global(html.obj-ready) .obj__figure,
+  :global(html.obj-ready) .obj__card {
+    opacity: 0;
+    transform: translate3d(28px, 0, 0);
+  }
+
+  .obj.is-in .obj__eyebrow,
+  .obj.is-in .obj__title,
+  .obj.is-in .obj__para,
+  .obj.is-in .obj__figure,
+  .obj.is-in .obj__card {
+    opacity: 1;
+    transform: none;
+    transition:
+      opacity var(--obj-dur) var(--obj-ease) calc(var(--i) * var(--obj-step)),
+      transform var(--obj-dur) var(--obj-ease) calc(var(--i) * var(--obj-step)),
+      clip-path 900ms var(--obj-ease) calc(var(--i) * var(--obj-step));
+  }
+
+  .obj.is-in .obj__figure {
+    clip-path: inset(0 0 0% 0 round 14px);
+  }
+
+  .obj.is-in .obj__figure img {
+    transform: scale(1);
+    transition-delay: calc(var(--i) * var(--obj-step));
+  }
+
+  .obj.is-in .obj__para :global(mark) {
+    background-size: 100% 100%;
+    transition-delay: calc(var(--i) * var(--obj-step) + 420ms);
+  }
+
+  .obj.is-in .obj__sheen {
+    animation: objSheen 1100ms var(--obj-ease) forwards;
+    animation-delay: calc(var(--i) * var(--obj-step) + 260ms);
+  }
+
+  @keyframes objSheen {
+    to {
+      transform: translateX(130%);
+    }
+  }
+
+  /* ------------------------------------------------------------ responsive */
+
+  @media (max-width: 900px) {
+    .obj {
+      padding-block: 68px;
+    }
+    .obj__inner {
+      grid-template-columns: minmax(0, 1fr);
+      gap: 36px;
+    }
+  }
+</style>
+
+<script>
+  let io: IntersectionObserver | null = null;
+
+  function seed() {
+    const sections = document.querySelectorAll('.obj');
+    if (!sections.length) return;
+
+    document.documentElement.classList.add('obj-ready');
+    io?.disconnect();
+
+    for (const s of sections) s.classList.remove('is-in');
+
+    io = new IntersectionObserver(
+      (entries) => {
+        for (const e of entries) {
+          if (!e.isIntersecting) continue;
+          e.target.classList.add('is-in');
+          io?.unobserve(e.target);
+        }
+      },
+      { threshold: 0.18 },
+    );
+
+    for (const s of sections) io.observe(s);
+  }
+
+  document.addEventListener('astro:page-load', seed);
+</script>

@@ -22,12 +22,11 @@ import {
     <Image src={siteImages.hero} alt="" class="hero-bg" loading="eager" width={1600} />
     <div class="hero-overlay" aria-hidden="true"></div>
     <div class="container hero-inner">
-      <p class="hero-eyebrow">Premium Seafood Exporters</p>
+      <p class="hero-eyebrow">{company.tagline}</p>
       <h1>Excellence in Seafood,<br />Delivered Worldwide</h1>
       <p class="hero-sub">
-        {company.name} sources, processes and ships premium ocean catch with
-        uncompromising cold-chain integrity — trusted by importers in over 25
-        markets across four continents.
+        From the ocean to the world, we are committed to delivering seafood
+        you can trust.
       </p>
       <div class="hero-actions">
         <a href="/products/" class="btn btn--primary">Explore Our Products</a>
@@ -35,7 +34,7 @@ import {
       </div>
     </div>
     <div class="hero-wave" aria-hidden="true">
-      <WaveDivider fill="#ffffff" height={90} speed={11} />
+      <WaveDivider fill="#ffffff" height={90} speed={11} fish={5} />
     </div>
   </section>
 
@@ -185,7 +184,7 @@ import {
   <section class="cta-band">
     <div class="container cta-inner" data-rv>
       <h2>Ready to Source Premium Seafood?</h2>
-      <p>Tell us your specification — species, grade, packing and port — and our export team will respond within one business day.</p>
+      <p>We believe that every shipment represents more than a product—it represents our commitment to quality, consistency, integrity, and customer satisfaction.</p>
       <a href="/contact/" class="btn btn--primary">Request a Quote</a>
     </div>
   </section>

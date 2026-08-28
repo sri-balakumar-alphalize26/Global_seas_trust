@@ -11,6 +11,7 @@ const isActive = (href: string) => (href.replace(/\/+$/, '') || '/') === current
       <img src="/gst-logo-full.jpg" alt="" class="logo-img" width="64" height="64" />
       <span class="logo-text">
         <strong>{company.name}</strong>
+        <small>{company.tagline}</small>
       </span>
     </a>
 
@@ -77,6 +78,13 @@ const isActive = (href: string) => (href.replace(/\/+$/, '') || '/') === current
     font-size: 1.15rem;
     color: var(--navy-900);
     letter-spacing: 0.01em;
+  }
+
+  .logo-text small {
+    font-size: 0.68rem;
+    color: var(--text-400);
+    letter-spacing: 0.06em;
+    text-transform: uppercase;
   }
 
   .nav-list {

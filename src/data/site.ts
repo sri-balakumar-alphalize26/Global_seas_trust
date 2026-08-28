@@ -32,9 +32,10 @@ export const siteImages = {
 
 export const company = {
   name: 'Global Seas Trust',
+  tagline: 'Quality Seafood. Trusted Worldwide.',
   founded: 2012,
   description:
-    'Global Seas Trust is an international seafood sourcing, processing and export company. We connect responsibly harvested catch from trusted fishing fleets with importers, distributors and food brands across the globe — with cold-chain integrity guaranteed at every step.',
+    'At Global Seas Trust, our mission is to bring high-quality seafood from trusted sources to customers across the world. We are committed to delivering fresh and frozen seafood with uncompromising standards of quality, freshness, food safety, and reliability.',
   address: 'P.O. Box 1234, Industrial Port Area, Muscat, Sultanate of Oman',
   phone: '+968 9000 0000',
   email: 'info@globalseastrust.com',
