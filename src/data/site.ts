@@ -40,13 +40,21 @@ export const company = {
   phone: '+968 9000 0000',
   email: 'info@globalseastrust.com',
   hours: 'Sunday – Thursday, 8:00 AM – 5:00 PM',
+  /** Structured form of `hours` → schema.org `openingHoursSpecification`. */
+  openingHours: {
+    days: ['Sunday', 'Monday', 'Tuesday', 'Wednesday', 'Thursday'],
+    opens: '08:00',
+    closes: '17:00',
+  },
+  /** Official social profile URLs (Facebook, LinkedIn, Instagram…) → schema.org `sameAs`. */
+  socials: [] as string[],
 };
 
 /** Reseller credit shown in the footer bar ("Powered by" + logo → their site). */
 export const poweredBy = {
   name: 'Nex Genn POS',
   url: 'https://nexgennpos.com/',
-  logo: '/nexgenn-logo.png',
+  logo: '/nexgenn-logo.webp',
 };
 
 export const navLinks = [
@@ -70,17 +78,27 @@ export interface Product {
   forms: string;
   icon: 'fish' | 'shrimp' | 'squid' | 'crab';
   image: ImageMetadata;
+  /** the product's own page under /products/<category>/<slug>/ */
+  href: string;
 }
 
 export const products: Product[] = [
-  { name: 'Yellowfin Tuna', scientific: 'Thunnus albacares', forms: 'Whole / Loins / Steaks', icon: 'fish', image: imgYellowfinTuna },
-  { name: 'Kingfish', scientific: 'Scomberomorus commerson', forms: 'Whole / Steaks', icon: 'fish', image: imgKingfish },
-  { name: 'Indian Mackerel', scientific: 'Rastrelliger kanagurta', forms: 'Whole Round / Block Frozen', icon: 'fish', image: imgIndianMackerel },
-  { name: 'Ribbon Fish', scientific: 'Trichiurus lepturus', forms: 'Whole / Graded', icon: 'fish', image: imgRibbonFish },
-  { name: 'Oil Sardine', scientific: 'Sardinella longiceps', forms: 'Whole Round / IQF', icon: 'fish', image: imgSardine },
-  { name: 'Cuttlefish', scientific: 'Sepia pharaonis', forms: 'Whole Cleaned / Fillets', icon: 'squid', image: imgCuttlefish },
-  { name: 'Loligo Squid', scientific: 'Loligo duvauceli', forms: 'Whole / Rings / Tubes', icon: 'squid', image: imgSquid },
-  { name: 'Vannamei Shrimp', scientific: 'Litopenaeus vannamei', forms: 'HOSO / HLSO / PD', icon: 'shrimp', image: imgShrimp },
+  { name: 'Yellowfin Tuna', scientific: 'Thunnus albacares', forms: 'Whole / Loins / Steaks', icon: 'fish', image: imgYellowfinTuna, href: '/products/fish/yellowfin-tuna/' },
+  { name: 'Kingfish', scientific: 'Scomberomorus commerson', forms: 'Whole / Steaks', icon: 'fish', image: imgKingfish, href: '/products/fish/kingfish/' },
+  { name: 'Indian Mackerel', scientific: 'Rastrelliger kanagurta', forms: 'Whole Round / Block Frozen', icon: 'fish', image: imgIndianMackerel, href: '/products/fish/indian-mackerel/' },
+  { name: 'Ribbon Fish', scientific: 'Trichiurus lepturus', forms: 'Whole / Graded', icon: 'fish', image: imgRibbonFish, href: '/products/fish/ribbon-fish/' },
+  { name: 'Oil Sardine', scientific: 'Sardinella longiceps', forms: 'Whole Round / IQF', icon: 'fish', image: imgSardine, href: '/products/fish/oil-sardine/' },
+  { name: 'Cuttlefish', scientific: 'Sepia pharaonis', forms: 'Whole Cleaned / Fillets', icon: 'squid', image: imgCuttlefish, href: '/products/cephalopods/cuttlefish/' },
+  { name: 'Loligo Squid', scientific: 'Loligo duvauceli', forms: 'Whole / Rings / Tubes', icon: 'squid', image: imgSquid, href: '/products/cephalopods/loligo-squid/' },
+  { name: 'Vannamei Shrimp', scientific: 'Litopenaeus vannamei', forms: 'HOSO / HLSO / PD', icon: 'shrimp', image: imgShrimp, href: '/products/crustaceans/vannamei-shrimp/' },
+];
+
+/** Packing formats offered for every line — shown on /products/ and each product page. */
+export const packingOptions = [
+  { title: 'IQF (Individually Quick Frozen)', text: 'Individually frozen pieces for easy portioning — ideal for retail bags and food service.' },
+  { title: 'Block Frozen', text: 'Compact frozen blocks for industrial buyers and reprocessors, packed to weight specification.' },
+  { title: 'Vacuum / Retail Packs', text: 'Skin-pack and vacuum options with private-label printing for supermarket shelves.' },
+  { title: 'Bulk / Bin Loading', text: 'High-volume loading for fish meal, bait and industrial-grade consignments.' },
 ];
 
 export const certifications = [

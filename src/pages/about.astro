@@ -31,7 +31,11 @@ const objectiveCards = [
 // Core values live in CoreValues.astro (official copy, verbatim, as defaults).
 ---
 
-<BaseLayout title="About Us" description={`Learn about ${company.name} — our history, mission and values.`}>
+<BaseLayout
+  title="About Us"
+  pageType="AboutPage"
+  description={`${company.name} is an Oman-based seafood processor and exporter established in ${company.founded} — our mission, core values, facilities and the cold chain behind every shipment.`}
+>
   <PageHero heading={`About ${company.name}`} image={bannerAbout}>
     <p>From the ocean to the world, we are committed to delivering seafood you can trust.</p>
   </PageHero>

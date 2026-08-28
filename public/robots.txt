@@ -1,2 +1,5 @@
 User-agent: *
 Allow: /
+Disallow: /credits/
+
+Sitemap: https://www.globalseastrust.com/sitemap-index.xml

@@ -26,6 +26,8 @@ interface Hour {
 }
 
 interface Props {
+  /** visually-hidden section heading — keeps the page outline h1 → h2 → h3 for search engines */
+  heading?: string;
   addressLines?: string[];
   /** what Google Maps should search for; defaults to the address lines joined */
   mapQuery?: string;
@@ -40,6 +42,7 @@ interface Props {
 }
 
 const {
+  heading = 'Contact Details',
   addressLines = ['P.O. Box 1234, Industrial Port Area,', 'Muscat, Sultanate of Oman'],
   mapQuery,
   phone = '+968 9000 0000',
@@ -77,6 +80,7 @@ const payload = JSON.stringify({ timeZone, hours });
 
 <section class="cc" data-hours={payload} data-tz-label={timeZoneLabel}>
   <div class="cc__inner">
+    <h2 class="cc__title">{heading}</h2>
     <div class="cc__grid">
       <!-- Visit Us -------------------------------------------------------- -->
       <a
@@ -211,6 +215,17 @@ const payload = JSON.stringify({ timeZone, hours });
     max-width: 1200px;
     margin-inline: auto;
     padding-inline: 28px;
+  }
+
+  /* present for crawlers and screen readers, invisible on screen */
+  .cc__title {
+    position: absolute;
+    width: 1px;
+    height: 1px;
+    margin: -1px;
+    overflow: hidden;
+    clip-path: inset(50%);
+    white-space: nowrap;
   }
 
   .cc__grid {

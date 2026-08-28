@@ -25,6 +25,9 @@ interface Item {
   format: string;
   cat: string;
   image?: string;
+  /** intrinsic pixel size of `image` — reserves the box before load (no layout shift) */
+  width?: number;
+  height?: number;
 }
 
 interface Category {
@@ -97,7 +100,7 @@ const hue = (s: string) => {
           >
             <span class="pc__shot">
               {it.image ? (
-                <img src={it.image} alt={it.name} loading="lazy" decoding="async" />
+                <img src={it.image} alt={it.name} width={it.width} height={it.height} loading="lazy" decoding="async" />
               ) : (
                 <svg viewBox="0 0 40 22" aria-hidden="true" focusable="false">
                   <g fill="rgba(255,255,255,.34)">

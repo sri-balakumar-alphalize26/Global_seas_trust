@@ -14,7 +14,7 @@ const { heading, image, alt = '' } = Astro.props;
 ---
 
 <section class="page-hero-img">
-  <Image src={image} alt={alt} class="ph-bg" width={1600} loading="eager" />
+  <Image src={image} alt={alt} class="ph-bg" width={1600} loading="eager" fetchpriority="high" />
   <div class="ph-overlay" aria-hidden="true"></div>
   <div class="container ph-inner">
     <h1>{heading}</h1>

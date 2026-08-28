@@ -1,0 +1,81 @@
+---
+/**
+ * Linked product card for the generated category / product pages.
+ * Mirrors the homepage "Signature Catch" card look (photo, name, scientific
+ * name, forms) but the whole card is a link to the product's own page.
+ */
+import { Image } from 'astro:assets';
+import type { CatalogueEntry } from '../data/catalogue';
+
+interface Props {
+  product: CatalogueEntry;
+}
+
+const { product: p } = Astro.props;
+---
+
+<a class="card pcard" href={p.url}>
+  <span class="pcard__visual">
+    {p.image && <Image src={p.image} alt={`${p.name} — ${p.forms}`} width={640} loading="lazy" class="pcard__img" />}
+  </span>
+  <span class="pcard__body">
+    <h3>{p.name}</h3>
+    {p.scientific && <em class="pcard__latin">{p.scientific}</em>}
+    <span class="pcard__forms">{p.forms}</span>
+  </span>
+</a>
+
+<style>
+  .pcard {
+    display: block;
+    overflow: hidden;
+    color: inherit;
+  }
+
+  .pcard__visual {
+    display: block;
+    height: 170px;
+    background: linear-gradient(150deg, var(--aqua-100), #d9e6fb);
+  }
+
+  .pcard__visual :global(.pcard__img) {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    transition: transform 0.5s ease;
+  }
+
+  .pcard:hover .pcard__visual :global(.pcard__img) {
+    transform: scale(1.05);
+  }
+
+  .pcard__body {
+    display: block;
+    padding: 1.1rem 1.2rem 1.3rem;
+  }
+
+  .pcard h3 {
+    font-size: 1.05rem;
+    color: var(--navy-900);
+    transition: color 0.15s ease;
+  }
+
+  .pcard:hover h3 {
+    color: var(--blue-600);
+  }
+
+  .pcard__latin {
+    display: block;
+    font-style: italic;
+    font-size: 0.82rem;
+    color: var(--text-400);
+    margin-bottom: 0.5rem;
+  }
+
+  .pcard__forms {
+    display: block;
+    font-size: 0.85rem;
+    font-weight: 600;
+    color: var(--blue-600);
+  }
+</style>

@@ -10,7 +10,11 @@ import { company } from '../data/site';
 const addressLines = ['P.O. Box 1234, Industrial Port Area,', 'Muscat, Sultanate of Oman'];
 ---
 
-<BaseLayout title="Contact Us" description={`Get in touch with ${company.name} for quotes, specifications and partnership enquiries.`}>
+<BaseLayout
+  title="Contact Us"
+  pageType="ContactPage"
+  description={`Contact ${company.name} in Muscat, Oman for seafood export quotes, product specifications, private-label packing and partnership enquiries.`}
+>
   <PageHero heading="Contact Us" image={bannerContact}>
     <p>
       Tell us what you need — species, grade, packing and destination port —

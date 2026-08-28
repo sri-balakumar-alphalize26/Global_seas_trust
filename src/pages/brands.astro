@@ -10,9 +10,24 @@ import { brands } from '../data/site';
 
 // Card imagery per brand: OceanCrest (premium export) / BlueHarvest (retail)
 const brandImages = [imgPremium, imgRetail];
+
+// schema.org Brand entities so search engines tie the labels to the company.
+const site = Astro.site ?? new URL('https://www.globalseastrust.com');
+const brandsUrl = new URL('/brands/', site).href;
+const brandSchema = brands.map((b) => ({
+  '@type': 'Brand',
+  name: b.name,
+  slogan: b.positioning,
+  description: b.text,
+  url: brandsUrl,
+}));
 ---
 
-<BaseLayout title="Our Brands" description="Discover our house brands for premium and everyday frozen seafood.">
+<BaseLayout
+  title="Our Brands"
+  description="OceanCrest premium export range and BlueHarvest everyday frozen seafood — Global Seas Trust house brands plus private-label packing for retail and food service."
+  schema={brandSchema}
+>
   <PageHero heading="Our Brands" image={bannerBrands}>
     <p>
       Two house labels, one standard of quality — built for different

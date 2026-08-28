@@ -16,10 +16,14 @@ import {
 } from '../data/site';
 ---
 
-<BaseLayout title="Home">
+<BaseLayout
+  title={`${company.name} | Fresh & Frozen Seafood Exporter in Oman`}
+  fullTitle
+  description="Oman-based exporter of fresh and frozen seafood — tuna, kingfish, mackerel, shrimp, cuttlefish and squid — processed to HACCP, ISO 22000 and BRC standards for 25+ export markets."
+>
   <!-- ============ HERO ============ -->
   <section class="hero">
-    <Image src={siteImages.hero} alt="" class="hero-bg" loading="eager" width={1600} />
+    <Image src={siteImages.hero} alt="" class="hero-bg" loading="eager" fetchpriority="high" width={1600} />
     <div class="hero-overlay" aria-hidden="true"></div>
     <div class="container hero-inner">
       <p class="hero-eyebrow">{company.tagline}</p>

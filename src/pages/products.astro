@@ -5,15 +5,8 @@ import PageHero from '../components/PageHero.astro';
 import ProductCatalogue from '../components/ProductCatalogue.astro';
 import Icon from '../components/Icon.astro';
 import bannerProducts from '../assets/site/banner-products.jpg';
-import { certifications } from '../data/site';
-import { categories } from '../data/catalogue';
-
-const packing = [
-  { title: 'IQF (Individually Quick Frozen)', text: 'Individually frozen pieces for easy portioning — ideal for retail bags and food service.' },
-  { title: 'Block Frozen', text: 'Compact frozen blocks for industrial buyers and reprocessors, packed to weight specification.' },
-  { title: 'Vacuum / Retail Packs', text: 'Skin-pack and vacuum options with private-label printing for supermarket shelves.' },
-  { title: 'Bulk / Bin Loading', text: 'High-volume loading for fish meal, bait and industrial-grade consignments.' },
-];
+import { company, certifications, packingOptions as packing } from '../data/site';
+import { categories, productUrl } from '../data/catalogue';
 
 // Map the photo-first catalogue into the animated-filter component's shape.
 // Images are pre-optimized here so the plain <img> cards still ship WebP.
@@ -21,18 +14,54 @@ const pcCategories = categories.map((c) => ({ id: c.id, label: c.label, note: c.
 
 const pcItems = await Promise.all(
   categories.flatMap((c) =>
-    c.items.map(async (it) => ({
-      name: it.name,
-      latin: it.scientific,
-      format: it.forms,
-      cat: c.id,
-      image: it.image ? (await getImage({ src: it.image, width: 640, format: 'webp' })).src : undefined,
-    }))
+    c.items.map(async (it) => {
+      const img = it.image ? await getImage({ src: it.image, width: 640, format: 'webp' }) : undefined;
+      return {
+        name: it.name,
+        latin: it.scientific,
+        format: it.forms,
+        cat: c.id,
+        catLabel: c.label,
+        url: productUrl(c.id, it.slug),
+        image: img?.src,
+        // intrinsic size → the card reserves its box before the image loads (no CLS)
+        width: img?.attributes.width as number | undefined,
+        height: img?.attributes.height as number | undefined,
+      };
+    })
   )
 );
+
+// schema.org ItemList of the catalogue — lets Google read the range as products.
+const site = Astro.site ?? new URL('https://www.globalseastrust.com');
+const productsUrl = new URL('/products/', site).href;
+const productSchema = {
+  '@type': 'ItemList',
+  name: `${company.name} seafood catalogue`,
+  numberOfItems: pcItems.length,
+  itemListElement: pcItems.map((it, i) => ({
+    '@type': 'ListItem',
+    position: i + 1,
+    item: {
+      '@type': 'Product',
+      name: it.name,
+      ...(it.latin ? { alternateName: it.latin } : {}),
+      description: `${it.name}${it.latin ? ` (${it.latin})` : ''} — ${it.format}. Export-grade seafood from ${company.name}, Oman.`,
+      category: it.catLabel,
+      url: new URL(it.url, site).href,
+      ...(it.image ? { image: new URL(it.image, site).href } : {}),
+      brand: { '@type': 'Brand', name: company.name },
+    },
+  })),
+};
 ---
 
-<BaseLayout title="Our Products" description="Explore our full catalogue — fish, crustaceans, cephalopods, value-added and dried seafood for export.">
+<BaseLayout
+  title="Our Products"
+  description="Wholesale fish, shrimp, lobster, crab, cuttlefish, squid and dried seafood for export — IQF, block-frozen and retail packs from Global Seas Trust, Oman."
+  pageType="CollectionPage"
+  schema={productSchema}
+>
   <PageHero heading="Our Products" image={bannerProducts}>
     <p>
       Premium species from the Arabian Sea and Indian Ocean — graded,
