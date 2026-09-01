@@ -21,6 +21,10 @@ const name = pick(company, 'name', lang);
 // Full-size copies for the lightbox. These matter more here than anywhere
 // else: four of the five are portrait shots shown in a 210px landscape band,
 // so the card only ever reveals a slice of the photo.
+//
+// Unconditional on purpose — do NOT apply the size threshold ProductPage uses.
+// There the popup only earns its place by showing more pixels; here it earns it
+// by showing more of the FRAME, which holds however large the source is.
 const fullShots = Object.fromEntries(
   await Promise.all(
     facilities.map(async (f) => [

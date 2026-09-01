@@ -41,6 +41,18 @@ const fullShot = product.image
   ? await getImage({ src: product.image, width: Math.min(1600, product.image.width), format: 'webp' })
   : undefined;
 
+/**
+ * The hero image occupies the 1.1fr column of `.prod-hero__grid` — of a
+ * 1160px container with a 3rem gap, that renders about 583px wide.
+ *
+ * Eight of the supplied fish photos are narrower than that, so opening them
+ * would show a SMALLER picture than the page already does. Offer the popup
+ * only where the source genuinely holds more detail; everywhere else the
+ * image stays a plain, non-interactive picture rather than a dead tap target.
+ */
+const HERO_RENDER_WIDTH = 583;
+const canZoom = !!product.image && product.image.width >= HERO_RENDER_WIDTH * 1.2;
+
 const forms = product.forms.split(/\s*\/\s*/);
 const title = L.product.seoTitle(product.name, product.forms);
 
@@ -103,7 +115,7 @@ const productSchema = {
               loading="eager"
               fetchpriority="high"
               class="prod-hero__img"
-              data-lightbox={fullShot?.src}
+              data-lightbox={canZoom ? fullShot?.src : undefined}
             />
           )
         }

@@ -6,6 +6,11 @@
  *   <Image src={photo} data-lightbox={fullSrc} alt="…" />
  * where `fullSrc` is a getImage() URL capped at the photo's own width.
  *
+ * Omitting the attribute is how a page opts out: an unmarked image gets no
+ * zoom cursor, no role/tabindex and no listener, so it never becomes a tap
+ * target that opens nothing useful. ProductPage.astro does exactly that for
+ * photos already displayed at or above their full size.
+ *
  * Follows the dialog idiom already used by ContactCards.astro: native
  * <dialog> + showModal(), animated ::backdrop, and an `is-closing` class
  * that plays the exit before the element leaves the top layer.
