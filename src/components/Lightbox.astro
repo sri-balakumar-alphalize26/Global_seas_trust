@@ -1,0 +1,234 @@
+---
+/**
+ * Lightbox.astro — tap any [data-lightbox] image to see it full size.
+ *
+ * Mounted once by BaseLayout, so pages only have to mark an image:
+ *   <Image src={photo} data-lightbox={fullSrc} alt="…" />
+ * where `fullSrc` is a getImage() URL capped at the photo's own width.
+ *
+ * Follows the dialog idiom already used by ContactCards.astro: native
+ * <dialog> + showModal(), animated ::backdrop, and an `is-closing` class
+ * that plays the exit before the element leaves the top layer.
+ *
+ * Re-seeds on astro:page-load, so it survives a ClientRouter navigation.
+ */
+import { t, type Lang } from '../i18n';
+
+interface Props {
+  lang?: Lang;
+}
+
+const { lang = 'en' } = Astro.props;
+const L = t(lang);
+---
+
+<dialog class="lb" aria-label={L.common.closeImage} data-lb>
+  <div class="lb__sheet">
+    <button type="button" class="lb__close" data-lb-close aria-label={L.common.closeImage}>
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" aria-hidden="true">
+        <line x1="6" y1="6" x2="18" y2="18" />
+        <line x1="18" y1="6" x2="6" y2="18" />
+      </svg>
+    </button>
+    <img class="lb__img" data-lb-img alt="" />
+    <p class="lb__caption" data-lb-caption></p>
+  </div>
+</dialog>
+
+<script is:inline define:vars={{ viewFullTpl: L.common.viewFull('{subject}') }}>
+  (() => {
+    /** Turn a plain <img> into an activatable control without restructuring markup. */
+    function arm(img) {
+      if (img.dataset.lbArmed) return;
+      img.dataset.lbArmed = '1';
+      img.setAttribute('role', 'button');
+      img.setAttribute('tabindex', '0');
+      // NB: the placeholder must not contain '%'. Astro's compiler is Go-based
+      // and runs define:vars values through fmt, which eats '%s'.
+      img.setAttribute('aria-label', viewFullTpl.replace('{subject}', img.getAttribute('alt') || ''));
+      img.style.cursor = 'zoom-in';
+    }
+
+    function wire() {
+      const dialog = document.querySelector('[data-lb]');
+      if (!dialog) return;
+
+      const full = dialog.querySelector('[data-lb-img]');
+      const caption = dialog.querySelector('[data-lb-caption]');
+      let opener = null;
+
+      // animate out before the dialog actually leaves the top layer
+      const close = () => {
+        if (dialog.classList.contains('is-closing')) return;
+        dialog.classList.add('is-closing');
+        const done = (e) => {
+          if (e.target !== dialog.querySelector('.lb__sheet')) return;
+          dialog.removeEventListener('animationend', done);
+          dialog.classList.remove('is-closing');
+          dialog.close();
+          opener?.focus();
+          opener = null;
+        };
+        dialog.addEventListener('animationend', done);
+      };
+
+      const open = (img) => {
+        opener = img;
+        full.src = img.dataset.lightbox || img.currentSrc || img.src;
+        const alt = img.getAttribute('alt') || '';
+        full.alt = alt;
+        caption.textContent = alt;
+        caption.hidden = !alt;
+        dialog.showModal();
+      };
+
+      document.querySelectorAll('img[data-lightbox]').forEach((img) => {
+        arm(img);
+        img.addEventListener('click', () => open(img));
+        img.addEventListener('keydown', (e) => {
+          if (e.key !== 'Enter' && e.key !== ' ') return;
+          e.preventDefault();
+          open(img);
+        });
+      });
+
+      dialog.querySelector('[data-lb-close]')?.addEventListener('click', close);
+      // backdrop click — the dialog element itself, never the sheet inside it
+      dialog.addEventListener('click', (e) => {
+        if (e.target === dialog) close();
+      });
+      // Esc: let the browser start it, but play the exit first
+      dialog.addEventListener('cancel', (e) => {
+        e.preventDefault();
+        close();
+      });
+    }
+
+    wire();
+    document.addEventListener('astro:page-load', wire);
+  })();
+</script>
+
+<style>
+  .lb {
+    /* the global `* { margin: 0 }` reset kills the UA's dialog centering —
+       restore it explicitly so the image opens dead-centre */
+    position: fixed;
+    inset: 0;
+    margin: auto;
+    width: fit-content;
+    height: fit-content;
+    max-width: none;
+    max-height: none;
+    border: 0;
+    padding: 0;
+    background: transparent;
+    overflow: visible;
+  }
+
+  .lb::backdrop {
+    background: rgba(6, 20, 52, 0.82);
+    backdrop-filter: blur(3px);
+    opacity: 0;
+  }
+
+  .lb[open]::backdrop {
+    animation: lbFade 260ms cubic-bezier(0.22, 1, 0.36, 1) forwards;
+  }
+
+  .lb.is-closing::backdrop {
+    animation: lbFade 200ms ease forwards reverse;
+  }
+
+  .lb__sheet {
+    position: relative;
+    display: grid;
+    justify-items: center;
+    gap: 0.75rem;
+  }
+
+  .lb[open] .lb__sheet {
+    animation: lbIn 320ms cubic-bezier(0.22, 1, 0.36, 1) both;
+  }
+
+  .lb.is-closing .lb__sheet {
+    animation: lbOut 200ms ease both;
+  }
+
+  /* `contain` is the point of this component — it is what finally shows a
+     901x1600 portrait facility photo whole instead of a cropped band. */
+  .lb__img {
+    display: block;
+    max-width: min(92vw, 1400px);
+    max-height: 82vh;
+    width: auto;
+    height: auto;
+    object-fit: contain;
+    border-radius: 10px;
+    background: var(--white);
+    box-shadow: 0 30px 70px rgba(6, 20, 52, 0.55);
+  }
+
+  .lb__caption {
+    color: var(--aqua-100);
+    font-size: 0.9rem;
+    text-align: center;
+    max-width: min(92vw, 640px);
+  }
+
+  .lb__close {
+    position: absolute;
+    top: -14px;
+    /* logical property so it flips on the Arabic pages */
+    inset-inline-end: -14px;
+    z-index: 1;
+    display: grid;
+    place-items: center;
+    width: 40px;
+    height: 40px;
+    border: 0;
+    border-radius: 50%;
+    background: var(--white);
+    color: var(--navy-900);
+    cursor: pointer;
+    box-shadow: 0 6px 18px rgba(6, 20, 52, 0.4);
+  }
+
+  .lb__close svg {
+    width: 18px;
+    height: 18px;
+  }
+
+  @media (max-width: 560px) {
+    .lb__close {
+      top: -8px;
+      inset-inline-end: -8px;
+      width: 36px;
+      height: 36px;
+    }
+  }
+
+  @keyframes lbFade {
+    to {
+      opacity: 1;
+    }
+  }
+
+  @keyframes lbIn {
+    from {
+      opacity: 0;
+      transform: scale(0.94);
+    }
+    to {
+      opacity: 1;
+      transform: none;
+    }
+  }
+
+  @keyframes lbOut {
+    to {
+      opacity: 0;
+      transform: scale(0.97);
+    }
+  }
+</style>

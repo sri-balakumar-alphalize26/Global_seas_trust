@@ -60,6 +60,8 @@ const {
   crNumber = company.crNumber,
   phone = company.phone,
   email = company.email,
+  /** Sales desk, shown beneath the general address — the card itself composes to `email`. */
+  emailSales = company.emailSales,
   emailSubject = L.contact.emailSubject(lang === 'ar' ? company.nameAr : company.name),
   hoursSummary = lang === 'ar' ? L.cards.hoursSummary : company.hours,
   timeZone = 'Asia/Muscat',
@@ -100,6 +102,17 @@ const pretty = (t?: string) => {
 };
 
 const payload = JSON.stringify({ timeZone, hours });
+
+/**
+ * A business that never closes needs no week table and no live open/closed
+ * badge — every row would read the same and the status would never change.
+ * Detected from the company data (all seven days spanning the full clock) so
+ * the interactive version comes back on its own if hours ever get specific.
+ */
+const alwaysOpen =
+  company.openingHours.days.length === 7 &&
+  company.openingHours.opens === '00:00' &&
+  company.openingHours.closes === '23:59';
 ---
 
 <section
@@ -156,6 +169,7 @@ const payload = JSON.stringify({ timeZone, hours });
         data-email={email}
         data-subject={emailSubject}
         aria-label={L.cards.emailAria(email)}
+        aria-haspopup="dialog"
       >
         <span class="cc__chip">
           <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
@@ -165,25 +179,44 @@ const payload = JSON.stringify({ timeZone, hours });
         </span>
         <h3>{L.cards.emailUs}</h3>
         <p class="cc__mail" dir="ltr">{email}</p>
+        {emailSales && <p class="cc__mail cc__mail--alt" dir="ltr">{emailSales}</p>}
         <span class="cc__hint">{L.cards.composeGmail}</span>
       </a>
 
       <!-- Working Hours --------------------------------------------------- -->
-      <button class="cc__card" style="--i:3" type="button" data-hours-open aria-haspopup="dialog">
-        <span class="cc__chip">
-          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
-            <circle cx="12" cy="12" r="9" />
-            <path d="M12 7.2V12l3.2 2" />
-          </svg>
-        </span>
-        <h3>{L.cards.workingHours}</h3>
-        <p>{hoursSummary}</p>
-        <span class="cc__hint">{L.cards.seeWeek}</span>
-      </button>
+      {
+        alwaysOpen ? (
+          <div class="cc__card cc__card--static" style="--i:3">
+            <span class="cc__chip">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+                <circle cx="12" cy="12" r="9" />
+                <path d="M12 7.2V12l3.2 2" />
+              </svg>
+            </span>
+            <h3>{L.cards.workingHours}</h3>
+            <p>{hoursSummary}</p>
+            <span class="cc__tz">{timeZoneLabel}</span>
+          </div>
+        ) : (
+          <button class="cc__card" style="--i:3" type="button" data-hours-open aria-haspopup="dialog">
+            <span class="cc__chip">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+                <circle cx="12" cy="12" r="9" />
+                <path d="M12 7.2V12l3.2 2" />
+              </svg>
+            </span>
+            <h3>{L.cards.workingHours}</h3>
+            <p>{hoursSummary}</p>
+            <span class="cc__hint">{L.cards.seeWeek}</span>
+          </button>
+        )
+      }
     </div>
   </div>
 
-  <!-- ------------------------------------------------------------ dialog -->
+  {/* Week table — only for a business with specific hours. Kept intact so it
+      returns automatically if company.openingHours stops being 24/7. */}
+  {!alwaysOpen && (
   <dialog class="cc__dialog" aria-labelledby="cc-hours-title">
     <div class="cc__sheet">
       <header class="cc__sheet-head">
@@ -218,8 +251,61 @@ const payload = JSON.stringify({ timeZone, hours });
           ))
         }
       </ul>
+    </div>
+  </dialog>
+  )}
 
-      <footer class="cc__sheet-foot">{L.cards.holidayNote}</footer>
+  <!-- --------------------------------------------------- address chooser -->
+  {/* Two addresses are published, so the card asks which one rather than
+      silently composing to the general desk. */}
+  <dialog class="cc__dialog cc__dialog--mail" aria-labelledby="cc-mail-title">
+    <div class="cc__sheet">
+      <header class="cc__sheet-head">
+        <span class="cc__chip cc__chip--solid">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+            <rect x="2.5" y="5" width="19" height="14" rx="2.4" />
+            <path d="m4.6 7.6 7.4 5.3 7.4-5.3" />
+          </svg>
+        </span>
+        <div>
+          <h3 id="cc-mail-title">{L.cards.mailChooseTitle}</h3>
+          <p>{L.cards.emailUs}</p>
+        </div>
+        <button class="cc__x" type="button" data-mail-close aria-label={L.cards.close}>
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.1" stroke-linecap="round" aria-hidden="true">
+            <path d="m6 6 12 12M18 6 6 18" />
+          </svg>
+        </button>
+      </header>
+
+      <ul class="cc__picks">
+        <li>
+          <button type="button" data-mail-to={email}>
+            <strong>{L.cards.mailGeneral}</strong>
+            <span dir="ltr">{email}</span>
+          </button>
+        </li>
+        {emailSales && (
+          <li>
+            <button type="button" data-mail-to={emailSales}>
+              <strong>{L.cards.mailSales}</strong>
+              <span dir="ltr">{emailSales}</span>
+            </button>
+          </li>
+        )}
+        {emailSales && (
+          <li>
+            <button type="button" data-mail-to={`${email},${emailSales}`}>
+              <strong>{L.cards.mailBoth}</strong>
+              <span>{L.cards.mailBothHint}</span>
+            </button>
+          </li>
+        )}
+      </ul>
+
+      <footer class="cc__sheet-foot">
+        <button class="cc__cancel" type="button" data-mail-close>{L.cards.mailCancel}</button>
+      </footer>
     </div>
   </dialog>
 </section>
@@ -353,6 +439,13 @@ const payload = JSON.stringify({ timeZone, hours });
     word-break: break-word;
   }
 
+  /* Sales desk — present but secondary to the address the card composes to. */
+  .cc__mail--alt {
+    margin-top: 2px;
+    opacity: 0.78;
+    font-size: 0.92em;
+  }
+
   /* the affordance only shows once you are actually pointing at the card */
   .cc__hint {
     display: block;
@@ -412,6 +505,79 @@ const payload = JSON.stringify({ timeZone, hours });
     border-radius: 16px;
     padding: 24px 24px 20px;
     box-shadow: 0 30px 70px rgba(6, 20, 52, 0.3);
+  }
+
+  /* 24/7: the card states the hours rather than opening a week table, so it
+     gets no hover affordance and no pointer cursor. */
+  .cc__card--static {
+    cursor: default;
+  }
+
+  .cc__tz {
+    display: block;
+    margin-top: 10px;
+    font-size: 0.82rem;
+    color: var(--cc-ink);
+    opacity: 0.6;
+  }
+
+  /* ---- address chooser ---- */
+  .cc__picks {
+    list-style: none;
+    display: grid;
+    gap: 8px;
+    margin: 4px 0 14px;
+    padding: 0;
+  }
+
+  .cc__picks button {
+    display: grid;
+    gap: 2px;
+    width: 100%;
+    padding: 12px 14px;
+    text-align: start;
+    border: 1.5px solid var(--cc-line);
+    border-radius: 12px;
+    background: #fff;
+    color: inherit;
+    cursor: pointer;
+    transition:
+      border-color 0.18s ease,
+      background 0.18s ease,
+      transform 0.18s ease;
+  }
+
+  .cc__picks button:hover,
+  .cc__picks button:focus-visible {
+    border-color: var(--cc-brand-bright);
+    background: var(--cc-soft);
+    transform: translateY(-1px);
+  }
+
+  .cc__picks strong {
+    font-size: 0.95rem;
+    color: var(--cc-ink);
+  }
+
+  .cc__picks span {
+    font-size: 0.82rem;
+    color: var(--cc-brand-bright);
+    word-break: break-word;
+  }
+
+  .cc__cancel {
+    border: 0;
+    background: none;
+    padding: 0;
+    font: inherit;
+    color: var(--cc-ink);
+    opacity: 0.7;
+    cursor: pointer;
+    text-decoration: underline;
+  }
+
+  .cc__cancel:hover {
+    opacity: 1;
   }
 
   .cc__dialog[open] .cc__sheet {
@@ -743,7 +909,14 @@ const payload = JSON.stringify({ timeZone, hours });
   }
 
   function wire(section: HTMLElement) {
-    const dialog = section.querySelector<HTMLDialogElement>('.cc__dialog');
+    wireHours(section);
+    wireMail(section);
+  }
+
+  /** Week table + live status. Absent when the business never closes. */
+  function wireHours(section: HTMLElement) {
+    // `:not(--mail)` matters — the address chooser shares the .cc__dialog class
+    const dialog = section.querySelector<HTMLDialogElement>('.cc__dialog:not(.cc__dialog--mail)');
     const openBtn = section.querySelector<HTMLButtonElement>('[data-hours-open]');
     if (!dialog || !openBtn) return;
 
@@ -795,15 +968,68 @@ const payload = JSON.stringify({ timeZone, hours });
       if (e.target === dialog) close();
     });
 
-    // Gmail on desktop, the device's mail app on touch
+  }
+
+  /**
+   * Two addresses are published, so always ask which one rather than composing
+   * straight to the general desk. The <a href="mailto:"> stays as the no-JS
+   * fallback. Wired separately from the hours dialog so it keeps working when
+   * that one isn't rendered at all.
+   */
+  function wireMail(section: HTMLElement) {
     const mail = section.querySelector<HTMLAnchorElement>('.cc__card--mail');
-    mail?.addEventListener('click', (e) => {
-      if (window.matchMedia('(pointer: coarse)').matches) return; // let mailto: run
-      e.preventDefault();
-      const to = mail.dataset.email ?? '';
-      const su = encodeURIComponent(mail.dataset.subject ?? '');
-      window.open(`https://mail.google.com/mail/?view=cm&fs=1&to=${to}&su=${su}`, '_blank', 'noopener');
-    });
+    const mailDialog = section.querySelector<HTMLDialogElement>('.cc__dialog--mail');
+
+    if (mail && mailDialog) {
+      const closeMail = () => {
+        if (mailDialog.classList.contains('is-closing')) return;
+        mailDialog.classList.add('is-closing');
+        const done = (e: AnimationEvent) => {
+          if (e.target !== mailDialog.querySelector('.cc__sheet')) return;
+          mailDialog.removeEventListener('animationend', done);
+          mailDialog.classList.remove('is-closing');
+          mailDialog.close();
+          mail.focus();
+        };
+        mailDialog.addEventListener('animationend', done);
+      };
+
+      /** Gmail compose on a fine pointer, the device's mail app on touch. */
+      const compose = (to: string) => {
+        const su = encodeURIComponent(mail.dataset.subject ?? '');
+        if (window.matchMedia('(pointer: coarse)').matches) {
+          window.location.href = `mailto:${to}?subject=${su}`;
+        } else {
+          window.open(`https://mail.google.com/mail/?view=cm&fs=1&to=${to}&su=${su}`, '_blank', 'noopener');
+        }
+      };
+
+      mail.addEventListener('click', (e) => {
+        e.preventDefault();
+        mailDialog.showModal();
+      });
+
+      mailDialog.querySelectorAll<HTMLButtonElement>('[data-mail-to]').forEach((btn) => {
+        btn.addEventListener('click', () => {
+          const to = btn.dataset.mailTo ?? '';
+          closeMail();
+          compose(to);
+        });
+      });
+
+      mailDialog.querySelectorAll<HTMLButtonElement>('[data-mail-close]').forEach((btn) => {
+        btn.addEventListener('click', closeMail);
+      });
+
+      mailDialog.addEventListener('click', (e) => {
+        if (e.target === mailDialog) closeMail();
+      });
+
+      mailDialog.addEventListener('cancel', (e) => {
+        e.preventDefault();
+        closeMail();
+      });
+    }
   }
 
   function seed() {

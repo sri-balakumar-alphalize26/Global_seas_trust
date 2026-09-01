@@ -4,6 +4,7 @@ import Header from '../components/Header.astro';
 import Footer from '../components/Footer.astro';
 import WaveCurtain from '../components/WaveCurtain.astro';
 import Reveal from '../components/Reveal.astro';
+import Lightbox from '../components/Lightbox.astro';
 import { company } from '../data/site';
 import { getCategories } from '../data/catalogue';
 import { dir, htmlLang, localePath, ogLocale, pick, stripLocale, t, type Lang } from '../i18n';
@@ -27,7 +28,7 @@ interface Props {
   /** Pixel size of `image` — only needed when it isn't the default share image. */
   imageWidth?: number;
   imageHeight?: number;
-  /** Keep the page out of search results (credits, 404). */
+  /** Keep the page out of search results (404). */
   noindex?: boolean;
   /** schema.org type of this page's WebPage node. */
   pageType?: PageType;
@@ -269,6 +270,9 @@ const jsonLd = graph.length
       attribute form — data-rv / data-rv-stagger — on their own elements.
     */}
     <Reveal as="span" in="fade" />
+
+    {/* Any [data-lightbox] image on the page opens full size — see components/Lightbox.astro */}
+    <Lightbox lang={lang} />
 
     {/* Persisted across navigations — see components/WaveCurtain.astro */}
     <WaveCurtain />
