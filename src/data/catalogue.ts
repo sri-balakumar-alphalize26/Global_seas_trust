@@ -33,6 +33,9 @@ import imgYellowstripeScad from '../assets/products/yellowstripe-scad.jpg';
 import imgPonyFish from '../assets/products/pony-fish.jpg';
 import imgGreyMullet from '../assets/products/grey-mullet.jpg';
 import imgCatfish from '../assets/products/catfish.jpg';
+import imgChubMackerel from '../assets/products/chub-mackerel.jpg';
+import imgMahiMahi from '../assets/products/mahi-mahi.jpg';
+import imgSalemaPorgy from '../assets/products/salema-porgy.jpg';
 import imgMoonfish from '../assets/products/moonfish.jpg';
 import imgVannamei from '../assets/products/vannamei-shrimp.jpg';
 
@@ -113,7 +116,7 @@ export const categories: Category[] = [
       },
       {
         slug: 'spangled-emperor',
-        name: 'Spangled Emperor',
+        name: 'Emperor',
         scientific: 'Lethrinus nebulosus',
         forms: 'Whole / Blast Frozen',
         description:
@@ -250,6 +253,36 @@ export const categories: Category[] = [
           'Marine catfish is a soft-fleshed species taken along the Arabian Sea coast, with few bones once trimmed. It sells in steady volume into South Asian and African markets, where it is valued for curries and drying. Supplied whole and blast frozen.',
         icon: 'fish',
         image: imgCatfish,
+      },
+      {
+        slug: 'chub-mackerel',
+        name: 'Chub Mackerel',
+        scientific: 'Scomber japonicus',
+        forms: 'Whole / Blast Frozen',
+        description:
+          'Chub mackerel is a fast-schooling pelagic fish landed in volume across the region and prized for its rich, oily flesh. It is a staple of canning lines and grilled and smoked preparations in Asian, African and Mediterranean markets. Supplied whole round and blast frozen.',
+        icon: 'fish',
+        image: imgChubMackerel,
+      },
+      {
+        slug: 'mahi-mahi',
+        name: 'Mahi Mahi',
+        scientific: 'Coryphaena hippurus',
+        forms: 'Whole / Blast Frozen',
+        description:
+          'Mahi mahi, the dolphinfish, is a fast-growing surface predator recognised by its blunt head and brilliant blue-green flanks. Its firm, lean white flesh holds up to grilling and is in strong demand from hotel and food-service buyers. Supplied whole and blast frozen.',
+        icon: 'fish',
+        image: imgMahiMahi,
+      },
+      {
+        slug: 'salema-porgy',
+        name: 'Salema Porgy',
+        scientific: 'Sarpa salpa',
+        forms: 'Whole / Blast Frozen',
+        description:
+          'Salema porgy is a shoaling sea bream marked by golden stripes running the length of a silver body. Lean and modestly priced, it is a everyday table fish across Mediterranean and East African markets. Supplied whole, size-graded and blast frozen.',
+        icon: 'fish',
+        image: imgSalemaPorgy,
       },
       {
         slug: 'moonfish',

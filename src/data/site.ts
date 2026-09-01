@@ -15,6 +15,8 @@ import imgBlastFreezer3 from '../assets/site/facility-blast-freezer-3.jpg';
 import imgChillRoom from '../assets/site/facility-chill-room.jpg';
 import imgColdStore from '../assets/site/facility-cold-store.jpg';
 import imgCompanyFront from '../assets/site/banner-infrastructure.jpg';
+import imgHeroFishing from '../assets/site/hero-fishing.jpg';
+import imgAboutObjective from '../assets/site/about-objective.jpg';
 import imgYellowfinTuna from '../assets/products/yellowfin-tuna.jpg';
 import imgGrouper from '../assets/products/grouper.jpg';
 import imgEmperor from '../assets/products/spangled-emperor.jpg';
@@ -27,9 +29,9 @@ import imgVannamei from '../assets/products/vannamei-shrimp.jpg';
 // Every image on the site is the company's own. The stock photography that
 // shipped with the scaffold — including a Santorini hero — was removed.
 export const siteImages = {
-  hero: imgColdStore,
-  feature: imgChillRoom,
-  about: imgAboutTuna,
+  hero: imgHeroFishing,
+  feature: imgCompanyFront,
+  about: imgAboutObjective,
 };
 
 export const company = {
@@ -115,7 +117,7 @@ export const stats = [
   { value: '3', label: 'Blast Freezers', labelAr: 'غرف تجميد سريع', icon: 'factory' },
   { value: '−40 °C', label: 'Blast-Frozen Core', labelAr: 'حرارة القلب بعد التجميد', icon: 'drop' },
   { value: '2', label: 'Cold Stores', labelAr: 'مخازن باردة', icon: 'box' },
-  { value: '21', label: 'Species Exported', labelAr: 'نوعاً نصدّره', icon: 'fish' },
+  { value: '24', label: 'Species Exported', labelAr: 'نوعاً نصدّره', icon: 'fish' },
 ];
 
 export interface Product {
@@ -137,7 +139,7 @@ export interface Product {
 export const products: Product[] = [
   { name: 'Yellowfin Tuna', nameAr: 'تونة صفراء الزعانف', scientific: 'Thunnus albacares', forms: 'Whole', formsAr: 'كاملة', icon: 'fish', image: imgYellowfinTuna, href: '/products/fish/yellowfin-tuna/' },
   { name: 'Grouper', nameAr: 'هامور', scientific: 'Epinephelus diacanthus', forms: 'Whole', formsAr: 'كاملة', icon: 'fish', image: imgGrouper, href: '/products/fish/grouper/' },
-  { name: 'Spangled Emperor', nameAr: 'شعري', scientific: 'Lethrinus nebulosus', forms: 'Whole', formsAr: 'كاملة', icon: 'fish', image: imgEmperor, href: '/products/fish/spangled-emperor/' },
+  { name: 'Emperor', nameAr: 'شعري', scientific: 'Lethrinus nebulosus', forms: 'Whole', formsAr: 'كاملة', icon: 'fish', image: imgEmperor, href: '/products/fish/spangled-emperor/' },
   { name: 'Grey Mullet', nameAr: 'بياح', scientific: 'Mugil cephalus', forms: 'Whole', formsAr: 'كاملة', icon: 'fish', image: imgGreyMullet, href: '/products/fish/grey-mullet/' },
   { name: 'Ribbon Fish', nameAr: 'سمك الشريط (سيف)', scientific: 'Trichiurus lepturus', forms: 'Whole', formsAr: 'كاملة', icon: 'fish', image: imgRibbonFish, href: '/products/fish/ribbon-fish/' },
   { name: 'Indian Mackerel', nameAr: 'ماكريل هندي', scientific: 'Rastrelliger kanagurta', forms: 'Whole', formsAr: 'كاملة', icon: 'fish', image: imgIndianMackerel, href: '/products/fish/indian-mackerel/' },

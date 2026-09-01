@@ -38,10 +38,12 @@ const { product: p } = Astro.props;
     background: linear-gradient(150deg, var(--aqua-100), #d9e6fb);
   }
 
+  /* `contain` so the whole fish shows — see the note in HomePage.astro. */
   .pcard__visual :global(.pcard__img) {
     width: 100%;
     height: 100%;
-    object-fit: cover;
+    object-fit: contain;
+    background: var(--white);
     transition: transform 0.5s ease;
   }
 

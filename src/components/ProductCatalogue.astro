@@ -297,12 +297,19 @@ const hue = (s: string) => {
     place-items: center;
   }
 
+  /* `contain` so the whole fish shows — see the note in HomePage.astro. */
   .pc__shot img,
   .pc__shot svg {
     width: 100%;
     height: 100%;
-    object-fit: cover;
+    object-fit: contain;
     transition: transform 700ms var(--pc-ease);
+  }
+
+  /* Only the photo gets a white ground; the SVG fallback keeps the tinted
+     gradient it was designed against. */
+  .pc__shot img {
+    background: #fff;
   }
 
   .pc__shot svg {
