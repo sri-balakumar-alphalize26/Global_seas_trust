@@ -149,7 +149,7 @@ const alwaysOpen =
       </a>
 
       <!-- Call Us --------------------------------------------------------- -->
-      <a class="cc__card" style="--i:1" href={telHref} aria-label={L.cards.callAria(phone)}>
+      <a class="cc__card cc__card--call" style="--i:1" href={telHref} aria-label={L.cards.callAria(phone)} aria-haspopup="dialog">
         <span class="cc__chip">
           <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
             <path
@@ -257,6 +257,45 @@ const alwaysOpen =
     </div>
   </dialog>
   )}
+
+  <!-- ---------------------------------------------------- number chooser -->
+  {/* Two lines are published, so the card asks which to dial rather than
+      silently picking the first. */}
+  <dialog class="cc__dialog cc__dialog--call" aria-labelledby="cc-call-title">
+    <div class="cc__sheet">
+      <header class="cc__sheet-head">
+        <span class="cc__chip cc__chip--solid">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+            <path d="M6.5 3h3l1.5 4-2 1.4a12.5 12.5 0 0 0 6.6 6.6L17 13l4 1.5v3a2 2 0 0 1-2.2 2A17.5 17.5 0 0 1 3.5 5.2 2 2 0 0 1 5.5 3Z" />
+          </svg>
+        </span>
+        <div>
+          <h3 id="cc-call-title">{L.cards.callChooseTitle}</h3>
+          <p>{L.cards.callUs}</p>
+        </div>
+        <button class="cc__x" type="button" data-call-close aria-label={L.cards.close}>
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.1" stroke-linecap="round" aria-hidden="true">
+            <path d="m6 6 12 12M18 6 6 18" />
+          </svg>
+        </button>
+      </header>
+
+      <ul class="cc__picks">
+        <li>
+          <a href={`tel:${phone.replace(/[^\d+]/g, '')}`} dir="ltr">{phone}</a>
+        </li>
+        {phoneAlt && (
+          <li>
+            <a href={`tel:${phoneAlt.replace(/[^\d+]/g, '')}`} dir="ltr">{phoneAlt}</a>
+          </li>
+        )}
+      </ul>
+
+      <footer class="cc__sheet-foot">
+        <button class="cc__cancel" type="button" data-call-close>{L.cards.mailCancel}</button>
+      </footer>
+    </div>
+  </dialog>
 
   <!-- --------------------------------------------------- address chooser -->
   {/* Two addresses are published, so the card asks which one rather than
@@ -534,7 +573,8 @@ const alwaysOpen =
     padding: 0;
   }
 
-  .cc__picks button {
+  .cc__picks button,
+  .cc__picks a {
     display: grid;
     gap: 2px;
     width: 100%;
@@ -552,7 +592,9 @@ const alwaysOpen =
   }
 
   .cc__picks button:hover,
-  .cc__picks button:focus-visible {
+  .cc__picks button:focus-visible,
+  .cc__picks a:hover,
+  .cc__picks a:focus-visible {
     border-color: var(--cc-brand-bright);
     background: var(--cc-soft);
     transform: translateY(-1px);
@@ -915,12 +957,58 @@ const alwaysOpen =
   function wire(section: HTMLElement) {
     wireHours(section);
     wireMail(section);
+    wireCall(section);
+  }
+
+  /**
+   * Two lines are published, so the card asks which to dial. The <a href="tel:">
+   * stays as the no-JS fallback, and each option in the sheet is itself a real
+   * tel: link — so the dialer opens from the user's own tap, not from script.
+   */
+  function wireCall(section: HTMLElement) {
+    const card = section.querySelector<HTMLAnchorElement>('.cc__card--call');
+    const dialog = section.querySelector<HTMLDialogElement>('.cc__dialog--call');
+    if (!card || !dialog) return;
+
+    const close = () => {
+      if (dialog.classList.contains('is-closing')) return;
+      dialog.classList.add('is-closing');
+      const done = (e: AnimationEvent) => {
+        if (e.target !== dialog.querySelector('.cc__sheet')) return;
+        dialog.removeEventListener('animationend', done);
+        dialog.classList.remove('is-closing');
+        dialog.close();
+        card.focus();
+      };
+      dialog.addEventListener('animationend', done);
+    };
+
+    card.addEventListener('click', (e) => {
+      e.preventDefault();
+      dialog.showModal();
+    });
+
+    // Picking a number follows its own href; just shut the sheet behind it.
+    dialog.querySelectorAll<HTMLAnchorElement>('.cc__picks a').forEach((a) => {
+      a.addEventListener('click', () => dialog.close());
+    });
+
+    dialog.querySelectorAll<HTMLButtonElement>('[data-call-close]').forEach((b) => {
+      b.addEventListener('click', close);
+    });
+    dialog.addEventListener('click', (e) => {
+      if (e.target === dialog) close();
+    });
+    dialog.addEventListener('cancel', (e) => {
+      e.preventDefault();
+      close();
+    });
   }
 
   /** Week table + live status. Absent when the business never closes. */
   function wireHours(section: HTMLElement) {
     // `:not(--mail)` matters — the address chooser shares the .cc__dialog class
-    const dialog = section.querySelector<HTMLDialogElement>('.cc__dialog:not(.cc__dialog--mail)');
+    const dialog = section.querySelector<HTMLDialogElement>('.cc__dialog:not(.cc__dialog--mail):not(.cc__dialog--call)');
     const openBtn = section.querySelector<HTMLButtonElement>('[data-hours-open]');
     if (!dialog || !openBtn) return;
 
