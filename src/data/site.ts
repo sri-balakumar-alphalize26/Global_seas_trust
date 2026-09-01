@@ -6,7 +6,6 @@
 // ============================================
 
 import type { ImageMetadata } from 'astro';
-import imgAboutTuna from '../assets/site/about-tuna.jpg';
 // The company's own plant, photographed August 2026 — these replace the stock
 // market photography the client asked us to drop.
 import imgBlastFreezer1 from '../assets/site/facility-blast-freezer-1.jpg';

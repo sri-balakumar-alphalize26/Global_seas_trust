@@ -58,7 +58,7 @@ export const en = {
     p1: 'Our objective is to establish Global Seas Trust as a trusted and recognized global <mark>seafood processing and export company</mark>, supplying premium-quality seafood to international markets.',
     p2: 'We specialize in processing and supplying a wide range of seafood, including <mark>Sardine, Mackerel, Tuna, Aquaculture Shrimp</mark>, prepared for fresh and frozen export to international markets. By combining careful sourcing, professional processing, quality control, and reliable export operations, we strive to deliver products that consistently meet the expectations of our customers worldwide.',
     p3: 'We aim to continuously expand our international market presence, strengthen our processing and supply capabilities, develop new seafood products, and build lasting relationships with importers, distributors, wholesalers, retailers, and food-service businesses.',
-    imageAlt: 'A whole tuna, one of the species Global Seas Trust grades and blast freezes for export',
+    imageAlt: 'Global Seas Trust — premium seafood delivered worldwide by sea and air freight',
     missionTitle: 'Our Mission',
     missionP1:
       'At Global Seas Trust, our mission is to bring high-quality seafood from trusted sources to customers across the world. We are committed to delivering fresh and frozen seafood with uncompromising standards of quality, freshness, food safety, and reliability.',
@@ -309,7 +309,7 @@ export const ar: Ui = {
     p1: 'هدفنا هو ترسيخ الثقة العالمية للبحار كشركة عالمية موثوقة ومعروفة في <mark>تصنيع وتصدير المأكولات البحرية</mark>، تزوّد الأسواق الدولية بمأكولات بحرية عالية الجودة.',
     p2: 'نتخصص في تصنيع وتوريد مجموعة واسعة من المأكولات البحرية، تشمل <mark>السردين والماكريل والتونة وروبيان الاستزراع المائي</mark>، مُعدّة للتصدير الطازج والمجمّد إلى الأسواق الدولية. وبالجمع بين المصادر المنتقاة والتصنيع الاحترافي وضبط الجودة وعمليات التصدير الموثوقة، نسعى إلى تقديم منتجات تلبّي باستمرار تطلعات عملائنا حول العالم.',
     p3: 'نهدف إلى التوسّع المستمر في حضورنا بالأسواق الدولية، وتعزيز قدراتنا في التصنيع والتوريد، وتطوير منتجات بحرية جديدة، وبناء علاقات دائمة مع المستوردين والموزّعين وتجار الجملة والتجزئة وشركات خدمات الطعام.',
-    imageAlt: 'سمكة تونة كاملة، من الأنواع التي تفرزها الثقة العالمية للبحار وتجمّدها تجميداً سريعاً للتصدير',
+    imageAlt: 'الثقة العالمية للبحار — مأكولات بحرية فاخرة تُشحن حول العالم بحراً وجواً',
     missionTitle: 'رسالتنا',
     missionP1:
       'في الثقة العالمية للبحار، رسالتنا هي تقديم مأكولات بحرية عالية الجودة من مصادر موثوقة لعملائنا حول العالم. ونلتزم بتوفير مأكولات بحرية طازجة ومجمّدة وفق معايير لا تقبل المساومة في الجودة والنضارة وسلامة الغذاء والموثوقية.',
