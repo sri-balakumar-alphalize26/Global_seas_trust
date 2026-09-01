@@ -1,0 +1,249 @@
+---
+// The company's own cold chain — blast freezers, chill room and cold stores.
+// Added at the client's request (29 Aug 2026 brief) so buyers can see the
+// facility their consignment passes through.
+import { Image, getImage } from 'astro:assets';
+import BaseLayout from '../../layouts/BaseLayout.astro';
+import PageHero from '../../components/PageHero.astro';
+import Icon from '../../components/Icon.astro';
+import bannerInfrastructure from '../../assets/site/banner-infrastructure.jpg';
+import { company, facilities, stats } from '../../data/site';
+import { localePath, pick, t, type Lang } from '../../i18n';
+
+interface Props {
+  lang?: Lang;
+}
+
+const { lang = 'en' } = Astro.props;
+const L = t(lang);
+const name = pick(company, 'name', lang);
+
+// Full-size copies for the lightbox. These matter more here than anywhere
+// else: four of the five are portrait shots shown in a 210px landscape band,
+// so the card only ever reveals a slice of the photo.
+const fullShots = Object.fromEntries(
+  await Promise.all(
+    facilities.map(async (f) => [
+      f.id,
+      (await getImage({ src: f.image, width: Math.min(1600, f.image.width), format: 'webp' })).src,
+    ])
+  )
+);
+
+// schema.org: the plant itself, so search engines tie the cold-chain claims
+// to the registered business.
+const site = Astro.site ?? new URL('https://www.globalseastrust.com');
+const schema = {
+  '@type': 'LocalBusiness',
+  name,
+  url: new URL(localePath('/infrastructure/', lang), site).href,
+  address: {
+    '@type': 'PostalAddress',
+    streetAddress: pick(company, 'locality', lang),
+    postalCode: company.postalCode,
+    addressCountry: 'OM',
+  },
+  amenityFeature: facilities.map((f) => ({
+    '@type': 'LocationFeatureSpecification',
+    name: pick(f, 'name', lang),
+    value: pick(f, 'spec', lang),
+  })),
+};
+---
+
+<BaseLayout lang={lang} title={L.infrastructure.seoTitle} description={L.infrastructure.seoDesc(name)} schema={schema}>
+  <PageHero heading={L.infrastructure.heroHeading} image={bannerInfrastructure} alt={`${name} — ${L.infrastructure.heroHeading}`}>
+    <p>{L.infrastructure.heroSub}</p>
+  </PageHero>
+
+  <section class="section">
+    <div class="container intro" data-rv>
+      <span class="eyebrow">{L.infrastructure.introEyebrow}</span>
+      <h2>{L.infrastructure.introH2}</h2>
+      <p>{L.infrastructure.introP1}</p>
+      <p>{L.infrastructure.introP2}</p>
+      <ul class="capacity">
+        {
+          stats.map((s) => (
+            <li>
+              <Icon name={s.icon} size={26} />
+              <strong>{s.value}</strong>
+              <span>{pick(s, 'label', lang)}</span>
+            </li>
+          ))
+        }
+      </ul>
+    </div>
+  </section>
+
+  <section class="section section--tint">
+    <div class="container">
+      <div class="section-head" data-rv>
+        <span class="eyebrow">{L.infrastructure.gridEyebrow}</span>
+        <h2>{L.infrastructure.gridH2}</h2>
+      </div>
+      <div class="facility-grid" data-rv data-rv-stagger="90">
+        {
+          facilities.map((f) => (
+            <article class="card facility-card">
+              <div class="card-visual">
+                <Image src={f.image} alt={pick(f, 'name', lang)} width={720} loading="lazy" data-lightbox={fullShots[f.id]} />
+              </div>
+              <div class="card-body">
+                <h3>{pick(f, 'name', lang)}</h3>
+                <span class="facility-spec">
+                  <Icon name="drop" size={16} />
+                  {pick(f, 'spec', lang)}
+                </span>
+                <p>{pick(f, 'text', lang)}</p>
+              </div>
+            </article>
+          ))
+        }
+      </div>
+    </div>
+  </section>
+
+  <section class="cta-band">
+    <div class="container cta-inner" data-rv>
+      <h2>{L.infrastructure.ctaH2}</h2>
+      <p>{L.infrastructure.ctaText}</p>
+      <a href={localePath('/contact/', lang)} class="btn btn--primary">{L.common.requestQuote}</a>
+    </div>
+  </section>
+</BaseLayout>
+
+<style>
+  .intro {
+    max-width: 780px;
+  }
+
+  .intro h2 {
+    margin-bottom: 1rem;
+  }
+
+  .intro p {
+    margin-bottom: 1rem;
+  }
+
+  .capacity {
+    list-style: none;
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    gap: 1.25rem;
+    margin-top: 2rem;
+    padding: 0;
+  }
+
+  .capacity li {
+    display: grid;
+    justify-items: start;
+    gap: 0.25rem;
+    padding-inline-start: 0.9rem;
+    border-inline-start: 3px solid var(--aqua-300);
+    color: var(--blue-600);
+  }
+
+  .capacity strong {
+    font-size: 1.35rem;
+    color: var(--navy-900);
+    line-height: 1.1;
+  }
+
+  .capacity span {
+    font-size: 0.82rem;
+    color: var(--text-600);
+  }
+
+  .facility-grid {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 1.5rem;
+  }
+
+  .facility-card {
+    overflow: hidden;
+  }
+
+  /* Four of the five photos are portrait phone shots — anchor the crop near the
+     top so door signage and temperature readouts survive the card band. */
+  .card-visual {
+    position: relative;
+    height: 210px;
+    overflow: hidden;
+    background: var(--aqua-100);
+  }
+
+  .card-visual :global(img) {
+    position: absolute;
+    inset: 0;
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    object-position: center 35%;
+  }
+
+  .card-body {
+    padding: 1.15rem 1.35rem 1.4rem;
+  }
+
+  .card-body h3 {
+    font-size: 1.02rem;
+    color: var(--navy-900);
+    margin-bottom: 0.4rem;
+  }
+
+  .facility-spec {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.4rem;
+    font-size: 0.78rem;
+    font-weight: 600;
+    letter-spacing: 0.04em;
+    text-transform: uppercase;
+    color: var(--blue-500);
+    margin-bottom: 0.6rem;
+  }
+
+  .card-body p {
+    font-size: 0.9rem;
+    color: var(--text-600);
+  }
+
+  .cta-band {
+    background: linear-gradient(120deg, var(--blue-600), var(--navy-800));
+    color: var(--white);
+    padding: 3.5rem 0;
+  }
+
+  .cta-inner {
+    text-align: center;
+    max-width: 640px;
+  }
+
+  .cta-inner h2 {
+    font-size: clamp(1.5rem, 3vw, 2.1rem);
+    margin-bottom: 0.8rem;
+  }
+
+  .cta-inner p {
+    color: var(--aqua-100);
+    margin-bottom: 1.6rem;
+  }
+
+  @media (max-width: 980px) {
+    .facility-grid {
+      grid-template-columns: repeat(2, 1fr);
+    }
+
+    .capacity {
+      grid-template-columns: repeat(2, 1fr);
+    }
+  }
+
+  @media (max-width: 680px) {
+    .facility-grid {
+      grid-template-columns: 1fr;
+    }
+  }
+</style>

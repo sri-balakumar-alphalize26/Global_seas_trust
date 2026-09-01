@@ -10,7 +10,7 @@ const ROUTE_META = {
   '/': [1.0, ChangeFreqEnum.WEEKLY],
   '/products/': [0.9, ChangeFreqEnum.WEEKLY],
   '/about/': [0.7, ChangeFreqEnum.MONTHLY],
-  '/brands/': [0.7, ChangeFreqEnum.MONTHLY],
+  '/infrastructure/': [0.7, ChangeFreqEnum.MONTHLY],
   '/contact/': [0.6, ChangeFreqEnum.MONTHLY],
 };
 
@@ -28,7 +28,7 @@ export default defineConfig({
   integrations: [
     // Emits /sitemap-index.xml (+ sitemap-0.xml); referenced from public/robots.txt.
     sitemap({
-      filter: (page) => !page.includes('/credits/') && !page.includes('/404'),
+      filter: (page) => !page.includes('/404'),
       // English at /, Arabic at /ar/ — emits <xhtml:link rel="alternate" hreflang>
       // pairs so Google serves the right language per visitor.
       i18n: {
