@@ -48,6 +48,7 @@ const hours = lang === 'ar' ? L.cards.hoursSummary : company.hours;
           <a href={`tel:${company.phone.replace(/[^\d+]/g, '')}`} dir="ltr">{company.phone}</a>
         </li>
         <li><Icon name="mail" size={18} /><a href={`mailto:${company.email}`} dir="ltr">{company.email}</a></li>
+        <li><Icon name="mail" size={18} /><a href={`mailto:${company.emailSales}`} dir="ltr">{company.emailSales}</a></li>
         <li><Icon name="clock" size={18} /><span>{hours}</span></li>
         <li><Icon name="shield" size={18} /><span>{L.footer.crLine(company.crNumber, company.postalCode)}</span></li>
       </ul>

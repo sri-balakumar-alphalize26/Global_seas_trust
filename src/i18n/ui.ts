@@ -13,6 +13,7 @@ export const en = {
     home: 'Home',
     about: 'About Us',
     products: 'Our Products',
+    infrastructure: 'Infrastructure',
     brands: 'Our Brands',
     contact: 'Contact Us',
   },
@@ -43,6 +44,8 @@ export const en = {
     openInMaps: 'Open in Google Maps →',
     openInMapsAria: (place: string) => `Open ${place} in Google Maps`,
     crNo: (cr: string) => `C.R. No. ${cr}`,
+    viewFull: (subject: string) => `View ${subject} full size`,
+    closeImage: 'Close image',
   },
   about: {
     seoTitle: 'About Us',
@@ -87,22 +90,22 @@ export const en = {
   brands: {
     seoTitle: 'Our Brands',
     seoDesc:
-      'OceanCrest premium export range and BlueHarvest everyday frozen seafood — Global Seas Trust house brands plus private-label packing for retail and food service.',
+      'OceanCrest premium export range and BlueHarvest everyday frozen seafood — Global Seas Trust house brands, plus private-label packing of whole blast-frozen fish for retail and food service.',
     heroHeading: 'Our Brands',
     heroSub: 'Two house labels, one standard of quality — built for different markets, backed by the same cold chain.',
     enquireAbout: (brand: string) => `Enquire About ${brand}`,
     plEyebrow: 'Private Label',
     plH2: 'Your Brand, Our Cold Chain',
     plText:
-      'Beyond our house labels, we produce private-label lines for supermarket chains and distributors — your artwork, your specification, our certified production.',
+      'Beyond our house labels, we pack under your own brand for supermarket chains and distributors — whole fish graded to your count, blast frozen and packed with your artwork in our HACCP-controlled hall.',
     plBtn: 'Discuss Private Label',
   },
   products: {
     seoTitle: 'Our Products',
     seoDesc:
-      'Wholesale fish, shrimp, lobster, crab, cuttlefish, squid and dried seafood for export — IQF, block-frozen and retail packs from Global Seas Trust, Oman.',
+      'Wholesale whole fish and vannamei shrimp for export — blast frozen at −40 °C and packed to your specification by Global Seas Trust, Oman.',
     heroHeading: 'Our Products',
-    heroSub: 'Premium species from the Arabian Sea and Indian Ocean — graded, processed and packed to your specification.',
+    heroSub: 'Premium species from the Arabian Sea and Indian Ocean — graded, blast frozen and packed to your specification.',
     packingEyebrow: 'Packing Options',
     packingH2: 'Packed the Way Your Market Needs',
     assuranceEyebrow: 'Assurance',
@@ -113,6 +116,24 @@ export const en = {
       'All species are available year round subject to season and quota. Custom grading, glazing and packing available on request.',
     categoriesAria: 'Product categories',
   },
+  infrastructure: {
+    seoTitle: 'Our Infrastructure',
+    seoDesc: (name: string) =>
+      `Blast freezers, chill rooms and cold stores at ${name} in Quroon, Oman — the cold chain behind every consignment, from landing site to reefer container.`,
+    heroHeading: 'Our Infrastructure',
+    heroSub: 'The cold chain behind every consignment we ship.',
+    introEyebrow: 'Built for the Cold Chain',
+    introH2: 'Where Freshness Is Held',
+    introP1:
+      'Seafood is only as good as the hours after it is landed. Our plant in Quroon is built around that: chilled intake within hours of the catch, blast freezing to a −40 °C core, and controlled cold storage until the reefer container is sealed.',
+    introP2:
+      'Three blast freezers, a chill room and twin cold stores carry the catch from chilled intake through to a sealed reefer container — so no consignment waits at ambient temperature.',
+    gridEyebrow: 'Our Facilities',
+    gridH2: 'Inside the Plant',
+    ctaH2: 'Want to See the Plant for Yourself?',
+    ctaText:
+      'We welcome buyer audits and facility visits. Get in touch and we will arrange a walkthrough of the cold chain your consignment will pass through.',
+  },
   category: {
     countLabel: (n: number) => `${n} ${n === 1 ? 'product' : 'products'}`,
     seoDesc: (blurb: string, n: number, name: string) => `${blurb} ${n} products from ${name}, Oman.`,
@@ -122,33 +143,15 @@ export const en = {
     seo: {
       fish: {
         title: 'Frozen Fish Supplier & Exporter in Oman',
-        h2: 'Whole, Gutted and Processed Fish for Export',
+        h2: 'Whole Fish for Export',
         intro:
-          'Tuna, kingfish, mackerel, sardine, snapper, grouper and more — landed on the Arabian Sea coast, size-graded, and frozen whole, gutted or as fillets and steaks for wholesale, retail and food-service buyers.',
+          'Tuna, mackerel, scad, grouper, emperor, snapper and more — landed on the Arabian Sea coast, size-graded and blast frozen whole for wholesale, retail and food-service buyers.',
       },
       crustaceans: {
-        title: 'Frozen Shrimp, Lobster & Crab Exporter in Oman',
-        h2: 'Shrimp, Lobster and Crab in Export Grades',
+        title: 'Frozen Vannamei Shrimp Exporter in Oman',
+        h2: 'Farmed Vannamei Shrimp in Export Grades',
         intro:
-          'Farmed vannamei and wild-caught tiger and white shrimp in HOSO, HLSO and peeled forms, plus spiny lobster and blue swimming and mud crab — packed IQF or block frozen to your market’s count and grade.',
-      },
-      cephalopods: {
-        title: 'Frozen Cuttlefish, Squid & Octopus Exporter in Oman',
-        h2: 'Cleaned Cuttlefish, Squid and Octopus',
-        intro:
-          'Pharaoh cuttlefish, Indian and reef squid and octopus from the Arabian Sea and Indian Ocean, cleaned and prepared as whole, fillets, rings and tubes for retail and food-service lines.',
-      },
-      'value-added': {
-        title: 'Value-Added & Retail-Ready Seafood from Oman',
-        h2: 'Portioned and Private-Label Seafood Lines',
-        intro:
-          'Uniform fish steaks and ready-to-cook seafood medleys processed and packed in-house — IQF, vacuum or retail packs with private-label printing for supermarket chains and food service.',
-      },
-      dried: {
-        title: 'Dried & Salted Seafood Exporter in Oman',
-        h2: 'Sun-Dried and Salt-Cured Seafood',
-        intro:
-          'Traditional dried anchovy, sardine and shrimp and salted ribbon fish, prepared and graded for long shelf life and shipped in bulk to markets across Asia and Africa.',
+          'Farmed whiteleg shrimp graded to your market’s count and blast frozen whole — consistent sizing, mild sweet flavour and full traceability from pond to reefer container.',
       },
     } as Record<string, { title: string; h2: string; intro: string }>,
   },
@@ -162,7 +165,7 @@ export const en = {
     productForms: 'Product forms',
     packingOptions: 'Packing options',
     coldChain: 'Cold chain',
-    coldChainValue: 'IQF / blast frozen at −40 °C, shipped in temperature-controlled reefer containers',
+    coldChainValue: 'Blast frozen at −40 °C, shipped in temperature-controlled reefer containers',
     certifications: 'Certifications',
     origin: 'Origin',
     originValue: (name: string) => `Sultanate of Oman — ${name}`,
@@ -187,12 +190,17 @@ export const en = {
     tapToCall: 'Tap to call →',
     emailUs: 'Email Us',
     emailAria: (email: string) => `Email ${email}`,
-    composeGmail: 'Compose in Gmail →',
+    composeGmail: 'Choose an address →',
+    mailChooseTitle: 'Which address?',
+    mailGeneral: 'General enquiries',
+    mailSales: 'Sales',
+    mailBoth: 'Both addresses',
+    mailBothHint: 'Send one message to both',
+    mailCancel: 'Cancel',
     workingHours: 'Working Hours',
     seeWeek: 'See the full week →',
     close: 'Close',
     closed: 'Closed',
-    holidayNote: 'Closed on public holidays. Cold-store dispatch runs outside these hours by prior arrangement.',
     tzLabel: 'Oman (GST, UTC+4)',
     days: ['Sunday', 'Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday'],
     today: 'today',
@@ -203,7 +211,7 @@ export const en = {
     closedUntilTpl: 'Closed · opens {when} at {time}',
     am: 'AM',
     pm: 'PM',
-    hoursSummary: 'Sunday – Thursday, 8:00 AM – 5:00 PM',
+    hoursSummary: 'Open 24 hours, 7 days a week',
   },
   form: {
     h2: 'Send an Enquiry',
@@ -249,6 +257,7 @@ export const ar: Ui = {
     home: 'الرئيسية',
     about: 'من نحن',
     products: 'منتجاتنا',
+    infrastructure: 'البنية التحتية',
     brands: 'علاماتنا التجارية',
     contact: 'اتصل بنا',
   },
@@ -279,6 +288,8 @@ export const ar: Ui = {
     openInMaps: 'افتح في خرائط جوجل ←',
     openInMapsAria: (place: string) => `افتح ${place} في خرائط جوجل`,
     crNo: (cr: string) => `س.ت رقم ${cr}`,
+    viewFull: (subject: string) => `عرض ${subject} بالحجم الكامل`,
+    closeImage: 'إغلاق الصورة',
   },
   about: {
     seoTitle: 'من نحن',
@@ -323,22 +334,22 @@ export const ar: Ui = {
   brands: {
     seoTitle: 'علاماتنا التجارية',
     seoDesc:
-      'OceanCrest للتصدير الفاخر و BlueHarvest للمأكولات البحرية المجمّدة اليومية — علامتا الثقة العالمية للبحار، إضافة إلى التعبئة بعلامة خاصة للتجزئة وخدمات الطعام.',
+      'OceanCrest للتصدير الفاخر و BlueHarvest للمأكولات البحرية المجمّدة اليومية — علامتا الثقة العالمية للبحار، إضافة إلى تعبئة الأسماك الكاملة المجمّدة تجميداً سريعاً بعلامة العميل للتجزئة وخدمات الطعام.',
     heroHeading: 'علاماتنا التجارية',
     heroSub: 'علامتان تجاريتان، ومعيار واحد للجودة — مصمّمتان لأسواق مختلفة، وتدعمهما سلسلة التبريد نفسها.',
     enquireAbout: (brand: string) => `استفسر عن ${brand}`,
     plEyebrow: 'العلامة الخاصة',
     plH2: 'علامتك التجارية، سلسلة التبريد لدينا',
     plText:
-      'إلى جانب علاماتنا الخاصة، ننتج خطوطاً بعلامة العميل لسلاسل المتاجر الكبرى والموزّعين — تصميمكم، ومواصفاتكم، وإنتاجنا المعتمد.',
+      'إلى جانب علاماتنا الخاصة، نعبّئ بعلامتكم التجارية لسلاسل المتاجر الكبرى والموزّعين — أسماك كاملة مفروزة حسب العدد الذي تطلبونه، مجمّدة تجميداً سريعاً ومعبّأة بتصميمكم في صالتنا الخاضعة لضوابط الهاسب.',
     plBtn: 'ناقش العلامة الخاصة',
   },
   products: {
     seoTitle: 'منتجاتنا',
     seoDesc:
-      'أسماك وروبيان وسرطان البحر والكركند والحبّار والكاليماري والمأكولات البحرية المجففة للتصدير بالجملة — تجميد فردي ومجمّد بالكتل وعبوات تجزئة من الثقة العالمية للبحار، عُمان.',
+      'أسماك كاملة وروبيان فانامي للتصدير بالجملة — مجمّدة تجميداً سريعاً عند −40 درجة مئوية ومعبّأة وفق مواصفاتك من الثقة العالمية للبحار، عُمان.',
     heroHeading: 'منتجاتنا',
-    heroSub: 'أجود الأنواع من بحر العرب والمحيط الهندي — مفروزة ومصنّعة ومعبّأة وفق مواصفاتكم.',
+    heroSub: 'أجود الأنواع من بحر العرب والمحيط الهندي — مفروزة ومجمّدة تجميداً سريعاً ومعبّأة وفق مواصفاتكم.',
     packingEyebrow: 'خيارات التعبئة',
     packingH2: 'تعبئة تناسب متطلبات سوقك',
     assuranceEyebrow: 'الضمان',
@@ -349,6 +360,24 @@ export const ar: Ui = {
       'جميع الأنواع متاحة على مدار العام حسب الموسم والحصص. الفرز والتزجيج والتعبئة حسب الطلب متاحة عند الطلب.',
     categoriesAria: 'فئات المنتجات',
   },
+  infrastructure: {
+    seoTitle: 'بنيتنا التحتية',
+    seoDesc: (name: string) =>
+      `غرف التجميد السريع وغرف التبريد والمخازن الباردة في ${name} بقرون، عُمان — سلسلة التبريد التي تقف خلف كل شحنة، من موقع الإنزال حتى الحاوية المبرّدة.`,
+    heroHeading: 'بنيتنا التحتية',
+    heroSub: 'سلسلة التبريد التي تقف خلف كل شحنة نصدّرها.',
+    introEyebrow: 'مبنية لسلسلة التبريد',
+    introH2: 'حيث تُحفظ النضارة',
+    introP1:
+      'جودة المأكولات البحرية رهن بالساعات التي تلي الإنزال. مصنعنا في قرون مبني على هذا الأساس: استلام مبرّد خلال ساعات من الصيد، وتجميد سريع حتى −40 درجة مئوية في القلب، وتخزين بارد مضبوط حتى إغلاق الحاوية المبرّدة.',
+    introP2:
+      'ثلاث غرف تجميد سريع وغرفة تبريد ومخزنان باردان تنقل المصيد من الاستلام المبرّد حتى إغلاق الحاوية المبرّدة — فلا تنتظر أي شحنة في حرارة الجو.',
+    gridEyebrow: 'منشآتنا',
+    gridH2: 'داخل المصنع',
+    ctaH2: 'هل ترغب في زيارة المصنع بنفسك؟',
+    ctaText:
+      'نرحّب بعمليات تدقيق المشترين وزيارات المنشأة. تواصل معنا وسنرتّب جولة في سلسلة التبريد التي ستمر بها شحنتك.',
+  },
   category: {
     countLabel: (n: number) => (n === 1 ? 'منتج واحد' : n === 2 ? 'منتجان' : n <= 10 ? `${n} منتجات` : `${n} منتجاً`),
     seoDesc: (blurb: string, n: number, name: string) => `${blurb} ${n} منتجاً من ${name}، عُمان.`,
@@ -358,33 +387,15 @@ export const ar: Ui = {
     seo: {
       fish: {
         title: 'مورّد ومصدّر الأسماك المجمّدة في عُمان',
-        h2: 'أسماك كاملة ومنزوعة الأحشاء ومصنّعة للتصدير',
+        h2: 'أسماك كاملة للتصدير',
         intro:
-          'التونة والكنعد والماكريل والسردين والسنابر والهامور وغيرها — تُنزَل على ساحل بحر العرب، وتُفرز حسب الحجم، وتُجمّد كاملة أو منزوعة الأحشاء أو كفيليه وشرائح لمشتري الجملة والتجزئة وخدمات الطعام.',
+          'التونة والماكريل والبغلة والهامور والشعري والنهّاش وغيرها — تُنزَل على ساحل بحر العرب، وتُفرز حسب الحجم، وتُجمّد كاملة تجميداً سريعاً لمشتري الجملة والتجزئة وخدمات الطعام.',
       },
       crustaceans: {
-        title: 'مصدّر الروبيان والكركند وسرطان البحر المجمّد في عُمان',
-        h2: 'روبيان وكركند وسرطان بحر بدرجات التصدير',
+        title: 'مصدّر روبيان الفانامي المجمّد في عُمان',
+        h2: 'روبيان فانامي مستزرع بدرجات التصدير',
         intro:
-          'روبيان فانامي المستزرع والروبيان النمري والأبيض البرّي بأشكال بالرأس والقشر وبدون رأس ومقشّر، إضافة إلى الكركند الشوكي وسرطان البحر الأزرق وسرطان الطين — معبّأ بالتجميد الفردي أو بالكتل وفق عدد ودرجة سوقك.',
-      },
-      cephalopods: {
-        title: 'مصدّر الحبّار والكاليماري والأخطبوط المجمّد في عُمان',
-        h2: 'حبّار وكاليماري وأخطبوط منظّف',
-        intro:
-          'الحبّار الفرعوني والكاليماري الهندي وكاليماري الشعاب والأخطبوط من بحر العرب والمحيط الهندي، منظّفة ومحضّرة كاملة أو كفيليه أو حلقات أو أنابيب لخطوط التجزئة وخدمات الطعام.',
-      },
-      'value-added': {
-        title: 'مأكولات بحرية ذات قيمة مضافة وجاهزة للتجزئة من عُمان',
-        h2: 'خطوط مقسّمة وبعلامة خاصة',
-        intro:
-          'شرائح أسماك متجانسة ومزيج مأكولات بحرية جاهز للطهي، يُصنَّع ويُعبَّأ داخلياً — تجميد فردي أو عبوات مفرّغة من الهواء أو عبوات تجزئة مع طباعة بعلامة خاصة لسلاسل المتاجر وخدمات الطعام.',
-      },
-      dried: {
-        title: 'مصدّر المأكولات البحرية المجففة والمملّحة في عُمان',
-        h2: 'مأكولات بحرية مجففة بالشمس ومملّحة',
-        intro:
-          'الأنشوجة والسردين والروبيان المجفف تقليدياً وسمك الشريط المملّح، محضّرة ومفروزة لعمر تخزيني طويل وتُشحن بالجملة إلى أسواق آسيا وأفريقيا.',
+          'روبيان الأرجل البيضاء المستزرع، مفروز حسب عدد سوقك ومجمّد كاملاً تجميداً سريعاً — ثبات في الأحجام ونكهة حلوة خفيفة وتتبّع كامل من المزرعة حتى الحاوية المبرّدة.',
       },
     } as Record<string, { title: string; h2: string; intro: string }>,
   },
@@ -398,7 +409,7 @@ export const ar: Ui = {
     productForms: 'أشكال المنتج',
     packingOptions: 'خيارات التعبئة',
     coldChain: 'سلسلة التبريد',
-    coldChainValue: 'تجميد فردي / تجميد سريع عند −40 درجة مئوية، ويُشحن في حاويات مبرّدة مضبوطة الحرارة',
+    coldChainValue: 'تجميد سريع عند −40 درجة مئوية، ويُشحن في حاويات مبرّدة مضبوطة الحرارة',
     certifications: 'الشهادات',
     origin: 'بلد المنشأ',
     originValue: (name: string) => `سلطنة عُمان — ${name}`,
@@ -423,12 +434,17 @@ export const ar: Ui = {
     tapToCall: 'اضغط للاتصال ←',
     emailUs: 'راسلنا',
     emailAria: (email: string) => `راسل ${email}`,
-    composeGmail: 'اكتب عبر Gmail ←',
+    composeGmail: 'اختر العنوان ←',
+    mailChooseTitle: 'إلى أي عنوان؟',
+    mailGeneral: 'الاستفسارات العامة',
+    mailSales: 'المبيعات',
+    mailBoth: 'كلا العنوانين',
+    mailBothHint: 'رسالة واحدة إلى العنوانين معاً',
+    mailCancel: 'إلغاء',
     workingHours: 'ساعات العمل',
     seeWeek: 'عرض الأسبوع كاملاً ←',
     close: 'إغلاق',
     closed: 'مغلق',
-    holidayNote: 'مغلق في العطل الرسمية. الشحن من المخزن المبرّد خارج هذه الساعات بترتيب مسبق.',
     tzLabel: 'عُمان (توقيت الخليج، UTC+4)',
     days: ['الأحد', 'الاثنين', 'الثلاثاء', 'الأربعاء', 'الخميس', 'الجمعة', 'السبت'],
     today: 'اليوم',
@@ -438,7 +454,7 @@ export const ar: Ui = {
     closedUntilTpl: 'مغلق · يفتح {when} عند {time}',
     am: 'صباحاً',
     pm: 'مساءً',
-    hoursSummary: 'الأحد – الخميس، 8:00 صباحاً – 5:00 مساءً',
+    hoursSummary: 'مفتوح 24 ساعة، 7 أيام في الأسبوع',
   },
   form: {
     h2: 'أرسل استفساراً',

@@ -35,6 +35,12 @@ const share = product.image
 const shareW = share ? Number(share.attributes.width) : undefined;
 const shareH = share ? Number(share.attributes.height) : undefined;
 
+// Full-size copy for the lightbox, capped at the photo's own width so the
+// small supplied sources are never upscaled into a blurry larger file.
+const fullShot = product.image
+  ? await getImage({ src: product.image, width: Math.min(1600, product.image.width), format: 'webp' })
+  : undefined;
+
 const forms = product.forms.split(/\s*\/\s*/);
 const title = L.product.seoTitle(product.name, product.forms);
 
@@ -90,10 +96,14 @@ const productSchema = {
             <Image
               src={product.image}
               alt={`${product.name} — ${product.forms}`}
-              width={960}
+              {/* Never ask for more pixels than the photo has — several supplied
+                  shots are small, and upscaling them here only bakes in softness
+                  and a heavier file. The column renders ~583px. */}
+              width={Math.min(960, product.image.width)}
               loading="eager"
               fetchpriority="high"
               class="prod-hero__img"
+              data-lightbox={fullShot?.src}
             />
           )
         }

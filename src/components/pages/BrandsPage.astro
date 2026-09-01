@@ -3,9 +3,8 @@ import { Image } from 'astro:assets';
 import BaseLayout from '../../layouts/BaseLayout.astro';
 import Icon from '../../components/Icon.astro';
 import PageHero from '../../components/PageHero.astro';
-import bannerBrands from '../../assets/site/banner-brands.jpg';
-import imgPremium from '../../assets/products/fish-steaks.jpg';
-import imgRetail from '../../assets/site/division-retail.jpg';
+import imgPremium from '../../assets/products/yellowfin-tuna.jpg';
+import imgRetail from '../../assets/products/indian-mackerel.jpg';
 import { brands } from '../../data/site';
 import { localePath, pick, t, type Lang } from '../../i18n';
 
@@ -16,7 +15,9 @@ interface Props {
 const { lang = 'en' } = Astro.props;
 const L = t(lang);
 
-// Card imagery per brand: OceanCrest (premium export) / BlueHarvest (retail)
+// Card imagery per brand: OceanCrest (premium export) / BlueHarvest (retail).
+// The company's own whole-fish shots — the previous steaks and market photos
+// were stock, and steaks are a form the client no longer sells.
 const brandImages = [imgPremium, imgRetail];
 
 // schema.org Brand entities so search engines tie the labels to the company.
@@ -32,7 +33,7 @@ const brandSchema = brands.map((b) => ({
 ---
 
 <BaseLayout lang={lang} title={L.brands.seoTitle} description={L.brands.seoDesc} schema={brandSchema}>
-  <PageHero heading={L.brands.heroHeading} image={bannerBrands}>
+  <PageHero heading={L.brands.heroHeading}>
     <p>{L.brands.heroSub}</p>
   </PageHero>
 

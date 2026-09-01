@@ -1,21 +1,22 @@
 ---
-// Inner-page banner with a full-bleed background photo + brand overlay.
-// Pass the page's wallpaper via `image`; the sub-line goes in the slot.
+// Inner-page banner with a brand-gradient ground and an optional full-bleed
+// photo over it. Omit `image` where no company photograph genuinely fits the
+// page — the gradient stands on its own rather than borrowing a stock picture.
 import { Image } from 'astro:assets';
 import type { ImageMetadata } from 'astro';
 
 interface Props {
   heading: string;
-  image: ImageMetadata;
+  image?: ImageMetadata;
   alt?: string;
 }
 
 const { heading, image, alt = '' } = Astro.props;
 ---
 
-<section class="page-hero-img">
-  <Image src={image} alt={alt} class="ph-bg" width={1600} loading="eager" fetchpriority="high" />
-  <div class="ph-overlay" aria-hidden="true"></div>
+<section class="page-hero-img" class:list={{ 'page-hero-img--plain': !image }}>
+  {image && <Image src={image} alt={alt} class="ph-bg" width={1600} loading="eager" fetchpriority="high" />}
+  {image && <div class="ph-overlay" aria-hidden="true"></div>}
   <div class="container ph-inner">
     <h1>{heading}</h1>
     <slot />
@@ -30,6 +31,12 @@ const { heading, image, alt = '' } = Astro.props;
     padding: 5.5rem 0 4rem;
     text-align: center;
     overflow: hidden;
+  }
+
+  /* No photo: the brand gradient carries the band on its own.
+     Must follow .page-hero-img — same specificity, so source order decides. */
+  .page-hero-img--plain {
+    background: linear-gradient(120deg, var(--blue-600), var(--navy-900));
   }
 
   .page-hero-img :global(.ph-bg) {

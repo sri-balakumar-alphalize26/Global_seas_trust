@@ -3,7 +3,6 @@ import BaseLayout from '../../layouts/BaseLayout.astro';
 import PageHero from '../../components/PageHero.astro';
 import ContactCards from '../../components/ContactCards.astro';
 import EnquiryForm from '../../components/EnquiryForm.astro';
-import bannerContact from '../../assets/site/banner-contact.jpg';
 import { company } from '../../data/site';
 import { t, type Lang } from '../../i18n';
 
@@ -27,7 +26,7 @@ const locality = lang === 'ar' ? company.localityAr : company.locality;
   pageType="ContactPage"
   description={L.contact.seoDesc(name, locality)}
 >
-  <PageHero heading={L.contact.heroHeading} image={bannerContact}>
+  <PageHero heading={L.contact.heroHeading}>
     <p>{L.contact.heroSub}</p>
   </PageHero>
 

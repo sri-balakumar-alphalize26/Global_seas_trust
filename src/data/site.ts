@@ -6,28 +6,30 @@
 // ============================================
 
 import type { ImageMetadata } from 'astro';
-import heroImage from '../assets/site/hero.jpg';
-import featureImage from '../assets/site/feature.jpg';
-import aboutImage from '../assets/site/about.jpg';
-import imgColdchain from '../assets/site/process-coldchain.jpg';
-import imgGrading from '../assets/site/process-grading.jpg';
-import imgPacking from '../assets/site/process-packing.jpg';
-import imgQa from '../assets/site/process-qa.jpg';
-import imgDelivery from '../assets/site/process-delivery.jpg';
-import imgRetail from '../assets/site/division-retail.jpg';
+import imgAboutTuna from '../assets/site/about-tuna.jpg';
+// The company's own plant, photographed August 2026 — these replace the stock
+// market photography the client asked us to drop.
+import imgBlastFreezer1 from '../assets/site/facility-blast-freezer-1.jpg';
+import imgBlastFreezer2 from '../assets/site/facility-blast-freezer-2.jpg';
+import imgBlastFreezer3 from '../assets/site/facility-blast-freezer-3.jpg';
+import imgChillRoom from '../assets/site/facility-chill-room.jpg';
+import imgColdStore from '../assets/site/facility-cold-store.jpg';
+import imgCompanyFront from '../assets/site/banner-infrastructure.jpg';
 import imgYellowfinTuna from '../assets/products/yellowfin-tuna.jpg';
-import imgKingfish from '../assets/products/kingfish.jpg';
-import imgIndianMackerel from '../assets/products/indian-mackerel.jpg';
+import imgGrouper from '../assets/products/grouper.jpg';
+import imgEmperor from '../assets/products/spangled-emperor.jpg';
+import imgGreyMullet from '../assets/products/grey-mullet.jpg';
 import imgRibbonFish from '../assets/products/ribbon-fish.jpg';
-import imgSardine from '../assets/products/sardine.jpg';
-import imgCuttlefish from '../assets/products/cuttlefish.jpg';
-import imgSquid from '../assets/products/squid.jpg';
-import imgShrimp from '../assets/products/shrimp.jpg';
+import imgIndianMackerel from '../assets/products/indian-mackerel.jpg';
+import imgNeedlefish from '../assets/products/needlefish.jpg';
+import imgVannamei from '../assets/products/vannamei-shrimp.jpg';
 
+// Every image on the site is the company's own. The stock photography that
+// shipped with the scaffold — including a Santorini hero — was removed.
 export const siteImages = {
-  hero: heroImage,
-  feature: featureImage,
-  about: aboutImage,
+  hero: imgColdStore,
+  feature: imgChillRoom,
+  about: imgAboutTuna,
 };
 
 export const company = {
@@ -54,6 +56,8 @@ export const company = {
   crNumber: '1403379',
   phone: '+968 9333 3731',
   email: 'globalseastrust@gmail.com',
+  /** Sales enquiries — published alongside the general address on /contact/. */
+  emailSales: 'globalseastrustsales@gmail.com',
   mapsUrl: 'https://maps.app.goo.gl/17quP2LEkg3EuGxh7',
   /** Pin location (21°24'52.5"N 59°15'47.2"E) — from the Maps link above. */
   geo: { lat: 21.4145716, lng: 59.2631178 },
@@ -62,12 +66,17 @@ export const company = {
    * this endpoint, paste the iframe src from Maps → Share → "Embed a map" here.
    */
   mapEmbedSrc: 'https://maps.google.com/maps?q=21.4145716,59.2631178&t=k&z=17&hl=en&output=embed',
-  hours: 'Sunday – Thursday, 8:00 AM – 5:00 PM',
-  /** Structured form of `hours` → schema.org `openingHoursSpecification`. */
+  hours: 'Open 24 hours, 7 days a week',
+  /**
+   * Structured form of `hours` → schema.org `openingHoursSpecification`.
+   * All seven days spanning 00:00–23:59 is the schema.org convention for a
+   * business that never closes — the values look odd in isolation, but this is
+   * how a 24/7 operation is expressed.
+   */
   openingHours: {
-    days: ['Sunday', 'Monday', 'Tuesday', 'Wednesday', 'Thursday'],
-    opens: '08:00',
-    closes: '17:00',
+    days: ['Sunday', 'Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday'],
+    opens: '00:00',
+    closes: '23:59',
   },
   /** Official social profile URLs (Facebook, LinkedIn, Instagram…) → schema.org `sameAs`. */
   socials: [] as string[],
@@ -85,15 +94,26 @@ export const navLinks = [
   { key: 'home', label: 'Home', href: '/' },
   { key: 'about', label: 'About Us', href: '/about/' },
   { key: 'products', label: 'Our Products', href: '/products/' },
-  { key: 'brands', label: 'Our Brands', href: '/brands/' },
+  { key: 'infrastructure', label: 'Infrastructure', href: '/infrastructure/' },
+  // 'brands' is parked — see src/pages/_brands.astro. Restore this line and
+  // rename both shims back once the client supplies real brand content.
   { key: 'contact', label: 'Contact Us', href: '/contact/' },
 ] as const;
 
+/**
+ * Every figure here is evidence-backed: the freezer and store counts and the
+ * core temperature are read off the company's own facility photographs
+ * (the blast-freezer door display shows −39.7 °C), and the species count
+ * tracks the catalogue in catalogue.ts — keep the two in sync.
+ *
+ * The previous tiles (14+ years, 350+ staff, 25+ markets, 60T daily capacity)
+ * came from the original scaffold, not the client, and were withdrawn.
+ */
 export const stats = [
-  { value: '14+', label: 'Years of Experience', labelAr: 'سنوات من الخبرة', icon: 'anchor' },
-  { value: '350+', label: 'Team Members', labelAr: 'أعضاء الفريق', icon: 'people' },
-  { value: '25+', label: 'Export Markets', labelAr: 'أسواق التصدير', icon: 'globe' },
-  { value: '60T', label: 'Daily Cold-Chain Capacity', labelAr: 'طاقة سلسلة التبريد اليومية', icon: 'truck' },
+  { value: '3', label: 'Blast Freezers', labelAr: 'غرف تجميد سريع', icon: 'factory' },
+  { value: '−40 °C', label: 'Blast-Frozen Core', labelAr: 'حرارة القلب بعد التجميد', icon: 'drop' },
+  { value: '2', label: 'Cold Stores', labelAr: 'مخازن باردة', icon: 'box' },
+  { value: '21', label: 'Species Exported', labelAr: 'نوعاً نصدّره', icon: 'fish' },
 ];
 
 export interface Product {
@@ -108,88 +128,75 @@ export interface Product {
   href: string;
 }
 
+// Eight cards, two clean rows of four — .product-grid in HomePage.astro is a
+// fixed 4-column grid, so any other count leaves an orphan row.
+// Every line ships whole; the value-added forms were dropped at the client's
+// request (29 Aug brief).
 export const products: Product[] = [
-  { name: 'Yellowfin Tuna', nameAr: 'تونة صفراء الزعانف', scientific: 'Thunnus albacares', forms: 'Whole / Loins / Steaks', formsAr: 'كاملة / قطع ظهر / شرائح', icon: 'fish', image: imgYellowfinTuna, href: '/products/fish/yellowfin-tuna/' },
-  { name: 'Kingfish', nameAr: 'كنعد', scientific: 'Scomberomorus commerson', forms: 'Whole / Steaks', formsAr: 'كاملة / شرائح', icon: 'fish', image: imgKingfish, href: '/products/fish/kingfish/' },
-  { name: 'Indian Mackerel', nameAr: 'ماكريل هندي', scientific: 'Rastrelliger kanagurta', forms: 'Whole Round / Block Frozen', formsAr: 'كاملة / مجمّدة بالكتل', icon: 'fish', image: imgIndianMackerel, href: '/products/fish/indian-mackerel/' },
-  { name: 'Ribbon Fish', nameAr: 'سمك الشريط (سيف)', scientific: 'Trichiurus lepturus', forms: 'Whole / Graded', formsAr: 'كاملة / مصنّفة حسب الحجم', icon: 'fish', image: imgRibbonFish, href: '/products/fish/ribbon-fish/' },
-  { name: 'Oil Sardine', nameAr: 'سردين زيتي', scientific: 'Sardinella longiceps', forms: 'Whole Round / IQF', formsAr: 'كاملة / مجمّدة فردياً (IQF)', icon: 'fish', image: imgSardine, href: '/products/fish/oil-sardine/' },
-  { name: 'Cuttlefish', nameAr: 'حبّار (سبيط)', scientific: 'Sepia pharaonis', forms: 'Whole Cleaned / Fillets', formsAr: 'كامل منظّف / فيليه', icon: 'squid', image: imgCuttlefish, href: '/products/cephalopods/cuttlefish/' },
-  { name: 'Loligo Squid', nameAr: 'كاليماري (لوليغو)', scientific: 'Loligo duvauceli', forms: 'Whole / Rings / Tubes', formsAr: 'كامل / حلقات / أنابيب', icon: 'squid', image: imgSquid, href: '/products/cephalopods/loligo-squid/' },
-  { name: 'Vannamei Shrimp', nameAr: 'روبيان فانامي', scientific: 'Litopenaeus vannamei', forms: 'HOSO / HLSO / PD', formsAr: 'بالرأس والقشر / بدون رأس بالقشر / مقشّر', icon: 'shrimp', image: imgShrimp, href: '/products/crustaceans/vannamei-shrimp/' },
+  { name: 'Yellowfin Tuna', nameAr: 'تونة صفراء الزعانف', scientific: 'Thunnus albacares', forms: 'Whole', formsAr: 'كاملة', icon: 'fish', image: imgYellowfinTuna, href: '/products/fish/yellowfin-tuna/' },
+  { name: 'Grouper', nameAr: 'هامور', scientific: 'Epinephelus diacanthus', forms: 'Whole', formsAr: 'كاملة', icon: 'fish', image: imgGrouper, href: '/products/fish/grouper/' },
+  { name: 'Spangled Emperor', nameAr: 'شعري', scientific: 'Lethrinus nebulosus', forms: 'Whole', formsAr: 'كاملة', icon: 'fish', image: imgEmperor, href: '/products/fish/spangled-emperor/' },
+  { name: 'Grey Mullet', nameAr: 'بياح', scientific: 'Mugil cephalus', forms: 'Whole', formsAr: 'كاملة', icon: 'fish', image: imgGreyMullet, href: '/products/fish/grey-mullet/' },
+  { name: 'Ribbon Fish', nameAr: 'سمك الشريط (سيف)', scientific: 'Trichiurus lepturus', forms: 'Whole', formsAr: 'كاملة', icon: 'fish', image: imgRibbonFish, href: '/products/fish/ribbon-fish/' },
+  { name: 'Indian Mackerel', nameAr: 'ماكريل هندي', scientific: 'Rastrelliger kanagurta', forms: 'Whole', formsAr: 'كاملة', icon: 'fish', image: imgIndianMackerel, href: '/products/fish/indian-mackerel/' },
+  { name: 'Needlefish', nameAr: 'سمك الإبرة (حاقول)', scientific: 'Belonidae', forms: 'Whole', formsAr: 'كاملة', icon: 'fish', image: imgNeedlefish, href: '/products/fish/needlefish/' },
+  { name: 'Vannamei Shrimp', nameAr: 'روبيان فانامي', scientific: 'Litopenaeus vannamei', forms: 'Whole', formsAr: 'كامل', icon: 'shrimp', image: imgVannamei, href: '/products/crustaceans/vannamei-shrimp/' },
 ];
 
 /** Packing formats offered for every line — shown on /products/ and each product page. */
 export const packingOptions = [
   {
-    title: 'IQF (Individually Quick Frozen)',
-    titleAr: 'التجميد الفردي السريع (IQF)',
-    text: 'Individually frozen pieces for easy portioning — ideal for retail bags and food service.',
-    textAr: 'قطع مجمّدة فردياً لسهولة التقسيم — مثالية لأكياس التجزئة وخدمات الطعام.',
+    title: 'Blast Freezing',
+    titleAr: 'التجميد السريع',
+    text: 'Every consignment is blast frozen to a −40 °C core within hours of landing, locking in colour, texture and shelf life before it moves to cold store.',
+    textAr: 'تُجمَّد كل شحنة تجميداً سريعاً حتى −40 درجة مئوية في القلب خلال ساعات من الإنزال، مما يحفظ اللون والقوام ومدة الصلاحية قبل نقلها إلى المخزن البارد.',
   },
   {
-    title: 'Block Frozen',
-    titleAr: 'التجميد بالكتل',
-    text: 'Compact frozen blocks for industrial buyers and reprocessors, packed to weight specification.',
-    textAr: 'كتل مجمّدة متراصّة لمشتري الصناعة وإعادة التصنيع، معبّأة حسب مواصفة الوزن.',
-  },
-  {
-    title: 'Vacuum / Retail Packs',
-    titleAr: 'عبوات مفرّغة من الهواء / عبوات تجزئة',
-    text: 'Skin-pack and vacuum options with private-label printing for supermarket shelves.',
-    textAr: 'خيارات التغليف الملتصق والمفرّغ من الهواء مع طباعة بعلامة خاصة لرفوف المتاجر الكبرى.',
-  },
-  {
-    title: 'Bulk / Bin Loading',
-    titleAr: 'التحميل بالجملة / بالحاويات',
-    text: 'High-volume loading for fish meal, bait and industrial-grade consignments.',
-    textAr: 'تحميل بكميات كبيرة لمسحوق السمك والطُعم والشحنات ذات الدرجة الصناعية.',
+    title: 'Hygienic Packing',
+    titleAr: 'التعبئة الصحية',
+    text: 'Packed in a temperature-controlled hall on food-grade materials, under HACCP controls — graded to weight, labelled to your market and sealed for the reefer container.',
+    textAr: 'تُعبَّأ في صالة مضبوطة الحرارة بمواد مطابقة للتلامس الغذائي وتحت ضوابط الهاسب — مفروزة حسب الوزن، ومعلَّمة وفق متطلبات سوقك، ومغلقة استعداداً للحاوية المبرّدة.',
   },
 ];
 
 export const certifications = [
   { code: 'HACCP', label: 'Hazard Analysis & Critical Control Points', labelAr: 'تحليل المخاطر ونقاط التحكم الحرجة' },
   { code: 'ISO 22000', label: 'Food Safety Management', labelAr: 'إدارة سلامة الغذاء' },
-  { code: 'EU No.', label: 'Approved for European Union Export', labelAr: 'معتمد للتصدير إلى الاتحاد الأوروبي' },
-  { code: 'BRC', label: 'Global Standard for Food Safety', labelAr: 'المعيار العالمي لسلامة الغذاء' },
   { code: 'HALAL', label: 'Certified Halal Handling', labelAr: 'تداول حلال معتمد' },
-  { code: 'FDA', label: 'US FDA Registered Facility', labelAr: 'منشأة مسجّلة لدى إدارة الغذاء والدواء الأمريكية' },
 ];
 
+// Two lines of work, not three: fish meal / fish oil and value-added
+// manufacturing were removed at the client's request (29 Aug brief).
+// Rendered on both the home page and the About page.
 export const divisions = [
   {
-    title: 'Seafood Processing',
-    titleAr: 'تصنيع المأكولات البحرية',
+    title: 'Quality Processing',
+    titleAr: 'التصنيع عالي الجودة',
     icon: 'factory',
-    image: aboutImage,
-    text: 'Modern processing lines for grading, filleting, IQF and block freezing — engineered to preserve freshness from landing site to final packing.',
-    textAr: 'خطوط تصنيع حديثة للفرز والفيليه والتجميد الفردي والتجميد بالكتل — مصمّمة للحفاظ على النضارة من موقع الإنزال حتى التعبئة النهائية.',
+    image: imgChillRoom,
+    text: 'Catch moves from the landing site into our chilled halls within hours, where trained teams wash, grade and inspect it to size under HACCP controls before it ever reaches a freezer.',
+    textAr: 'ينتقل المصيد من موقع الإنزال إلى صالاتنا المبرّدة خلال ساعات، حيث تتولّى فرق مدرّبة غسله وفرزه وفحصه حسب الحجم وفق ضوابط الهاسب قبل أن يصل إلى التجميد.',
   },
   {
-    title: 'Fish Meal & Fish Oil',
-    titleAr: 'مسحوق السمك وزيت السمك',
-    icon: 'drop',
-    image: imgSardine,
-    text: 'By-products and pelagic catch converted into high-protein fish meal and refined fish oil for aquaculture and animal nutrition industries.',
-    textAr: 'تحويل المنتجات الثانوية وأسماك السطح إلى مسحوق سمك عالي البروتين وزيت سمك مكرّر لصناعات الاستزراع المائي وتغذية الحيوان.',
-  },
-  {
-    title: 'Value-Added Manufacturing',
-    titleAr: 'التصنيع ذو القيمة المضافة',
+    title: 'Hygienic Packing',
+    titleAr: 'التعبئة الصحية',
+    text: 'Blast frozen to a −40 °C core, then packed on food-grade materials in a temperature-controlled hall — labelled to your market and sealed straight into the reefer container.',
+    textAr: 'يُجمَّد تجميداً سريعاً حتى −40 درجة مئوية في القلب، ثم يُعبَّأ بمواد مطابقة للتلامس الغذائي في صالة مضبوطة الحرارة — معلَّماً وفق متطلبات سوقك ومغلقاً مباشرة داخل الحاوية المبرّدة.',
     icon: 'box',
-    image: imgRetail,
-    text: 'Retail-ready portions, marinated lines and private-label packing tailored to supermarket chains and food-service partners worldwide.',
-    textAr: 'حصص جاهزة للبيع بالتجزئة، وخطوط متبّلة، وتعبئة بعلامة خاصة مصمّمة لسلاسل المتاجر الكبرى وشركاء خدمات الطعام حول العالم.',
+    image: imgBlastFreezer1,
   },
 ];
 
 export const processSteps = [
-  { step: '01', title: 'Responsible Sourcing', titleAr: 'مصادر مسؤولة', image: featureImage, text: 'Catch secured daily from vetted fishing fleets and landing centres.', textAr: 'صيد يُؤمَّن يومياً من أساطيل صيد ومراكز إنزال معتمدة.' },
-  { step: '02', title: 'Cold-Chain Intake', titleAr: 'الاستلام ضمن سلسلة التبريد', image: imgColdchain, text: 'Rapid icing and temperature-controlled transfer to our facilities.', textAr: 'تثليج سريع ونقل مضبوط الحرارة إلى منشآتنا.' },
-  { step: '03', title: 'Processing & Grading', titleAr: 'التصنيع والفرز', image: imgGrading, text: 'Hygienic processing, size grading and quality inspection by trained teams.', textAr: 'تصنيع صحي وفرز حسب الحجم وفحص جودة بواسطة فرق مدرّبة.' },
-  { step: '04', title: 'Freezing & Packing', titleAr: 'التجميد والتعبئة', image: imgPacking, text: 'IQF and blast freezing locked at −40°C, packed to customer specification.', textAr: 'تجميد فردي وتجميد سريع عند −40 درجة مئوية، وتعبئة وفق مواصفات العميل.' },
-  { step: '05', title: 'Quality Assurance', titleAr: 'ضمان الجودة', image: imgQa, text: 'Lab testing and documentation against international food-safety standards.', textAr: 'فحوصات مخبرية وتوثيق وفق معايير سلامة الغذاء الدولية.' },
-  { step: '06', title: 'Global Delivery', titleAr: 'التوصيل العالمي', image: imgDelivery, text: 'Reefer-container logistics to ports across Asia, Europe, Africa and the Americas.', textAr: 'خدمات لوجستية بحاويات مبرّدة إلى موانئ آسيا وأوروبا وأفريقيا والأمريكتين.' },
+  // One distinct company photograph per step, so the grid never repeats itself.
+  // Step 06 is the loosest fit — a dispatch/loading photo from the client would
+  // replace it directly.
+  { step: '01', title: 'Responsible Sourcing', titleAr: 'مصادر مسؤولة', image: imgCompanyFront, text: 'Catch secured daily from vetted fishing fleets and landing centres.', textAr: 'صيد يُؤمَّن يومياً من أساطيل صيد ومراكز إنزال معتمدة.' },
+  { step: '02', title: 'Cold-Chain Intake', titleAr: 'الاستلام ضمن سلسلة التبريد', image: imgChillRoom, text: 'Rapid icing and temperature-controlled transfer into our chill rooms.', textAr: 'تثليج سريع ونقل مضبوط الحرارة إلى غرف التبريد لدينا.' },
+  { step: '03', title: 'Processing & Grading', titleAr: 'التصنيع والفرز', image: imgColdStore, text: 'Hygienic processing, size grading and quality inspection by trained teams.', textAr: 'تصنيع صحي وفرز حسب الحجم وفحص جودة بواسطة فرق مدرّبة.' },
+  { step: '04', title: 'Freezing & Packing', titleAr: 'التجميد والتعبئة', image: imgBlastFreezer1, text: 'Blast frozen to a −40 °C core, packed to customer specification.', textAr: 'تجميد سريع حتى −40 درجة مئوية في القلب، وتعبئة وفق مواصفات العميل.' },
+  { step: '05', title: 'Quality Assurance', titleAr: 'ضمان الجودة', image: imgBlastFreezer2, text: 'Continuous temperature monitoring and documentation against international food-safety standards.', textAr: 'مراقبة مستمرة لدرجات الحرارة وتوثيق وفق معايير سلامة الغذاء الدولية.' },
+  { step: '06', title: 'Global Delivery', titleAr: 'التوصيل العالمي', image: imgBlastFreezer3, text: 'Reefer-container logistics to ports across Asia, Europe, Africa and the Americas.', textAr: 'خدمات لوجستية بحاويات مبرّدة إلى موانئ آسيا وأوروبا وأفريقيا والأمريكتين.' },
 ];
 
 export const brands = [
@@ -197,18 +204,75 @@ export const brands = [
     name: 'OceanCrest',
     positioning: 'Premium Export Range',
     positioningAr: 'مجموعة التصدير الفاخرة',
-    text: 'Our flagship label for sashimi-grade tuna, kingfish and premium cephalopods — hand-graded and destined for discerning wholesale and HoReCa buyers.',
+    text: 'Our flagship label for sashimi-grade tuna, grouper and emperor — hand-graded and destined for discerning wholesale and HoReCa buyers.',
     textAr:
-      'علامتنا الرائدة للتونة بدرجة الساشيمي والكنعد والرخويات الرأسقدمية الفاخرة — مفروزة يدوياً وموجّهة لمشتري الجملة والفنادق والمطاعم من ذوي الذوق الرفيع.',
+      'علامتنا الرائدة للتونة بدرجة الساشيمي والهامور والشعري — مفروزة يدوياً وموجّهة لمشتري الجملة والفنادق والمطاعم من ذوي الذوق الرفيع.',
     color: '#123a9c',
   },
   {
     name: 'BlueHarvest',
     positioning: 'Everyday Family Seafood',
     positioningAr: 'مأكولات بحرية عائلية يومية',
-    text: 'Wholesome, affordable frozen seafood for retail shelves — sardines, mackerel and shrimp in family-sized packs with clear traceability.',
+    text: 'Wholesome, affordable frozen seafood for retail shelves — mackerel, scad and shrimp in family-sized packs with clear traceability.',
     textAr:
-      'مأكولات بحرية مجمّدة صحية وبأسعار مناسبة لرفوف التجزئة — سردين وماكريل وروبيان في عبوات عائلية مع تتبّع واضح للمصدر.',
+      'مأكولات بحرية مجمّدة صحية وبأسعار مناسبة لرفوف التجزئة — ماكريل وبغلة وروبيان في عبوات عائلية مع تتبّع واضح للمصدر.',
     color: '#1a5bd7',
+  },
+];
+
+/**
+ * The company's own cold chain, shown on /infrastructure/.
+ * `spec` is the one-line capability read on each card.
+ */
+export const facilities = [
+  {
+    id: 'blast-freezer-1',
+    name: 'Blast Freezer 1',
+    nameAr: 'غرفة التجميد السريع 1',
+    spec: 'Operating at −39.7 °C',
+    specAr: 'تعمل عند −39.7 درجة مئوية',
+    text: 'Primary blast freezer, pulling every consignment down to a −40 °C core within hours of landing.',
+    textAr: 'غرفة التجميد السريع الرئيسية، تخفض حرارة كل شحنة إلى −40 درجة مئوية في القلب خلال ساعات من الإنزال.',
+    image: imgBlastFreezer1,
+  },
+  {
+    id: 'blast-freezer-2',
+    name: 'Blast Freezer 2',
+    nameAr: 'غرفة التجميد السريع 2',
+    spec: 'Continuous temperature monitoring',
+    specAr: 'مراقبة مستمرة لدرجة الحرارة',
+    text: 'Second freezing line, with door-mounted digital readouts logged as part of our HACCP records.',
+    textAr: 'خط التجميد الثاني، بشاشات رقمية على الأبواب تُسجَّل قراءاتها ضمن سجلات الهاسب لدينا.',
+    image: imgBlastFreezer2,
+  },
+  {
+    id: 'blast-freezer-3',
+    name: 'Blast Freezer 3',
+    nameAr: 'غرفة التجميد السريع 3',
+    spec: 'Peak-season capacity',
+    specAr: 'طاقة إضافية في ذروة الموسم',
+    text: 'Third chamber brought online through the peak landing season so nothing waits for freezer space.',
+    textAr: 'الغرفة الثالثة تُشغَّل خلال ذروة موسم الإنزال حتى لا تنتظر أي شحنة دورها في التجميد.',
+    image: imgBlastFreezer3,
+  },
+  {
+    id: 'chill-room',
+    name: 'Chill Room',
+    nameAr: 'غرفة التبريد',
+    spec: 'Chilled intake and grading',
+    specAr: 'الاستلام والفرز المبرّد',
+    text: 'Where the catch is received, washed and size-graded before processing — held chilled, never at ambient temperature.',
+    textAr: 'هنا يُستلم المصيد ويُغسل ويُفرز حسب الحجم قبل التصنيع — يُحفظ مبرّداً ولا يُترك في حرارة الجو.',
+    image: imgChillRoom,
+  },
+  {
+    id: 'cold-store',
+    name: 'Cold Store 1 & 2',
+    nameAr: 'المخزن البارد 1 و2',
+    spec: 'Twin chambers, controlled temperature',
+    specAr: 'غرفتان بحرارة مضبوطة',
+    text: 'Twin holding chambers where frozen stock waits under controlled temperature for its reefer container.',
+    textAr: 'غرفتا تخزين متجاورتان يبقى فيهما المخزون المجمّد تحت حرارة مضبوطة بانتظار الحاوية المبرّدة.',
+    image: imgColdStore,
   },
 ];

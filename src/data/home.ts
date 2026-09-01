@@ -30,8 +30,8 @@ export const home = {
       ar: 'يأتي صيدنا من مياه بحر العرب والمحيط الهندي الغنية بالمغذيات، ويُنزَل يومياً عبر شبكة راسخة من أساطيل الصيد الموثوقة. وخلال ساعات من الإنزال تدخل كل شحنة سلسلتنا مضبوطة الحرارة — لتصل نضارة المحيط إلى سوقك كما هي.',
     },
     p2: {
-      en: 'From sashimi-grade tuna to retail-ready frozen packs, we match every harvest to the exacting specifications of our partners worldwide.',
-      ar: 'من التونة بدرجة الساشيمي إلى العبوات المجمّدة الجاهزة للبيع بالتجزئة، نوائم كل صيد مع المواصفات الدقيقة لشركائنا حول العالم.',
+      en: 'From sashimi-grade tuna to volume pelagic lines, every fish is size-graded and blast frozen whole to the exacting specifications of our partners worldwide.',
+      ar: 'من التونة بدرجة الساشيمي إلى خطوط الأسماك السطحية بالكميات الكبيرة، تُفرز كل سمكة حسب الحجم وتُجمّد كاملة تجميداً سريعاً وفق المواصفات الدقيقة لشركائنا حول العالم.',
     },
     btn: { en: 'About Our Company', ar: 'عن شركتنا' },
   },
@@ -42,8 +42,8 @@ export const home = {
     eyebrow: { en: 'Our Products', ar: 'منتجاتنا' },
     h2: { en: 'Signature Catch From Our Waters', ar: 'صيدنا المميّز من مياهنا' },
     p: {
-      en: "A consistent, traceable supply of the region's most sought-after species — available whole, processed or value-added to your specification.",
-      ar: 'إمداد ثابت وقابل للتتبّع لأكثر الأنواع طلباً في المنطقة — متاحة كاملة أو مصنّعة أو بقيمة مضافة وفق مواصفاتك.',
+      en: "A consistent, traceable supply of the region's most sought-after species — landed daily, size-graded and blast frozen whole to your specification.",
+      ar: 'إمداد ثابت وقابل للتتبّع لأكثر الأنواع طلباً في المنطقة — تُنزَل يومياً، وتُفرز حسب الحجم، وتُجمّد كاملة تجميداً سريعاً وفق مواصفاتك.',
     },
     btn: { en: 'View Full Catalogue', ar: 'عرض الكتالوج الكامل' },
   },
@@ -53,7 +53,7 @@ export const home = {
   },
   divisions: {
     eyebrow: { en: 'What We Do', ar: 'ماذا نفعل' },
-    h2: { en: 'Three Integrated Divisions', ar: 'ثلاثة أقسام متكاملة' },
+    h2: { en: 'Quality Processing and Hygienic Packing', ar: 'تصنيع عالي الجودة وتعبئة صحية' },
   },
   process: {
     eyebrow: { en: 'From Catch to Consumer', ar: 'من الصيد إلى المستهلك' },

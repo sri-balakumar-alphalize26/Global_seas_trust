@@ -4,7 +4,7 @@ import BaseLayout from '../../layouts/BaseLayout.astro';
 import PageHero from '../../components/PageHero.astro';
 import ProductCatalogue from '../../components/ProductCatalogue.astro';
 import Icon from '../../components/Icon.astro';
-import bannerProducts from '../../assets/site/banner-products.jpg';
+import bannerProducts from '../../assets/site/facility-blast-freezer-3.jpg';
 import { company, certifications, packingOptions as packing } from '../../data/site';
 import { getCategories, productUrl } from '../../data/catalogue';
 import { localePath, pick, t, type Lang } from '../../i18n';
@@ -139,8 +139,11 @@ const productSchema = {
   /* ---- Packing ---- */
   .packing-grid {
     display: grid;
-    grid-template-columns: repeat(4, 1fr);
+    grid-template-columns: repeat(2, 1fr);
     gap: 1.5rem;
+    /* Two options rather than four — keep the cards readable, not full-bleed. */
+    max-width: 900px;
+    margin: 0 auto;
   }
 
   .packing-card {

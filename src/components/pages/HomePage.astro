@@ -1,5 +1,5 @@
 ---
-import { Image } from 'astro:assets';
+import { Image, getImage } from 'astro:assets';
 import BaseLayout from '../../layouts/BaseLayout.astro';
 import Icon from '../../components/Icon.astro';
 import StatsGlance from '../../components/StatsGlance.astro';
@@ -31,6 +31,17 @@ const { lang = 'en' } = Astro.props;
 const ar = lang === 'ar';
 /** undefined → stacked bilingual; 'ar' → Arabic only */
 const only = ar ? ('ar' as const) : undefined;
+
+// Full-size copies for the lightbox, capped at each photo's own width so the
+// smaller supplied sources are never upscaled.
+const fullShots = Object.fromEntries(
+  await Promise.all(
+    products.map(async (p) => [
+      p.name,
+      (await getImage({ src: p.image, width: Math.min(1600, p.image.width), format: 'webp' })).src,
+    ])
+  )
+);
 ---
 
 <BaseLayout
@@ -42,8 +53,8 @@ const only = ar ? ('ar' as const) : undefined;
   }
   fullTitle
   description={ar
-    ? 'مصدّر عُماني للمأكولات البحرية الطازجة والمجمّدة — التونة والكنعد والماكريل والروبيان والحبّار والكاليماري — مصنّعة وفق معايير HACCP و ISO 22000 و BRC لأكثر من 25 سوق تصدير.'
-    : 'Oman-based exporter of fresh and frozen seafood — tuna, kingfish, mackerel, shrimp, cuttlefish and squid — processed to HACCP, ISO 22000 and BRC standards for 25+ export markets.'}
+    ? 'مصدّر عُماني للمأكولات البحرية الطازجة والمجمّدة — التونة والهامور والشعري والماكريل وروبيان الفانامي — أسماك كاملة مجمّدة تجميداً سريعاً وفق معايير HACCP و ISO 22000 والحلال.'
+    : 'Oman-based exporter of fresh and frozen seafood — tuna, grouper, emperor, mackerel and vannamei shrimp — whole fish blast frozen to HACCP, ISO 22000 and HALAL standards.'}
   arabicFont
 >
   <!-- ============ HERO ============ -->
@@ -155,7 +166,7 @@ const only = ar ? ('ar' as const) : undefined;
       value: s.value,
       label: ar ? s.labelAr : s.label,
       labelAr: ar ? undefined : s.labelAr,
-      icon: (s.icon === 'people' ? 'team' : s.icon) as 'anchor' | 'team' | 'globe' | 'truck',
+      icon: s.icon,
     }))}
   />
 
@@ -172,7 +183,7 @@ const only = ar ? ('ar' as const) : undefined;
           products.map((p) => (
             <article class="card product-card">
               <div class="product-visual">
-                <Image src={p.image} alt={p.name} class="product-img" width={640} loading="lazy" />
+                <Image src={p.image} alt={p.name} class="product-img" width={640} loading="lazy" data-lightbox={fullShots[p.name]} />
               </div>
               <div class="product-body">
                 <Bi only={only} as="h3" en={p.name} ar={p.nameAr} />
@@ -485,8 +496,10 @@ const only = ar ? ('ar' as const) : undefined;
   /* ---- Certifications ---- */
   .cert-grid {
     display: grid;
-    grid-template-columns: repeat(6, 1fr);
+    grid-template-columns: repeat(3, 1fr);
     gap: 1.25rem;
+    max-width: 760px;
+    margin: 0 auto;
   }
 
   /* ---- Shared photo-card layout (divisions + process, per reference) ---- */
@@ -522,8 +535,10 @@ const only = ar ? ('ar' as const) : undefined;
   /* ---- Divisions ---- */
   .division-grid {
     display: grid;
-    grid-template-columns: repeat(3, 1fr);
+    grid-template-columns: repeat(2, 1fr);
     gap: 1.5rem;
+    max-width: 900px;
+    margin: 0 auto;
   }
 
   .division-card {
@@ -610,8 +625,9 @@ const only = ar ? ('ar' as const) : undefined;
       grid-template-columns: 1fr;
     }
 
+    /* three badges — one column beats a 2 + 1 orphan row */
     .cert-grid {
-      grid-template-columns: repeat(2, 1fr);
+      grid-template-columns: 1fr;
     }
   }
 </style>

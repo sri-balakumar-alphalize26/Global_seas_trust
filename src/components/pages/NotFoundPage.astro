@@ -3,7 +3,6 @@
 // dist/404.html for unknown URLs. Kept out of the sitemap and marked noindex.
 import BaseLayout from '../../layouts/BaseLayout.astro';
 import PageHero from '../../components/PageHero.astro';
-import bannerAbout from '../../assets/site/banner-about.jpg';
 import { navLinks } from '../../data/site';
 import { localePath, t, type Lang } from '../../i18n';
 
@@ -16,7 +15,7 @@ const L = t(lang);
 ---
 
 <BaseLayout lang={lang} title={L.notFound.seoTitle} description={L.notFound.seoDesc} noindex>
-  <PageHero heading={L.notFound.seoTitle} image={bannerAbout}>
+  <PageHero heading={L.notFound.seoTitle}>
     <p>{L.notFound.heroSub}</p>
   </PageHero>
 
