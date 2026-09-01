@@ -55,6 +55,8 @@ export const company = {
   /** Commercial Registration number (shown on the site — expected in the Gulf market). */
   crNumber: '1403379',
   phone: '+968 9333 3731',
+  /** Second line — shown beside the first on Contact, and offered by the enquiry form. */
+  phoneAlt: '+968 9902 3664',
   email: 'globalseastrust@gmail.com',
   /** Sales enquiries — published alongside the general address on /contact/. */
   emailSales: 'globalseastrustsales@gmail.com',

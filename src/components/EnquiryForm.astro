@@ -44,11 +44,18 @@ const query = mapQuery ?? addressLines.join(' ').replace(/,\s*$/, '');
 const mapsUrl = mapsUrlProp ?? `https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(query)}`;
 
 /**
- * Send Message opens a WhatsApp chat with this number, pre-filled with the
- * form contents. Digits only — that is the format wa.me requires.
- * +968 9333 3731 · change here to point the enquiries at a different phone.
+ * Send Message asks which line to write to, then opens WhatsApp pre-filled
+ * with the form contents. Digits only — that is the format wa.me requires.
+ *
+ * A wa.me link reaches exactly one recipient; there is no comma-separated
+ * form as there is for mailto:. Hence a chooser rather than both at once.
+ *
+ * Both numbers come from src/data/site.ts so they can never drift from the
+ * ones displayed elsewhere on the site.
  */
-const WHATSAPP_NUMBER = '96893333731';
+const waNumbers = [company.phone, company.phoneAlt]
+  .filter(Boolean)
+  .map((n) => ({ label: n, digits: n.replace(/\D/g, '') }));
 
 // Labels for the chat message, in the page's language.
 const waLabels = JSON.stringify({
@@ -77,7 +84,7 @@ const fields = [
 ];
 ---
 
-<section class="eq" data-wa={WHATSAPP_NUMBER} data-wa-labels={waLabels}>
+<section class="eq" data-wa-labels={waLabels}>
   <div class="eq__inner">
     <!-- ------------------------------------------------------------ form -->
     <div class="eq__form-col">
@@ -143,6 +150,26 @@ const fields = [
           <h3 id="eq-alert-title">{L.form.invalidTitle}</h3>
           <p>{L.form.invalidText}</p>
           <button type="button" class="eq__alert-ok" data-alert-ok>{L.form.ok}</button>
+        </div>
+      </dialog>
+
+      {/* A wa.me link reaches one recipient, so the sender picks a line. */}
+      <dialog class="eq__alert eq__wa" aria-labelledby="eq-wa-title">
+        <div class="eq__alert-box">
+          <h3 id="eq-wa-title">{L.form.waChooseTitle}</h3>
+          <p>{L.form.waChooseHint}</p>
+          <ul class="eq__wa-list">
+            {
+              waNumbers.map((n) => (
+                <li>
+                  <button type="button" data-wa-to={n.digits} dir="ltr">
+                    {n.label}
+                  </button>
+                </li>
+              ))
+            }
+          </ul>
+          <button type="button" class="eq__wa-cancel" data-wa-cancel>{L.form.waCancel}</button>
         </div>
       </dialog>
     </div>
@@ -420,6 +447,57 @@ const fields = [
   .eq__alert-ok:hover {
     background: #1650c4;
     transform: translateY(-1px);
+  }
+
+  /* ---- which number to message ---- */
+  .eq__wa-list {
+    list-style: none;
+    display: grid;
+    gap: 8px;
+    width: 100%;
+    margin: 4px 0 14px;
+    padding: 0;
+  }
+
+  .eq__wa-list button {
+    width: 100%;
+    appearance: none;
+    font: inherit;
+    font-weight: 600;
+    padding: 12px 16px;
+    border: 1.5px solid rgba(20, 71, 192, 0.25);
+    border-radius: 12px;
+    background: #fff;
+    color: var(--eq-ink, #12202e);
+    cursor: pointer;
+    transition:
+      border-color 180ms ease,
+      background-color 180ms ease,
+      transform 180ms ease;
+  }
+
+  .eq__wa-list button:hover,
+  .eq__wa-list button:focus-visible {
+    border-color: var(--eq-brand);
+    background: #f2f6fe;
+    transform: translateY(-1px);
+  }
+
+  .eq__wa-cancel {
+    appearance: none;
+    font: inherit;
+    font-size: 0.875rem;
+    border: 0;
+    padding: 0;
+    background: none;
+    color: var(--eq-ink, #12202e);
+    opacity: 0.65;
+    cursor: pointer;
+    text-decoration: underline;
+  }
+
+  .eq__wa-cancel:hover {
+    opacity: 1;
   }
 
   .eq__submit {
@@ -890,22 +968,46 @@ const fields = [
           e.preventDefault();
           if (!form.reportValidity()) return;
 
-          const wa = s.dataset.wa;
-          if (wa) {
-            // Opened synchronously inside the submit handler so the browser
-            // still counts it as a user gesture and does not block it.
-            // wa.me picks the app on mobile and WhatsApp Web on desktop.
-            window.open(
-              `https://wa.me/${wa}?text=${encodeURIComponent(buildWaMessage(form, s))}`,
-              '_blank',
-              'noopener,noreferrer',
-            );
-          }
+          const waDialog = s.querySelector<HTMLDialogElement>('.eq__wa');
+          const buttons = waDialog?.querySelectorAll<HTMLButtonElement>('[data-wa-to]');
+          if (!waDialog || !buttons?.length) return;
 
-          const done = form.querySelector<HTMLElement>('[data-done]');
-          if (done) done.hidden = false;
-          form.reset();
-          phone.iti?.setNumber('');
+          // Build the message now, while the fields still hold their values —
+          // the form is reset after the chat opens.
+          const text = encodeURIComponent(buildWaMessage(form, s));
+
+          const finish = () => {
+            waDialog.close();
+            const done = form.querySelector<HTMLElement>('[data-done]');
+            if (done) done.hidden = false;
+            form.reset();
+            phone.iti?.setNumber('');
+          };
+
+          buttons.forEach((btn) => {
+            // `once` so a second submit does not stack another handler.
+            btn.addEventListener(
+              'click',
+              () => {
+                // MUST open synchronously inside this click. The browser only
+                // treats window.open as user-initiated within a gesture — move
+                // it into a promise, timeout or animation callback and the
+                // popup is blocked, which looks like the form doing nothing.
+                // wa.me picks the app on mobile and WhatsApp Web on desktop.
+                window.open(`https://wa.me/${btn.dataset.waTo}?text=${text}`, '_blank', 'noopener,noreferrer');
+                finish();
+              },
+              { once: true },
+            );
+          });
+
+          waDialog.querySelector<HTMLButtonElement>('[data-wa-cancel]')?.addEventListener(
+            'click',
+            () => waDialog.close(),
+            { once: true },
+          );
+
+          waDialog.showModal();
         }
       });
     }

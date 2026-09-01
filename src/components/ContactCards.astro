@@ -59,6 +59,8 @@ const {
   mapsUrl: mapsUrlProp = company.mapsUrl,
   crNumber = company.crNumber,
   phone = company.phone,
+  /** Second line, shown beneath the first — the card itself dials `phone`. */
+  phoneAlt = company.phoneAlt,
   email = company.email,
   /** Sales desk, shown beneath the general address — the card itself composes to `email`. */
   emailSales = company.emailSales,
@@ -158,6 +160,7 @@ const alwaysOpen =
         </span>
         <h3>{L.cards.callUs}</h3>
         <p dir="ltr">{phone}</p>
+        {phoneAlt && <p class="cc__alt" dir="ltr">{phoneAlt}</p>}
         <span class="cc__hint">{L.cards.tapToCall}</span>
       </a>
 
@@ -179,7 +182,7 @@ const alwaysOpen =
         </span>
         <h3>{L.cards.emailUs}</h3>
         <p class="cc__mail" dir="ltr">{email}</p>
-        {emailSales && <p class="cc__mail cc__mail--alt" dir="ltr">{emailSales}</p>}
+        {emailSales && <p class="cc__mail cc__alt" dir="ltr">{emailSales}</p>}
         <span class="cc__hint">{L.cards.composeGmail}</span>
       </a>
 
@@ -439,8 +442,9 @@ const alwaysOpen =
     word-break: break-word;
   }
 
-  /* Sales desk — present but secondary to the address the card composes to. */
-  .cc__mail--alt {
+  /* Second contact line — the alternate phone and the sales address. Present
+     but secondary to the one the card itself dials or composes to. */
+  .cc__alt {
     margin-top: 2px;
     opacity: 0.78;
     font-size: 0.92em;
