@@ -1,4 +1,5 @@
 ---
+import { getImage } from 'astro:assets';
 import BaseLayout from '../../layouts/BaseLayout.astro';
 import PageHero from '../../components/PageHero.astro';
 import ObjectiveSection from '../../components/ObjectiveSection.astro';
@@ -26,6 +27,10 @@ const objectiveCards = [
 
 const valueIcons = ['shield', 'fish', 'trust', 'droplet', 'anchor', 'globe'] as const;
 const coreValues = L.values.items.map((v, i) => ({ title: v.title, body: v.text, icon: valueIcons[i] }));
+
+// Social share image — this page's own hero rather than the generic
+// og-image.png, so a link pasted into WhatsApp previews distinctly.
+const share = await getImage({ src: bannerAbout, width: 1200, format: 'jpg' });
 ---
 
 <BaseLayout
@@ -33,6 +38,9 @@ const coreValues = L.values.items.map((v, i) => ({ title: v.title, body: v.text,
   title={L.about.seoTitle}
   pageType="AboutPage"
   description={L.about.seoDesc(name, company.founded)}
+  image={share.src}
+  imageWidth={Number(share.attributes.width)}
+  imageHeight={Number(share.attributes.height)}
 >
   <PageHero heading={L.about.heroHeading(name)} image={bannerAbout}>
     <p>{L.about.heroSub}</p>

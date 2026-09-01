@@ -100,8 +100,10 @@ const organization: Record<string, unknown> = {
   description,
   slogan: lang === 'ar' ? company.taglineAr : company.tagline,
   foundingDate: String(company.founded),
-  email: company.email,
-  telephone: company.phone,
+  // Both published lines and both published addresses — these feed Google's
+  // knowledge panel and contact surfaces, so a partial list costs enquiries.
+  email: [company.email, company.emailSales],
+  telephone: [company.phone, company.phoneAlt],
   address: {
     '@type': 'PostalAddress',
     streetAddress: 'Quroon',
@@ -126,11 +128,21 @@ const organization: Record<string, unknown> = {
       closes: company.openingHours.closes,
     },
   ],
+  // Each point carries BOTH numbers: the addresses have known roles (one is
+  // literally the sales desk) but the client has not said which line serves
+  // which function, and guessing would put wrong information in front of buyers.
   contactPoint: [
     {
       '@type': 'ContactPoint',
       contactType: 'sales',
-      telephone: company.phone,
+      telephone: [company.phone, company.phoneAlt],
+      email: company.emailSales,
+      availableLanguage: ['en', 'ar'],
+    },
+    {
+      '@type': 'ContactPoint',
+      contactType: 'customer service',
+      telephone: [company.phone, company.phoneAlt],
       email: company.email,
       availableLanguage: ['en', 'ar'],
     },

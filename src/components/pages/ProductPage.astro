@@ -54,7 +54,23 @@ const HERO_RENDER_WIDTH = 583;
 const canZoom = !!product.image && product.image.width >= HERO_RENDER_WIDTH * 1.2;
 
 const forms = product.forms.split(/\s*\/\s*/);
-const title = L.product.seoTitle(product.name, product.forms);
+const title = L.product.seoTitle(product.name);
+
+/**
+ * Meta description only — the full text still renders on the page and in the
+ * Product schema below. Google shows roughly 155 chars, and the catalogue
+ * descriptions run to 215, so the sentence explaining what we actually supply
+ * was being cut off. Keep whole sentences; never truncate mid-word.
+ */
+const metaDescription = (() => {
+  const sentences = product.description.match(/[^.!?]+[.!?]+\s*/g) ?? [product.description];
+  let out = '';
+  for (const s of sentences) {
+    if (out && (out + s).trim().length > 155) break;
+    out += s;
+  }
+  return (out || sentences[0]).trim();
+})();
 
 const crumbs = [
   { name: L.products.seoTitle, href: localePath('/products/', lang) },
@@ -89,7 +105,7 @@ const productSchema = {
 <BaseLayout
   lang={lang}
   title={title}
-  description={product.description}
+  description={metaDescription}
   pageType="ItemPage"
   breadcrumbs={crumbs}
   image={share?.src}

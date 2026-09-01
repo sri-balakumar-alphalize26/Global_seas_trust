@@ -50,7 +50,7 @@ export const en = {
   about: {
     seoTitle: 'About Us',
     seoDesc: (name: string, founded: number) =>
-      `${name} is an Oman-based seafood processor and exporter established in ${founded} — our mission, core values, facilities and the cold chain behind every shipment.`,
+      `${name}, Oman seafood processor and exporter since ${founded}. Our mission, values, facilities and the cold chain behind every shipment.`,
     heroHeading: (name: string) => `About ${name}`,
     heroSub: 'From the ocean to the world, we are committed to delivering seafood you can trust.',
     eyebrow: 'About Us',
@@ -119,7 +119,7 @@ export const en = {
   infrastructure: {
     seoTitle: 'Our Infrastructure',
     seoDesc: (name: string) =>
-      `Blast freezers, chill rooms and cold stores at ${name} in Quroon, Oman — the cold chain behind every consignment, from landing site to reefer container.`,
+      `Blast freezers, chill room and cold stores at ${name} in Quroon, Oman — the cold chain behind every consignment we ship.`,
     heroHeading: 'Our Infrastructure',
     heroSub: 'The cold chain behind every consignment we ship.',
     introEyebrow: 'Built for the Cold Chain',
@@ -156,7 +156,10 @@ export const en = {
     } as Record<string, { title: string; h2: string; intro: string }>,
   },
   product: {
-    seoTitle: (name: string, forms: string) => `${name} Exporter in Oman — ${forms}`,
+    // Forms are omitted deliberately: since the catalogue was reduced to whole
+    // fish they read identically on all 21 products, so they differentiated
+    // nothing while pushing the company name past Google's ~60-char cut-off.
+    seoTitle: (name: string) => `${name} Exporter in Oman`,
     formsAria: 'Product forms',
     specsEyebrow: 'Specifications',
     atAGlance: (name: string) => `${name} at a Glance`,
@@ -366,7 +369,7 @@ export const ar: Ui = {
   infrastructure: {
     seoTitle: 'بنيتنا التحتية',
     seoDesc: (name: string) =>
-      `غرف التجميد السريع وغرف التبريد والمخازن الباردة في ${name} بقرون، عُمان — سلسلة التبريد التي تقف خلف كل شحنة، من موقع الإنزال حتى الحاوية المبرّدة.`,
+      `غرف التجميد السريع وغرفة التبريد والمخازن الباردة في ${name} بقرون، عُمان — سلسلة التبريد التي تقف خلف كل شحنة نشحنها.`,
     heroHeading: 'بنيتنا التحتية',
     heroSub: 'سلسلة التبريد التي تقف خلف كل شحنة نصدّرها.',
     introEyebrow: 'مبنية لسلسلة التبريد',
@@ -403,7 +406,7 @@ export const ar: Ui = {
     } as Record<string, { title: string; h2: string; intro: string }>,
   },
   product: {
-    seoTitle: (name: string, forms: string) => `مصدّر ${name} في عُمان — ${forms}`,
+    seoTitle: (name: string) => `مصدّر ${name} في عُمان`,
     formsAria: 'أشكال المنتج',
     specsEyebrow: 'المواصفات',
     atAGlance: (name: string) => `${name} في لمحة`,

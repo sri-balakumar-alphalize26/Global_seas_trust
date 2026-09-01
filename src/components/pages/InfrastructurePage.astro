@@ -53,9 +53,21 @@ const schema = {
     value: pick(f, 'spec', lang),
   })),
 };
+
+// Social share image — this page's own hero rather than the generic
+// og-image.png, so a link pasted into WhatsApp previews distinctly.
+const share = await getImage({ src: bannerInfrastructure, width: 1200, format: 'jpg' });
 ---
 
-<BaseLayout lang={lang} title={L.infrastructure.seoTitle} description={L.infrastructure.seoDesc(name)} schema={schema}>
+<BaseLayout
+  lang={lang}
+  title={L.infrastructure.seoTitle}
+  description={L.infrastructure.seoDesc(name)}
+  schema={schema}
+  image={share.src}
+  imageWidth={Number(share.attributes.width)}
+  imageHeight={Number(share.attributes.height)}
+>
   <PageHero heading={L.infrastructure.heroHeading} image={bannerInfrastructure} alt={`${name} — ${L.infrastructure.heroHeading}`}>
     <p>{L.infrastructure.heroSub}</p>
   </PageHero>

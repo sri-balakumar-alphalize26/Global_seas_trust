@@ -62,6 +62,10 @@ const productSchema = {
     },
   })),
 };
+
+// Social share image — this page's own hero rather than the generic
+// og-image.png, so a link pasted into WhatsApp previews distinctly.
+const share = await getImage({ src: bannerProducts, width: 1200, format: 'jpg' });
 ---
 
 <BaseLayout
@@ -70,6 +74,9 @@ const productSchema = {
   description={L.products.seoDesc}
   pageType="CollectionPage"
   schema={productSchema}
+  image={share.src}
+  imageWidth={Number(share.attributes.width)}
+  imageHeight={Number(share.attributes.height)}
 >
   <PageHero heading={L.products.heroHeading} image={bannerProducts}>
     <p>{L.products.heroSub}</p>
