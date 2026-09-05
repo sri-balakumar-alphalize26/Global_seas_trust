@@ -9,13 +9,31 @@ interface Props {
   heading: string;
   image?: ImageMetadata;
   alt?: string;
+  /**
+   * `object-position` for the banner crop. The band is a shallow strip across a
+   * wide photo, so the default centre crop can throw away the subject — pass a
+   * focal point where that matters.
+   */
+  focus?: string;
 }
 
-const { heading, image, alt = '' } = Astro.props;
+const { heading, image, alt = '', focus } = Astro.props;
 ---
 
 <section class="page-hero-img" class:list={{ 'page-hero-img--plain': !image }}>
-  {image && <Image src={image} alt={alt} class="ph-bg" width={1600} loading="eager" fetchpriority="high" />}
+  {
+    image && (
+      <Image
+        src={image}
+        alt={alt}
+        class="ph-bg"
+        width={1600}
+        loading="eager"
+        fetchpriority="high"
+        style={focus ? `object-position:${focus}` : undefined}
+      />
+    )
+  }
   {image && <div class="ph-overlay" aria-hidden="true"></div>}
   <div class="container ph-inner">
     <h1>{heading}</h1>

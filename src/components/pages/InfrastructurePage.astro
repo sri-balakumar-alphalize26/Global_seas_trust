@@ -57,6 +57,16 @@ const schema = {
 // Social share image — this page's own hero rather than the generic
 // og-image.png, so a link pasted into WhatsApp previews distinctly.
 const share = await getImage({ src: bannerInfrastructure, width: 1200, format: 'jpg' });
+
+// The building is the page's hero photo, but the hero lays a heavy navy wash
+// over it so the heading stays readable — which leaves the plant and its name
+// board barely visible. The client asked for the exterior to be shown, so it
+// runs again here in full colour, at the top of the page it belongs to.
+const exteriorFull = await getImage({
+  src: bannerInfrastructure,
+  width: Math.min(1600, bannerInfrastructure.width),
+  format: 'webp',
+});
 ---
 
 <BaseLayout
@@ -78,6 +88,16 @@ const share = await getImage({ src: bannerInfrastructure, width: 1200, format: '
       <h2>{L.infrastructure.introH2}</h2>
       <p>{L.infrastructure.introP1}</p>
       <p>{L.infrastructure.introP2}</p>
+      <figure class="exterior">
+        <Image
+          src={bannerInfrastructure}
+          alt={L.infrastructure.exteriorAlt}
+          width={1200}
+          loading="lazy"
+          data-lightbox={exteriorFull.src}
+        />
+        <figcaption>{L.infrastructure.exteriorCaption}</figcaption>
+      </figure>
       <ul class="capacity">
         {
           stats.map((s) => (
@@ -142,6 +162,24 @@ const share = await getImage({ src: bannerInfrastructure, width: 1200, format: '
     margin-bottom: 1rem;
   }
 
+  .exterior {
+    margin: 2rem 0 0;
+  }
+
+  .exterior :global(img) {
+    width: 100%;
+    height: auto;
+    border-radius: var(--radius);
+    box-shadow: var(--shadow-md);
+  }
+
+  .exterior figcaption {
+    margin-top: 0.7rem;
+    font-size: 0.85rem;
+    color: var(--text-600);
+    text-align: center;
+  }
+
   .capacity {
     list-style: none;
     display: grid;
@@ -181,11 +219,13 @@ const share = await getImage({ src: bannerInfrastructure, width: 1200, format: '
     overflow: hidden;
   }
 
-  /* Four of the five photos are portrait phone shots — anchor the crop near the
-     top so door signage and temperature readouts survive the card band. */
+  /* Four of the five are portrait phone shots, and a fixed landscape band cut
+     most of each one away. `contain` in a 3:2 box shows every photo whole —
+     door signage, temperature readouts and all — and letterboxes the portrait
+     ones onto the tint instead of slicing them. */
   .card-visual {
     position: relative;
-    height: 210px;
+    aspect-ratio: 3 / 2;
     overflow: hidden;
     background: var(--aqua-100);
   }
@@ -195,8 +235,7 @@ const share = await getImage({ src: bannerInfrastructure, width: 1200, format: '
     inset: 0;
     width: 100%;
     height: 100%;
-    object-fit: cover;
-    object-position: center 35%;
+    object-fit: contain;
   }
 
   .card-body {
