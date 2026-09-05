@@ -13,9 +13,19 @@ import imgBlastFreezer2 from '../assets/site/facility-blast-freezer-2.jpg';
 import imgBlastFreezer3 from '../assets/site/facility-blast-freezer-3.jpg';
 import imgChillRoom from '../assets/site/facility-chill-room.jpg';
 import imgColdStore from '../assets/site/facility-cold-store.jpg';
-import imgCompanyFront from '../assets/site/banner-infrastructure.jpg';
 import imgHeroFishing from '../assets/site/hero-fishing.jpg';
 import imgAboutObjective from '../assets/site/about-objective.jpg';
+// Second set, supplied 4 Sep 2026. See CLIENT-UPDATE.md — five of these are
+// AI-generated or stock rather than the company's own plant, which the client
+// was told about and asked us to publish anyway.
+import imgHarvestWaters from '../assets/site/harvest-pristine-waters.jpg';
+import imgQualityProcessing from '../assets/site/quality-processing.jpg';
+import imgHygienicPacking from '../assets/site/hygienic-packing.jpg';
+import imgResponsibleSourcing from '../assets/site/process-responsible-sourcing.jpg';
+import imgGrading from '../assets/site/process-grading.jpg';
+import imgFreezingPacking from '../assets/site/process-freezing-packing.jpg';
+import imgQualityAssurance from '../assets/site/process-quality-assurance.jpg';
+import imgGlobalDelivery from '../assets/site/process-global-delivery.jpg';
 import imgYellowfinTuna from '../assets/products/yellowfin-tuna.jpg';
 import imgGrouper from '../assets/products/grouper.jpg';
 import imgEmperor from '../assets/products/spangled-emperor.jpg';
@@ -29,7 +39,7 @@ import imgVannamei from '../assets/products/vannamei-shrimp.jpg';
 // shipped with the scaffold — including a Santorini hero — was removed.
 export const siteImages = {
   hero: imgHeroFishing,
-  feature: imgCompanyFront,
+  feature: imgHarvestWaters,
   about: imgAboutObjective,
 };
 
@@ -116,7 +126,7 @@ export const stats = [
   { value: '3', label: 'Blast Freezers', labelAr: 'غرف تجميد سريع', icon: 'factory' },
   { value: '−40 °C', label: 'Blast-Frozen Core', labelAr: 'حرارة القلب بعد التجميد', icon: 'drop' },
   { value: '2', label: 'Cold Stores', labelAr: 'مخازن باردة', icon: 'box' },
-  { value: '24', label: 'Species Exported', labelAr: 'نوعاً نصدّره', icon: 'fish' },
+  { value: '25', label: 'Species Exported', labelAr: 'نوعاً نصدّره', icon: 'fish' },
 ];
 
 export interface Product {
@@ -168,17 +178,35 @@ export const certifications = [
   { code: 'HALAL', label: 'Certified Halal Handling', labelAr: 'تداول حلال معتمد' },
 ];
 
-// Two lines of work, not three: fish meal / fish oil and value-added
-// manufacturing were removed at the client's request (29 Aug brief).
+export interface Division {
+  title: string;
+  titleAr: string;
+  icon: string;
+  text: string;
+  textAr: string;
+  /** Omitted for lines the client wants listed but has no photograph for. */
+  image?: ImageMetadata;
+}
+
+// Fish meal / fish oil and value-added manufacturing were removed at the
+// client's request (29 Aug brief). Flash Freezing was added on 4 Sep, and is
+// the one line with no photograph — see homeDivisions below.
 // Rendered on both the home page and the About page.
-export const divisions = [
+export const divisions: Division[] = [
   {
     title: 'Quality Processing',
     titleAr: 'التصنيع عالي الجودة',
     icon: 'factory',
-    image: imgChillRoom,
+    image: imgQualityProcessing,
     text: 'Catch moves from the landing site into our chilled halls within hours, where trained teams wash, grade and inspect it to size under HACCP controls before it ever reaches a freezer.',
     textAr: 'ينتقل المصيد من موقع الإنزال إلى صالاتنا المبرّدة خلال ساعات، حيث تتولّى فرق مدرّبة غسله وفرزه وفحصه حسب الحجم وفق ضوابط الهاسب قبل أن يصل إلى التجميد.',
+  },
+  {
+    title: 'Flash Freezing',
+    titleAr: 'التجميد السريع',
+    icon: 'drop',
+    text: 'Graded catch goes straight into the blast freezers and is taken down to a −40 °C core within hours of landing, locking in colour, texture and shelf life before it moves to cold store.',
+    textAr: 'ينتقل المصيد المفروز مباشرة إلى غرف التجميد السريع ليصل إلى −40 درجة مئوية في القلب خلال ساعات من الإنزال، مما يحفظ اللون والقوام ومدة الصلاحية قبل نقله إلى المخزن البارد.',
   },
   {
     title: 'Hygienic Packing',
@@ -186,20 +214,31 @@ export const divisions = [
     text: 'Blast frozen to a −40 °C core, then packed on food-grade materials in a temperature-controlled hall — labelled to your market and sealed straight into the reefer container.',
     textAr: 'يُجمَّد تجميداً سريعاً حتى −40 درجة مئوية في القلب، ثم يُعبَّأ بمواد مطابقة للتلامس الغذائي في صالة مضبوطة الحرارة — معلَّماً وفق متطلبات سوقك ومغلقاً مباشرة داخل الحاوية المبرّدة.',
     icon: 'box',
-    image: imgBlastFreezer1,
+    image: imgHygienicPacking,
   },
 ];
 
+/**
+ * The home page shows these as photo cards in a fixed two-column grid, so it
+ * takes only the lines that have a photograph — a third card would sit alone on
+ * its own row. The About page lists all three as icon + text, where a stack of
+ * three reads fine.
+ */
+export const homeDivisions = divisions.filter(
+  (d): d is Division & { image: ImageMetadata } => !!d.image
+);
+
+// One distinct photograph per step, so the grid never repeats itself. The
+// client supplied a replacement for five of the six on 4 Sep; step 02 keeps the
+// chill-room photograph because none was sent for it, and six steps fill the
+// three-column grid in two clean rows where five would leave an orphan.
 export const processSteps = [
-  // One distinct company photograph per step, so the grid never repeats itself.
-  // Step 06 is the loosest fit — a dispatch/loading photo from the client would
-  // replace it directly.
-  { step: '01', title: 'Responsible Sourcing', titleAr: 'مصادر مسؤولة', image: imgCompanyFront, text: 'Catch secured daily from vetted fishing fleets and landing centres.', textAr: 'صيد يُؤمَّن يومياً من أساطيل صيد ومراكز إنزال معتمدة.' },
+  { step: '01', title: 'Responsible Sourcing', titleAr: 'مصادر مسؤولة', image: imgResponsibleSourcing, text: 'Catch secured daily from vetted fishing fleets and landing centres.', textAr: 'صيد يُؤمَّن يومياً من أساطيل صيد ومراكز إنزال معتمدة.' },
   { step: '02', title: 'Cold-Chain Intake', titleAr: 'الاستلام ضمن سلسلة التبريد', image: imgChillRoom, text: 'Rapid icing and temperature-controlled transfer into our chill rooms.', textAr: 'تثليج سريع ونقل مضبوط الحرارة إلى غرف التبريد لدينا.' },
-  { step: '03', title: 'Processing & Grading', titleAr: 'التصنيع والفرز', image: imgColdStore, text: 'Hygienic processing, size grading and quality inspection by trained teams.', textAr: 'تصنيع صحي وفرز حسب الحجم وفحص جودة بواسطة فرق مدرّبة.' },
-  { step: '04', title: 'Freezing & Packing', titleAr: 'التجميد والتعبئة', image: imgBlastFreezer1, text: 'Blast frozen to a −40 °C core, packed to customer specification.', textAr: 'تجميد سريع حتى −40 درجة مئوية في القلب، وتعبئة وفق مواصفات العميل.' },
-  { step: '05', title: 'Quality Assurance', titleAr: 'ضمان الجودة', image: imgBlastFreezer2, text: 'Continuous temperature monitoring and documentation against international food-safety standards.', textAr: 'مراقبة مستمرة لدرجات الحرارة وتوثيق وفق معايير سلامة الغذاء الدولية.' },
-  { step: '06', title: 'Global Delivery', titleAr: 'التوصيل العالمي', image: imgBlastFreezer3, text: 'Reefer-container logistics to ports across Asia, Europe, Africa and the Americas.', textAr: 'خدمات لوجستية بحاويات مبرّدة إلى موانئ آسيا وأوروبا وأفريقيا والأمريكتين.' },
+  { step: '03', title: 'Processing & Grading', titleAr: 'التصنيع والفرز', image: imgGrading, text: 'Hygienic processing, size grading and quality inspection by trained teams.', textAr: 'تصنيع صحي وفرز حسب الحجم وفحص جودة بواسطة فرق مدرّبة.' },
+  { step: '04', title: 'Freezing & Packing', titleAr: 'التجميد والتعبئة', image: imgFreezingPacking, text: 'Blast frozen to a −40 °C core, packed to customer specification.', textAr: 'تجميد سريع حتى −40 درجة مئوية في القلب، وتعبئة وفق مواصفات العميل.' },
+  { step: '05', title: 'Quality Assurance', titleAr: 'ضمان الجودة', image: imgQualityAssurance, text: 'Continuous temperature monitoring and documentation against international food-safety standards.', textAr: 'مراقبة مستمرة لدرجات الحرارة وتوثيق وفق معايير سلامة الغذاء الدولية.' },
+  { step: '06', title: 'Global Delivery', titleAr: 'التوصيل العالمي', image: imgGlobalDelivery, text: 'Reefer-container logistics to ports across Asia, Europe, Africa and the Americas.', textAr: 'خدمات لوجستية بحاويات مبرّدة إلى موانئ آسيا وأوروبا وأفريقيا والأمريكتين.' },
 ];
 
 export const brands = [

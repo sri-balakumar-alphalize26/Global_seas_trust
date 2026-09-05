@@ -37,6 +37,7 @@ import imgChubMackerel from '../assets/products/chub-mackerel.jpg';
 import imgMahiMahi from '../assets/products/mahi-mahi.jpg';
 import imgSalemaPorgy from '../assets/products/salema-porgy.jpg';
 import imgMoonfish from '../assets/products/moonfish.jpg';
+import imgWhiteSardine from '../assets/products/white-sardine.jpg';
 import imgVannamei from '../assets/products/vannamei-shrimp.jpg';
 
 export interface CatalogueItem {
@@ -293,6 +294,19 @@ export const categories: Category[] = [
           'Moonfish, or opah, is a deep-bodied oceanic species whose flesh ranges from orange to deep red across different parts of the body. It is increasingly sought after by food-service buyers. Supplied whole and blast frozen.',
         icon: 'fish',
         image: imgMoonfish,
+      },
+      {
+        // Added 4 Sep 2026 at the client's request. They labelled the photo
+        // "White Sardine (Sardinella longiceps)" — see CLIENT-UPDATE.md, that
+        // binomial is the Indian oil sardine and needs confirming.
+        slug: 'white-sardine',
+        name: 'White Sardine',
+        scientific: 'Sardinella longiceps',
+        forms: 'Whole / Blast Frozen',
+        description:
+          'Sardine is a small, oil-rich shoaling fish landed in volume along the Omani coast through the monsoon season. Its soft, flavourful flesh suits grilling, curing and canning, and it moves in steady volume to South Asian, African and Gulf markets. Supplied whole, size-graded and blast frozen.',
+        icon: 'fish',
+        image: imgWhiteSardine,
       },
     ],
   },

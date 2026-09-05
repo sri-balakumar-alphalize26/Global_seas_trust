@@ -128,6 +128,8 @@ export const en = {
       'Seafood is only as good as the hours after it is landed. Our plant in Quroon is built around that: chilled intake within hours of the catch, blast freezing to a −40 °C core, and controlled cold storage until the reefer container is sealed.',
     introP2:
       'Three blast freezers, a chill room and twin cold stores carry the catch from chilled intake through to a sealed reefer container — so no consignment waits at ambient temperature.',
+    exteriorAlt: 'The Global Seas Trust plant at Quroon, Jalan Bani Bu Hassan',
+    exteriorCaption: 'Our plant at Quroon, Jalan Bani Bu Hassan — Sultanate of Oman',
     gridEyebrow: 'Our Facilities',
     gridH2: 'Inside the Plant',
     ctaH2: 'Want to See the Plant for Yourself?',
@@ -379,6 +381,8 @@ export const ar: Ui = {
       'جودة المأكولات البحرية رهن بالساعات التي تلي الإنزال. مصنعنا في قرون مبني على هذا الأساس: استلام مبرّد خلال ساعات من الصيد، وتجميد سريع حتى −40 درجة مئوية في القلب، وتخزين بارد مضبوط حتى إغلاق الحاوية المبرّدة.',
     introP2:
       'ثلاث غرف تجميد سريع وغرفة تبريد ومخزنان باردان تنقل المصيد من الاستلام المبرّد حتى إغلاق الحاوية المبرّدة — فلا تنتظر أي شحنة في حرارة الجو.',
+    exteriorAlt: 'مصنع الثقة العالمية للبحار في قرون، جعلان بني بو حسن',
+    exteriorCaption: 'مصنعنا في قرون، جعلان بني بو حسن — سلطنة عُمان',
     gridEyebrow: 'منشآتنا',
     gridH2: 'داخل المصنع',
     ctaH2: 'هل ترغب في زيارة المصنع بنفسك؟',
