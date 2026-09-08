@@ -59,7 +59,9 @@ const fullShots = Object.fromEntries(
 >
   <!-- ============ HERO ============ -->
   <section class="hero">
-    <Image src={siteImages.hero} alt="" class="hero-bg" loading="eager" fetchpriority="high" width={1600} />
+    <div class="hero-photo">
+      <Image src={siteImages.hero} alt="" class="hero-bg" loading="eager" fetchpriority="high" width={1536} />
+    </div>
     <div class="hero-overlay" aria-hidden="true"></div>
     <div class="container hero-inner">
       <p class="hero-eyebrow">
@@ -104,7 +106,7 @@ const fullShots = Object.fromEntries(
       </div>
     </div>
     <div class="hero-wave" aria-hidden="true">
-      <WaveDivider fill="#ffffff" height={90} speed={11} fish={5} />
+      <WaveDivider fill="#ffffff" height={56} speed={11} fish={5} />
     </div>
   </section>
 
@@ -301,52 +303,83 @@ const fullShots = Object.fromEntries(
 </BaseLayout>
 
 <style>
-  /* ---- Hero ---- */
+  /* ---- Hero ----
+     The client supplied this 3:1 crop of the fishing photograph and asked for it
+     whole. The band takes the crop’s own shape at full bleed, so the picture
+     fills it exactly — nothing cropped, nothing letterboxed — and at 1920 that is
+     640px, near enough the height the band had before. */
   .hero {
     position: relative;
-    background: var(--navy-900);
+    display: grid;
+    grid-template-areas: 'hero';
+    padding: 0;
+    /* The ground under the type where it runs past the photo’s bottom edge. It is
+       the navy the scrim converges to, so the two composite to the same colour
+       and the join does not read as a seam. */
+    background: rgb(8, 26, 72);
     color: var(--white);
-    padding: 7rem 0 8rem;
     overflow: hidden;
   }
 
-  /* Cropped to fill the band, as the client asked. Two things are needed for the
-     fisherman to actually read, not just survive the crop. The band is far wider
-     than the 3:2 photo, so a centred crop would cut him away entirely — he sits
-     about a fifth of the way down — hence the object-position. And in the whole
-     frame he is a speck, so the photo is zoomed about the point he occupies:
-     transform-origin pins him in place while everything scales up around him. */
-  .hero :global(.hero-bg) {
+  /* Height comes from the asset’s real 1536x512, so the box is exactly the height
+     the photo wants at this width. Each element is placed by name rather than
+     through a `.hero > *` rule: that scopes to a higher specificity than these
+     class selectors and would beat the stacked overrides below. The overlay and
+     the wave are absolutely positioned and need no area at all. */
+  .hero-photo {
+    grid-area: hero;
+    align-self: start;
+    position: relative;
+    width: 100%;
+    aspect-ratio: 1536 / 512;
+  }
+
+  /* cover, not contain: the box already carries the photo’s ratio, so there is
+     nothing to crop; cover only stops sub-pixel rounding leaving a hairline.
+     The scale(1.5) zoom, the object-position and the brightness filter all go —
+     they existed to rescue a boat from a crop that no longer happens. */
+  .hero-photo :global(.hero-bg) {
     position: absolute;
     inset: 0;
     width: 100%;
     height: 100%;
     object-fit: cover;
-    object-position: 51% 30%;
-    /* 1.5 not more: the boat has to clear the header above it and the eyebrow
-       pill below it, and the gap between them is about 115px. */
-    transform: scale(1.5);
-    transform-origin: 51% 30%;
-    /* he is a dark silhouette on dark water, so lift the midtones a little */
-    filter: brightness(1.12) contrast(1.05);
   }
 
-  /* Lighter than it was. At the old 0.8 navy the boat was technically in shot
-     but invisible, which defeats the point of cropping to him; the headline
-     keeps its contrast through the text-shadow below instead of through the
-     wash. The band across the middle is where the type sits. */
+  /* Anchored to the BOTTOM in pixels, not percentages: the type block is a fixed
+     ~294px while the band swings from 490px to 643px, so pixel stops keep the
+     weight exactly where the type is at every width and leave the boat, the
+     golden water and the upper net untouched. The bottom of the ramp also has to
+     stay heavy enough to hide the photo/ground join described above. */
   .hero-overlay {
     position: absolute;
     inset: 0;
     background:
-      radial-gradient(ellipse at 20% 120%, rgba(26, 91, 215, 0.28), transparent 55%),
-      linear-gradient(180deg, rgba(10, 34, 88, 0.34) 0%, rgba(10, 34, 88, 0.6) 42%, rgba(15, 47, 122, 0.55) 100%);
+      linear-gradient(
+        to top,
+        rgba(8, 26, 72, 0.94) 0,
+        rgba(8, 26, 72, 0.86) 220px,
+        rgba(7, 22, 60, 0.46) 340px,
+        rgba(6, 16, 45, 0.16) 450px,
+        rgba(6, 16, 45, 0) 570px
+      ),
+      /* a whisper of brand colour over the whole frame */
+      linear-gradient(180deg, rgba(10, 34, 88, 0.1), rgba(26, 91, 215, 0.06));
   }
 
+  /* padding-top is a PERCENTAGE on purpose. Percentage padding resolves against
+     the containing block’s width, and this photo’s height is exactly a third of
+     its width — so 13.5% of width is ~40.5% of the photo’s height at every
+     viewport size, holding the type just below the boat and over the net without
+     a single breakpoint. The bottom padding clears the 56px wave. */
   .hero-inner {
+    grid-area: hero;
+    align-self: end;
     position: relative;
     max-width: 780px;
     text-align: center;
+    padding-top: 13.5%;
+    padding-bottom: 5.5rem;
   }
 
   .hero-eyebrow {
@@ -392,7 +425,38 @@ const fullShots = Object.fromEntries(
     bottom: -1px;
     left: 0;
     width: 100%;
-    height: 90px;
+    /* was 90px — a shorter wave leaves the net’s bottom arc clear */
+    height: 56px;
+  }
+
+  /* Stacked. Below 780px the type block grows past 400px while the photo drops
+     under 260px, so the type would start over the boat and the photo/ground join
+     would fall outside the scrim’s reach. The picture takes the top on its own
+     and the type sits beneath it, where its contrast stops depending on what is
+     behind it. 780px is also .hero-inner’s max-width — the width at which the
+     text stops being capped and starts wrapping into more lines. */
+  @media (max-width: 780px) {
+    .hero {
+      grid-template-areas: 'photo' 'text';
+    }
+
+    .hero-photo {
+      grid-area: photo;
+    }
+
+    .hero-inner {
+      grid-area: text;
+      align-self: stretch;
+      /* a fixed value, not the 13.5% above: the type has to clear the photo */
+      padding-top: 2.5rem;
+      padding-bottom: 5rem;
+    }
+
+    /* nothing to darken — the type is on the gradient, and the photograph keeps
+       every bit of its colour */
+    .hero-overlay {
+      display: none;
+    }
   }
 
   /* ---- Sourcing feature ---- */

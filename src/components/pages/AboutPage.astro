@@ -4,7 +4,11 @@ import BaseLayout from '../../layouts/BaseLayout.astro';
 import PageHero from '../../components/PageHero.astro';
 import ObjectiveSection from '../../components/ObjectiveSection.astro';
 import CoreValues from '../../components/CoreValues.astro';
-import bannerAbout from '../../assets/site/banner-about-sea.jpg';
+// The visible header photograph, shown whole rather than cropped to the band.
+import bannerAbout from '../../assets/site/banner-about-fisherman-sunset.jpg';
+// Kept only as the share card: link previews render near 1.91:1, which would
+// hard-crop the 3.18:1 panorama above into an unrecognisable strip.
+import shareAbout from '../../assets/site/banner-about-sea.jpg';
 import Icon from '../../components/Icon.astro';
 import { company, divisions, siteImages } from '../../data/site';
 import { pick, t, type Lang } from '../../i18n';
@@ -30,7 +34,7 @@ const coreValues = L.values.items.map((v, i) => ({ title: v.title, body: v.text,
 
 // Social share image — this page's own hero rather than the generic
 // og-image.png, so a link pasted into WhatsApp previews distinctly.
-const share = await getImage({ src: bannerAbout, width: 1200, format: 'jpg' });
+const share = await getImage({ src: shareAbout, width: 1200, format: 'jpg' });
 ---
 
 <BaseLayout
@@ -42,7 +46,7 @@ const share = await getImage({ src: bannerAbout, width: 1200, format: 'jpg' });
   imageWidth={Number(share.attributes.width)}
   imageHeight={Number(share.attributes.height)}
 >
-  <PageHero heading={L.about.heroHeading(name)} image={bannerAbout} focus="center 30%">
+  <PageHero heading={L.about.heroHeading(name)} image={bannerAbout} alt={L.about.heroImageAlt} whole>
     <p>{L.about.heroSub}</p>
   </PageHero>
 

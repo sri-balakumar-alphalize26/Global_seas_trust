@@ -12,26 +12,39 @@ interface Props {
   /**
    * `object-position` for the banner crop. The band is a shallow strip across a
    * wide photo, so the default centre crop can throw away the subject — pass a
-   * focal point where that matters.
+   * focal point where that matters. Ignored when `whole` — there is no crop
+   * left to position.
    */
   focus?: string;
+  /**
+   * Show the whole photograph rather than cropping it to the band. The band takes
+   * the photo's own shape at full bleed, so the picture fills it exactly. Below
+   * 900px it stacks instead — photo on top, heading beneath it on the gradient —
+   * because a 3:1 strip is only about 120px tall on a phone.
+   */
+  whole?: boolean;
 }
 
-const { heading, image, alt = '', focus } = Astro.props;
+const { heading, image, alt = '', focus, whole = false } = Astro.props;
 ---
 
-<section class="page-hero-img" class:list={{ 'page-hero-img--plain': !image }}>
+<section
+  class="page-hero-img"
+  class:list={{ 'page-hero-img--plain': !image, 'page-hero-img--whole': whole && !!image }}
+>
   {
     image && (
-      <Image
-        src={image}
-        alt={alt}
-        class="ph-bg"
-        width={1600}
-        loading="eager"
-        fetchpriority="high"
-        style={focus ? `object-position:${focus}` : undefined}
-      />
+      <div class="ph-photo" style={whole ? `aspect-ratio:${image.width} / ${image.height}` : undefined}>
+        <Image
+          src={image}
+          alt={alt}
+          class="ph-bg"
+          width={whole ? image.width : 1600}
+          loading="eager"
+          fetchpriority="high"
+          style={!whole && focus ? `object-position:${focus}` : undefined}
+        />
+      </div>
     )
   }
   {image && <div class="ph-overlay" aria-hidden="true"></div>}
@@ -69,6 +82,118 @@ const { heading, image, alt = '', focus } = Astro.props;
     position: absolute;
     inset: 0;
     background: linear-gradient(160deg, rgba(10, 34, 88, 0.82) 0%, rgba(18, 58, 156, 0.6) 60%, rgba(26, 91, 215, 0.45) 100%);
+  }
+
+  /* ---- Whole-photo variant ------------------------------------------------
+     The About panorama is 3.18:1 and has to be shown entire. The band takes the
+     photo's own shape at full bleed, so the picture fills it exactly — nothing
+     cropped, nothing letterboxed — and the type sits over the water in the lower
+     half, below the sun, the horizon and the boat.
+
+     Below 900px that stops working: the strip is only about 120px tall on a
+     phone, nowhere near enough to hold a heading and a subtitle, so it stacks.
+
+     Same specificity as .page-hero-img, so this must follow it — source order
+     decides, exactly as for --plain above. */
+  .page-hero-img--whole {
+    display: grid;
+    grid-template-areas: 'hero';
+    align-items: end;
+    padding: 0;
+    /* the ground the stacked layout stands on — the same gradient as the
+       photo-less banners, so About matches Contact and Brands below 900px */
+    background: linear-gradient(120deg, var(--blue-600), var(--navy-900));
+  }
+
+  .page-hero-img--whole > * {
+    grid-area: hero;
+  }
+
+  /* Height comes from the inline aspect-ratio, set from the asset's real pixels,
+     so this box is the exact height the photo wants at this width. */
+  .page-hero-img--whole .ph-photo {
+    position: relative;
+    width: 100%;
+    align-self: start;
+  }
+
+  /* cover, not contain: the box already has the photo's own ratio, so there is
+     nothing to crop. cover only guarantees sub-pixel rounding cannot leave a
+     hairline of gradient along an edge. */
+  .page-hero-img--whole .ph-photo :global(.ph-bg) {
+    position: absolute;
+    inset: 0;
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+  }
+
+  /* Clear across the top so the sun, the sky and the fisherman keep their colour,
+     ramping to a strong navy across the lower half where the type sits. A flat
+     wash heavy enough to carry the subtitle turns the sunset brown; this leaves
+     the sky at about a tenth and puts the weight only where it is needed. The 24%
+     stop is the horizon: sky above it untouched, water below it takes the wash.
+
+     The lower stops are weighted for the *short* band, not the tall one. At 1920
+     the heading sits at 69% of the photo, over dark water; at 901 the type block
+     is the same height but the band is a third of it, so the heading rides up to
+     around 45% — into the sun's glitter path, the brightest water in the frame.
+     That worst case is what these numbers carry. */
+  .page-hero-img--whole .ph-overlay {
+    background:
+      linear-gradient(
+        180deg,
+        rgba(6, 16, 45, 0) 0%,
+        rgba(6, 16, 45, 0) 24%,
+        rgba(7, 22, 60, 0.34) 44%,
+        rgba(8, 26, 72, 0.7) 66%,
+        rgba(8, 26, 72, 0.86) 100%
+      ),
+      linear-gradient(120deg, rgba(10, 34, 88, 0.16), rgba(26, 91, 215, 0.08));
+  }
+
+  /* The padding moves off the band and onto the type, because in this variant the
+     band's height is the photograph's. */
+  .page-hero-img--whole .ph-inner {
+    padding-top: 1.5rem;
+    padding-bottom: 2.75rem;
+  }
+
+  /* body's 1.65 is far too loose for 48px display type and costs about 24px of
+     height the heading needs to clear the boat. The home hero already runs 1.15. */
+  .page-hero-img--whole h1 {
+    line-height: 1.15;
+    text-shadow: 0 2px 20px rgba(6, 16, 45, 0.75);
+  }
+
+  .page-hero-img--whole :global(p) {
+    text-shadow: 0 1px 14px rgba(6, 16, 45, 0.8);
+  }
+
+  /* Stacked. 900px is where the photograph stops being tall enough to hold the
+     type above the fisherman. Stacking shows the photo whole and at full colour,
+     and puts the type on the plain gradient, where its contrast stops being a
+     function of whatever happens to be behind it. */
+  @media (max-width: 900px) {
+    .page-hero-img--whole {
+      grid-template-areas: 'photo' 'text';
+    }
+
+    .page-hero-img--whole .ph-photo {
+      grid-area: photo;
+    }
+
+    .page-hero-img--whole .ph-inner {
+      grid-area: text;
+      padding-top: 2.5rem;
+      padding-bottom: 3rem;
+    }
+
+    /* nothing to darken — the type is on the gradient now, and the photograph
+       gets to keep every bit of its colour */
+    .page-hero-img--whole .ph-overlay {
+      display: none;
+    }
   }
 
   .ph-inner {

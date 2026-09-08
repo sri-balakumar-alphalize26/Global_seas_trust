@@ -220,3 +220,33 @@ Real photographs of these two, on a white sheet, and we will drop them straight 
 - **The sardine photo** was taken on a creased sheet under poor light, so the background came out grey rather than white. We have replaced that background with pure white and added the **same Global Seas Trust watermark** the other 24 fish carry, so it now matches the rest of the catalogue. The fish themselves are untouched and the picture is not cropped — it is your photo, full frame.
 - **The Responsible Sourcing photo is small** — 745 pixels wide, the smallest image on your site. It is fine at the size we use it, but it cannot be enlarged.
 - **Cold-Chain Intake** (step 2 of the journey) kept its existing chill-room photo. You listed five journey photos but there are six steps, and five would leave a gap in the layout.
+
+---
+
+# Update 3 — 8 September 2026
+
+**Covers:** the new sunset photograph you sent for the About page.
+
+The photograph is now the **About page header**, and it is shown **whole** — nothing cropped off any edge.
+
+This needed a change to how the header band works. Every header on the site is a shallow strip about 280 pixels tall, and the photograph behind it is cut down to fit that strip. Your new picture is a wide panorama — nearly three and a half times as wide as it is tall — so the old strip would have thrown away most of it. The About header now takes the shape of the photograph itself instead: about 450 pixels tall on a laptop and 600 on a large monitor, with the whole picture filling it edge to edge. The heading sits over the water in the lower half, below the sun and the boat.
+
+On a phone the panorama is only about 120 pixels tall, which is not enough room to put a heading on top of it. There the page **stacks** instead — the full photograph across the top, and the heading and line of text directly beneath it on the usual blue. The picture is still shown whole, and on a phone it keeps all of its colour, because nothing is laid over it.
+
+The other six page headers — Products, Infrastructure, Contact, Brands and the rest — are untouched.
+
+## The home page header
+
+You sent a wider version of the fishing photograph and asked for it to be shown in full. It is now the **home page header**, shown **whole** — nothing cropped off any edge.
+
+Before this, the home header was zoomed in about one and a half times and centred on the boat, so most of the picture was outside the frame. It now shows the whole photograph you sent: the golden water on the left, the boat, and the net spreading out below it.
+
+The header is about the same height as it was — roughly 640 pixels on a large screen against 534 before — because the picture you sent is a wide one. The heading and buttons sit below the boat, over the water.
+
+**The wave is shorter.** It was 90 pixels tall and covered the bottom of the picture; it is now 56 pixels, so the photograph is clear of it. The wave still moves and the fish still leap.
+
+On a phone the header stacks, the same way the About page does — the full photograph across the top, then the heading and buttons beneath it on the usual blue.
+
+## One note
+
+**The link preview picture is unchanged.** When someone pastes your About link into WhatsApp, the preview card is close to square, so a panorama this wide would be chopped down to a thin band with the boat cut out. The preview keeps the previous sea photograph, which is shaped for it. This only affects the little thumbnail in a chat — the page itself shows your new photograph.

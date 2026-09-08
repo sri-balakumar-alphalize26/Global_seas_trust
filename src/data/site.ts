@@ -13,7 +13,10 @@ import imgBlastFreezer2 from '../assets/site/facility-blast-freezer-2.jpg';
 import imgBlastFreezer3 from '../assets/site/facility-blast-freezer-3.jpg';
 import imgChillRoom from '../assets/site/facility-chill-room.jpg';
 import imgColdStore from '../assets/site/facility-cold-store.jpg';
-import imgHeroFishing from '../assets/site/hero-fishing.jpg';
+// The client’s own 3:1 crop of the fishing photograph, supplied 6 Sep 2026.
+// The home hero shows it whole, so the band takes this file’s shape — swapping
+// in a differently proportioned photo means updating the aspect-ratio there too.
+import imgHeroFishing from '../assets/site/hero-fishing-wide.jpg';
 import imgAboutObjective from '../assets/site/about-objective.jpg';
 // Second set, supplied 4 Sep 2026. See CLIENT-UPDATE.md — five of these are
 // AI-generated or stock rather than the company's own plant, which the client
