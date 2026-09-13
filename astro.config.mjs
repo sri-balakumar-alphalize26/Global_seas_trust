@@ -17,6 +17,11 @@ const ROUTE_META = {
 // https://astro.build/config
 export default defineConfig({
   site: 'https://www.globalseastrust.com',
+  // Vite rejects any request whose Host header isn't allow-listed. Astro reads
+  // this for both `dev` and `preview`, so the proxy can pass the real domain.
+  server: {
+    allowedHosts: ['globalseastrust.com', 'www.globalseastrust.com', 'localhost'],
+  },
   vite: {
     // Pre-bundle the phone library up front. Discovered late, Vite re-optimizes
     // mid-session and serves 504s for the old chunk until the page is reloaded.
